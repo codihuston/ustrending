@@ -1,11 +1,13 @@
 const googleTrends = require('google-trends-api');
 const fs = require('fs');
 const fetch = require("node-fetch");
+const {resolve} = require("path");
 const stream = require("stream");
 const util = require('util');
-const { memory } = require('console');
 const Writable = stream.Writable || require('readable-stream').Writable
 
+// only look at top 10 trends
+const TRENDING_LIMIT = 20;
 // contants used for google trends api requests
 const GOOGLE_TRENDING_EXPLORER_URI = 'https://trends.google.com/trends/api/explore';
 const GOOGLE_TRENDING_COMPARE_GEO_URI = 'https://trends.google.com/trends/api/widgetdata/comparedgeo';
@@ -77,92 +79,108 @@ googleTrends.dailyTrends({ geo: "US" }, async function(err, results){
     console.error(err);
   }else{
     const trendingResponse = JSON.parse(results);
-    
-    // get the search query used for this trending item
-    let keyword = trendingResponse.default.trendingSearchesDays[0].trendingSearches[0].title.query;
-    // keyword = "Washington Redskins";
 
     console.log("trendingResponse", trendingResponse);
-    console.log("search query", keyword);
+    
+    // for each trending search (from today)
+    for(const [index, value] of trendingResponse.default.trendingSearchesDays[0].trendingSearches.entries()){
+      let keyword = value.title.query;
+      const trendingRank = index + 1;
 
-    /*
-    TODO: get token from:
-    https://trends.google.com/trends/api/explore?hl=en-US&tz=300&req=%7B%22comparisonItem%22:%5B%7B%22keyword%22:%22Washington+Redskins%22,%22geo%22:%22US%22,%22time%22:%22now+7-d%22%7D%5D,%22category%22:0,%22property%22:%22%22%7D&tz=300
-    widgets[N].token where widgets[N].type = 'fe_geo_chart_explore'
+      if(index > TRENDING_LIMIT - 1) break;
 
-    This is also downloaded as a text file
-    */
-    const exploreUri = GOOGLE_TRENDING_EXPLORER_URI + "?" + getQueryString({
-      hl, 
-      tz, 
-      req: {
-        "geo": {
-          "country": GOOGLE_GEO_COUNTRY_CODE
+      console.log(`Trending #[${trendingRank}]`, keyword);
+
+      /*
+      query the Explorer API for the token used by the 'fe_geo_chart_explore'
+      widget. This is downloaded as a text file
+      */
+      const exploreUri = GOOGLE_TRENDING_EXPLORER_URI + "?" + getQueryString({
+        hl, 
+        tz, 
+        req: {
+          "geo": {
+            "country": GOOGLE_GEO_COUNTRY_CODE
+          },
+          "comparisonItem": [      
+            {
+            "keyword":keyword,
+            "geo": GOOGLE_GEO_COUNTRY_CODE,
+            "time":"now 7-d"
+            }
+          ]
         },
-        "comparisonItem": [      
-          {
-          "keyword":keyword,
-          "geo": GOOGLE_GEO_COUNTRY_CODE,
-          "time":"now 7-d"
-          }
-        ]
-      },
-      "category":0,
-      "property":""
-    });
-
-    console.log("Explore URI:", exploreUri);
-
-    // Fetch the token needed for the google trending api
-    try{
-      const memoryStoreKey = 'ExploreApiBuffer';
-      const wstream = new WriteableMemoryStream(memoryStoreKey);
-      let compareGeoRequest = {};
-
-      let res = await fetch(exploreUri);
-
-      // if we get http 429, use this hack to get past it (using cached cookie)
-      if(res.status === 429){
-        const cookie = res.headers.get('set-cookie').split(";")[0];
-        res = await(fetch(exploreUri, {
-          headers: {
-            cookie
-          }
-        }));
-      }
-
-      // stream response into memory
-      wstream.on('finish', function(){
-        const exploreResponse = getMemoryStoreKeyAsJson(memoryStoreKey);
-        for(const widget of exploreResponse['widgets']){
-          if(widget.type == GOOGLE_TRENDING_GEO_WIDGET){
-            token = widget.token;
-            compareGeoRequest = widget.request;
-            break;
-          }
-        }
-
-        getComparedGeoTrend({compareGeoRequest, keyword, token});
+        "category":0,
+        "property":""
       });
+  
+      // fetch the token needed for the google trending api
+      try{
+        const memoryStoreKey = `ExploreApiBuffer${index+1}`;
+        const wstream = new WriteableMemoryStream(memoryStoreKey);
+        let compareGeoRequest = {};
+  
+        console.log("Querying explorer URI:", exploreUri);
+        let res = await fetch(exploreUri);
+  
+        // if we get http 429, use this hack to get past it (using cached cookie)
+        if(res.status === 429){
+          const cookie = res.headers.get('set-cookie').split(";")[0];
+          res = await(fetch(exploreUri, {
+            headers: {
+              cookie
+            }
+          }));
+        }
+  
+        // stream response into memory
+        wstream.on('finish', function(){
+          try{
+            const exploreResponse = getMemoryStoreKeyAsJson(memoryStoreKey);
+            for(const widget of exploreResponse['widgets']){
+              if(widget.type == GOOGLE_TRENDING_GEO_WIDGET){
+                token = widget.token;
+                compareGeoRequest = widget.request;
+                break;
+              }
+            }
+    
+            // get the trending geo comparisons
+            getComparedGeoTrend({compareGeoRequest, keyword, token, trendingRank});
+          }
+          catch(e){
+            console.error(e);
+          }
+        });
+  
+        res.body.pipe(wstream);
 
-      res.body.pipe(wstream);
+        if(process.env.NODE_ENV == "debug"){
+          const dest = fs.createWriteStream(resolve(__dirname, `${trendingRank}-explorer.txt`));
+          res.body.pipe(dest);
+        }
+      }catch(e){
+        console.error("Error fetching explorer", e);
+      }
+    } // end for 
+  } // end else
+}); // end daily trends
 
-      // TODO: parse file (the first line is throwing off the parser) to
-      // get the token needed for the next http request
-    }catch(e){
-      console.error("Error fetching explorer", e);
-    }
-  }
-});
-
+/**
+ * Will query the ComparedGeo Google Trends API with the given options.
+ * 
+ * Returns a json-ized response from the API
+ * @param {*} opts 
+ */
 async function getComparedGeoTrend(opts){
-  const { compareGeoRequest, token} = opts;
+  const { compareGeoRequest, token, trendingRank} = opts;
 
-  if(!compareGeoRequest || !token){
-    throw new Error("A required value is not set (ht, tz, keyword, token)!");
+  if(!compareGeoRequest || !token || !trendingRank){
+    throw new Error("A required value is not set (compareGeoRequest, token, trendingRank)!");
   }
 
-   const uri = GOOGLE_TRENDING_COMPARE_GEO_URI + getQueryString({
+  // build the uri
+  const uri = GOOGLE_TRENDING_COMPARE_GEO_URI + getQueryString({
     req: compareGeoRequest,
     token
   });
@@ -174,7 +192,7 @@ async function getComparedGeoTrend(opts){
     const res = await fetch(uri);
 
     // stream response into memory
-    const memoryStoreKey = 'ComparedGeoApiBuffer';
+    const memoryStoreKey = `ComparedGeoApiBuffer-${trendingRank}`;
     const wstream = new WriteableMemoryStream(memoryStoreKey);
 
     wstream.on('finish', function(){
@@ -183,6 +201,11 @@ async function getComparedGeoTrend(opts){
     });
 
     res.body.pipe(wstream);
+
+    if(process.env.NODE_ENV == "debug"){
+      const dest = fs.createWriteStream(resolve(__dirname, `${trendingRank}-geocompare.txt`));
+      res.body.pipe(dest);
+    }
   }
   catch(e){
     console.error("Error fetching Compared Geo", e)
