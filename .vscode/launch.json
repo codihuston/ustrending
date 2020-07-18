@@ -11,7 +11,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}\\worker-daily\\index.js",
+      "program": "${file}",
       "env": {
         "NODE_ENV": "debug"
       }

@@ -158,6 +158,7 @@ googleTrends.dailyTrends({ geo: "US" }, async function(err, results){
         if(process.env.NODE_ENV == "debug"){
           const dest = fs.createWriteStream(resolve(__dirname, `${trendingRank}-explorer.txt`));
           res.body.pipe(dest);
+          fs.writeFileSync(resolve(__dirname, "_trendingResponse.json"), JSON.stringify(trendingResponse, null, 4));
         }
       }catch(e){
         console.error("Error fetching explorer", e);
@@ -203,7 +204,7 @@ async function getComparedGeoTrend(opts){
     res.body.pipe(wstream);
 
     if(process.env.NODE_ENV == "debug"){
-      const dest = fs.createWriteStream(resolve(__dirname, `${trendingRank}-geocompare.txt`));
+      const dest = fs.createWriteStream(resolve(__dirname, ));
       res.body.pipe(dest);
     }
   }
