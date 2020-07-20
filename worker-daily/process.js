@@ -35,11 +35,12 @@ for(let i=0; i < TRENDING_LIMIT; i++){
   // for each state, calculate the top trending topic (for now, increase to 3+ later)
   for(const [index, state] of data.default.geoMapData.entries()){
     // state does not exist in map
-    if(!results.has(state.geoCode)){
+    if(!results.has(state.geoName)){
       // simply init this value
-      results.set(state.geoCode, [{
+      results.set(state.geoName, [{
         topic: topic.title.query,
-        value: state.hasData && state.value[0] || 0
+        value: state.hasData && state.value[0] || 0,
+        geoCode: state.geoCode
       }])
     }
     // state exists in map
@@ -47,8 +48,9 @@ for(let i=0; i < TRENDING_LIMIT; i++){
       // compare what is in the results, to state.value[]
       const value = state.hasData && state.value[0] || 0;
       let z = 0;
-      // console.log(results.get(state.geoCode));
-      results.set(state.geoCode, results.get(state.geoCode).concat({topic: topic.title.query, value}).sort(function(a,b){
+      // console.log(results.get(state.geoName));
+      results.set(state.geoName, results.get(state.geoName).concat({topic: topic.title.query, value,
+        geoCode: state.geoCode}).sort(function(a,b){
         if(a.value > b.value){
           return -1;
         }
@@ -57,10 +59,12 @@ for(let i=0; i < TRENDING_LIMIT; i++){
     }
   }
 } // end for
-if(process.env.NODE_ENV == "debug"){
+
+console.log("results ->", resolve(__dirname, "_trendingByState.json"), results);
+
+if(process.env.NODE_ENV === "debug"){
   console.log("Writing output...", results.keys());
-  Map.prototype.toJSON = function(){ return [...this]}
+  Map.prototype.toJSON = function(){ return {...this}}
   fs.writeFileSync(resolve(__dirname, "_trendingByState.json"), JSON.stringify(results));
 }
-console.log("results ->", resolve(__dirname, "_trendingByState.json"), results);
 true;
