@@ -64,7 +64,7 @@ console.log("results ->", resolve(__dirname, "_trendingByState.json"), results);
 
 if(process.env.NODE_ENV === "debug"){
   console.log("Writing output...", results.keys());
-  Map.prototype.toJSON = function(){ return {...this}}
+  Map.prototype.toJSON = function(){ return [...this]}
   fs.writeFileSync(resolve(__dirname, "_trendingByState.json"), JSON.stringify(results));
 }
 true;
