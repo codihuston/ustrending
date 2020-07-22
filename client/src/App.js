@@ -9,8 +9,10 @@ function App() {
   const [content, setContent] = useState("");
   return (
     <div>
+      TODO: Show top trends here
       <MapChart setTooltipContent={setContent} />
       <ReactTooltip html={true}v multiline={true}>{content}</ReactTooltip>
+      TODO: Show trends in order per state here
     </div>
   );
 }
