@@ -10,7 +10,7 @@ function App() {
   return (
     <div>
       <MapChart setTooltipContent={setContent} />
-      <ReactTooltip html={true}>{content}</ReactTooltip>
+      <ReactTooltip html={true}v multiline={true}>{content}</ReactTooltip>
     </div>
   );
 }
