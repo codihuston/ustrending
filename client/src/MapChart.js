@@ -131,6 +131,13 @@ const MapChart = ({ setTooltipContent }) => {
                 const cur = allStates.find(s => s.val === geo.id);
 
                 console.log(centroid, geo)
+                /*
+                TODO: maybe instead of the state abbreviation, or along side it,
+                show the trend # that is #1 trending in this state.
+                
+                For example, if trend # 2 is top trending in KY, show 2 there.
+                */
+              
                 return (
                   <g key={geo.rsmKey + "-name"}>
                     {cur &&
