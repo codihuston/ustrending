@@ -13,6 +13,8 @@
  * 4. [] store to redis
  */
 const Redis = require("ioredis");
+const trends = require("./lib/trends");
+
 const client = new Redis({
   port: process.env.REDIS_PORT, // Redis port
   host: process.env.REDIS_HOST, // Redis host
@@ -25,8 +27,11 @@ client.on("connect", function(){
   console.log("Connected to redis!");
 });
 
-client.on("ready", function(){
-  console.log("Redis connection ready!");
+client.on("ready", async function(){
+  console.log("Redis connection ready!!");
+  // TODO: implement cron here
+  await trends.getDailyTrends();
+  // TODO: get data and process it
 });
 
 client.on("close", function(){
