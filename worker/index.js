@@ -29,9 +29,14 @@ client.on("connect", function(){
 
 client.on("ready", async function(){
   console.log("Redis connection ready!!");
-  // TODO: implement cron here
-  await trends.getDailyTrends();
-  // TODO: get data and process it
+  try{
+    // TODO: implement cron here
+    await trends.getDailyTrends();
+    // TODO: get data and process it 
+  }
+  catch(e){
+    console.error(e);
+  }
 });
 
 client.on("close", function(){

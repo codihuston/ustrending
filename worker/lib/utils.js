@@ -4,12 +4,12 @@ const Writable = stream.Writable || require('readable-stream').Writable
 // a memory store buffer consisting of google trending api responses
 const memoryStore = {};
 
+
+/*******************************************************************************
+ * PRIVATE API
+ ******************************************************************************/
 function getMemoryStoreKey(key){
   return memoryStore[key].toString().replace(/.*\n/, "");
-}
-
-module.exports.getMemoryStoreKeyAsJson = function (key){
-  return JSON.parse(getMemoryStoreKey(key));
 }
 
 /* Writable memory stream */
@@ -23,8 +23,17 @@ function WriteableMemoryStream(key, options) {
   memoryStore[key] = Buffer.from([]); // empty
 }
 
+// create custom writable memory stream
 util.inherits(WriteableMemoryStream, Writable);
 
+/**
+ * Overrides default _write method. Will process a memory
+ * stream into the custom `memoryStore` map.
+ * 
+ * @param {*} chunk 
+ * @param {*} enc 
+ * @param {*} cb 
+ */
 WriteableMemoryStream.prototype._write = function (chunk, enc, cb) {
   // our memory store stores things in buffers
   var buffer = (Buffer.isBuffer(chunk)) ?
@@ -36,14 +45,21 @@ WriteableMemoryStream.prototype._write = function (chunk, enc, cb) {
   cb();
 };
 
+/*******************************************************************************
+ * Public API
+ ******************************************************************************/
+module.exports.getMemoryStoreKeyAsJson = function (key){
+  return JSON.parse(getMemoryStoreKey(key));
+}
+
 module.exports.WriteableMemoryStream = WriteableMemoryStream;
 
+/**
+ * Builds the querystring that is set to the google trending API (as requried
+ * by the API itself). Converts a json object into a valid querystring parameter
+ * @param {*} opts 
+ */
 module.exports.getQueryString = function (opts){
-  /**
-   * builds the querystring used to sent to the google trending API
-   * 
-   */
-
   let queryString = `?`;
 
   console.log("Given options", opts);
