@@ -8,6 +8,7 @@ import {
   Marker
 } from "react-simple-maps";
 import allStates from "./allstates.json";
+import trendingResponse from "./_trendingResponse.json";
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
@@ -41,28 +42,14 @@ const labelStyle = {
 }
 
 // TODO: get top 20 trends, assign colors to them "#000000"
-const colors = {
-  "Tamar Braxton": "#e6194b", 
-  "Discord": "#3cb44b",
-  "Mary Trump": "#ffe119",
-  "Ruth Bader Ginsburg": "#4363d8",
-  "Portland": "#f58231",
-  "Cursed": "#911eb4",
-  "James Harden": "#46f0f0",
-  "Gavin Newsom": "#f032e6",
-  "Krispy Kreme": "#bcf60c",
-  "Kayleigh McEnany": "#fabebe",
-  "Princess Beatrice": "#008080",
-  "Lucy Hale": "#e6beff",
-  "Mortgage rates": "#9a6324",
-  "Bryson DeChambeau": "#fffac8",
-  "Hayden Panettiere": "#800000",
-  "Eliot Engel": "#aaffc3",
-  "The Chicks": "#808000",
-  "Gaslighter": "#ffd8b1",
-  "Karen": "#000075",
-  "Dustin Honken": "#808080",
-  "Kaia Gerber": "#ffffff"}
+
+const top20 = trendingResponse.default.trendingSearchesDays[0].trendingSearches.map(x => x.title.query);
+const colorsByTopic = {};
+const colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000'];
+
+top20.forEach((x,i) => {
+  colorsByTopic[x] = colors[i];
+});
 
 const MapChart = ({ setTooltipContent }) => {
   const fontSize = 14;
@@ -91,7 +78,7 @@ const MapChart = ({ setTooltipContent }) => {
                       react-tooltip?
                     */
                     setTooltipContent(trendingByState.get(name).map((x,i) => {
-                      return `${i} - ${x.topic} - ${colors[x.topic]}`
+                      return `<span style="color: ${colorsByTopic[x.topic]};">${i} - ${x.topic} - ${colorsByTopic[x.topic]}</span>`
                     }).join("<br>"))
                   }}
                   onMouseLeave={() => {
@@ -118,7 +105,7 @@ const MapChart = ({ setTooltipContent }) => {
 
                     if(numberOneTopic){
                       console.log("Set color for", numberOneTopic);
-                      style.default.fill = colors[numberOneTopic];
+                      style.default.fill = colorsByTopic[numberOneTopic];
                     }
 
                     return style;
