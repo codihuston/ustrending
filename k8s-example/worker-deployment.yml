@@ -23,6 +23,8 @@ spec:
               memory: "128Mi"
               cpu: "0.1"
           env:
+            - name: GOOGLE_GEO_COUNTRY_CODE
+              value: "US"
             - name: MAX_TREND_LIMIT
               value: "1"
             # redis config

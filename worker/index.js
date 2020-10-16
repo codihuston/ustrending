@@ -12,8 +12,11 @@
  * 3. [] process trend/state rankings for clients to use
  * 4. [] store to redis
  */
+const debug = require("debug")("worker:index");
 const Redis = require("ioredis");
 const trends = require("./lib/trends");
+const explorer = require("./lib/explorer");
+const utils = require("./lib/utils");
 
 const client = new Redis({
   port: process.env.REDIS_PORT, // Redis port
@@ -28,13 +31,25 @@ client.on("connect", function(){
 });
 
 client.on("ready", async function(){
-  console.log("Redis connection ready!!");
+  console.log("Redis connection ready!");
   try{
     // TODO: implement cron here
-    await trends.getDailyTrends();
+
+    // TODO: get all daily trends
+    const dailyTrends = await trends.getDailyTrends();
+    debug("daily trends", dailyTrends);
+
+    if(!dailyTrends){
+      throw new Error("Unable to fetch daily trends from Google Trends API!");
+    }
+
+    // TODO: get explorer trends
+    const explorerTrends = await explorer.getExplorerTrends(dailyTrends);
+    debug("explorer trends", explorerTrends);
     // TODO: get data and process it 
   }
   catch(e){
+    // TODO: notify admins?
     console.error(e);
   }
 });

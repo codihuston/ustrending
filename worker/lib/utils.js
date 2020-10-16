@@ -1,3 +1,4 @@
+const debug = require("debug")("worker:utils");
 const stream = require("stream");
 const util = require('util');
 const Writable = stream.Writable || require('readable-stream').Writable
@@ -8,8 +9,8 @@ const memoryStore = {};
 /*******************************************************************************
  * PRIVATE API
  ******************************************************************************/
-function getMemoryStoreKey(key){
-  return memoryStore[key].toString().replace(/.*\n/, "");
+function getMemoryStoreKeyValue(key){
+  return memoryStore[key];
 }
 
 /* Writable memory stream */
@@ -45,12 +46,34 @@ WriteableMemoryStream.prototype._write = function (chunk, enc, cb) {
   cb();
 };
 
+function getMemoryStoreKeyAsObject(key){
+  const val = getMemoryStoreKeyValue(key);
+
+  // if we got a value back
+  if(val){
+    // strip up invalid first line: )]}'
+    const str = val.toString().replace(/.*\n/, "");
+    
+    debug(`memoryStore[${key}] as object => `, JSON.parse(str));
+
+    // then parse as json
+    return str ? JSON.parse(str) : null;
+  }
+  return null;
+}
+
 /*******************************************************************************
  * Public API
  ******************************************************************************/
-module.exports.getMemoryStoreKeyAsJson = function (key){
-  return JSON.parse(getMemoryStoreKey(key));
-}
+module.exports.getMemoryStoreAsObject = function(){
+  let res = [];
+  for(const [key] of Object.entries(memoryStore)){
+    res.push(getMemoryStoreKeyAsObject(key));
+  }
+  return res;
+};
+
+module.exports.getMemoryStoreKeyAsObject = getMemoryStoreKeyAsObject;
 
 module.exports.WriteableMemoryStream = WriteableMemoryStream;
 
@@ -62,7 +85,7 @@ module.exports.WriteableMemoryStream = WriteableMemoryStream;
 module.exports.getQueryString = function (opts){
   let queryString = `?`;
 
-  console.log("Given options", opts);
+  debug("Given options", opts);
 
   for(const [key, value] of Object.entries(opts)){
     // encoding json object
