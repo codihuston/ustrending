@@ -1,3 +1,11 @@
+/**
+ * TODO: 
+ * 1. [] connect to redis
+ * 2. [] create route to fetch current trends (used by clients for initial
+ * page load)
+ * 3. [] implement socket.io / subscribe to redis / publish to clients
+ *    on change? should this be a separate container/service?)
+ */
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');

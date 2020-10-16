@@ -1,3 +1,10 @@
+/**
+ * TODO:
+ * 
+ * 1. [] query api for latest trends
+ * 2. [] connect to websocket server
+ * 3. [] listen for published changes
+ */
 import React, {useState} from 'react';
 import ReactDOM from "react-dom";
 import ReactTooltip from "react-tooltip";
