@@ -7,7 +7,8 @@ const utils = require("./utils");
 const defaults = require("./defaults");
 
 // only look at top # trends
-const TRENDING_LIMIT = parseInt(process.env.MAX_TREND_LIMIT) || defaults.MAX_TREND_LIMIT;
+const TRENDING_LIMIT =
+  parseInt(process.env.MAX_TREND_LIMIT) || defaults.MAX_TREND_LIMIT;
 // contants used for google trends api requests
 const GOOGLE_TRENDING_EXPLORER_URI =
   "https://trends.google.com/trends/api/explore";
@@ -16,9 +17,14 @@ const GOOGLE_TRENDING_COMPARE_GEO_URI =
 const GOOGLE_TRENDING_GEO_WIDGET = "fe_geo_chart_explore";
 // shows trending for current trending topic for this country, see:
 // https://developers.google.com/adwords/api/docs/appendix/geotargeting
-const GOOGLE_GEO_COUNTRY_CODE = process.env.GOOGLE_GEO_COUNTRY_CODE || defaults.GOOGLE_GEO_COUNTRY_CODE;
-const GOOGLE_HOST_LANGUAGE = process.env.GOOGLE_HOST_LANGUAGE || defaults.GOOGLE_HOST_LANGUAGE;
-const GOOGLE_TIME_ZONE = process.env.GOOGLE_TIME_ZONE || defaults.GOOGLE_TIME_ZONE;
+const GOOGLE_GEO_COUNTRY_CODE =
+  process.env.GOOGLE_GEO_COUNTRY_CODE || defaults.GOOGLE_GEO_COUNTRY_CODE;
+const GOOGLE_HOST_LANGUAGE =
+  process.env.GOOGLE_HOST_LANGUAGE || defaults.GOOGLE_HOST_LANGUAGE;
+const GOOGLE_TIME_ZONE =
+  process.env.GOOGLE_TIME_ZONE || defaults.GOOGLE_TIME_ZONE;
+const GOOGLE_GEO_TIME_RANGES =
+  process.env.GOOGLE_GEO_TIME_RANGES || defaults.GOOGLE_GEO_TIME_RANGES;
 // the token used when querying the Google "compared geo" API
 let token = "";
 
@@ -33,47 +39,33 @@ let token = "";
  * @param {*} dailyTrends
  */
 module.exports.getExplorerTrends = async (dailyTrends) => {
+  // get the most recent trending searches from the given daily trends response
+  const dt = dailyTrends.default?.trendingSearchesDays?.[0]?.trendingSearches;
+
+  if (!dt) {
+    console.warn("No daily trends -- cannot explore them.");
+    return null;
+  }
+
   // for each trending item (from today)
-  for (const [
-    index,
-    value,
-  ] of dailyTrends.default.trendingSearchesDays[0].trendingSearches.entries()) {
+  for (const [index, value] of dt.entries()) {
     let keyword = value.title.query;
     const trendingRank = index + 1;
 
     if (trendingRank > TRENDING_LIMIT) {
-      console.warn(`Breaking prematurely: TRENDING LIMIT exceeded: ${index}`);
+      console.warn(
+        `Breaking prematurely: TRENDING LIMIT [${TRENDING_LIMIT}] exceeded, currently: ${trendingRank}`
+      );
       break;
     }
 
     debug(`Trending #[${trendingRank}]`, keyword);
 
-  /*
-  query the Explorer API for the token used by the 'fe_geo_chart_explore'
-  widget. This is downloaded as a text file
-  */
-    const exploreUri =
-      GOOGLE_TRENDING_EXPLORER_URI +
-      "?" +
-      utils.getQueryString({
-        hl: GOOGLE_HOST_LANGUAGE,
-        tz: GOOGLE_TIME_ZONE,
-        req: {
-          geo: {
-            country: GOOGLE_GEO_COUNTRY_CODE,
-          },
-          comparisonItem: [
-            {
-              keyword: keyword,
-              geo: GOOGLE_GEO_COUNTRY_CODE,
-              // TODO: globalize this via env vars?
-              time: "now 7-d",
-            },
-          ],
-        },
-        category: 0,
-        property: "",
-      });
+    /*
+    query the Explorer API for the token used by the 'fe_geo_chart_explore'
+    widget. This is downloaded as a text file
+    */
+    const exploreUri = getUri(keyword);
 
     // fetch the token needed for the google trending api
     try {
@@ -90,7 +82,7 @@ module.exports.getExplorerTrends = async (dailyTrends) => {
         res = await fetch(exploreUri, {
           headers: {
             cookie,
-            'charset': "utf-8"
+            charset: "utf-8",
           },
         });
       }
@@ -98,7 +90,9 @@ module.exports.getExplorerTrends = async (dailyTrends) => {
       // stream response into memory
       wstream.on("finish", function () {
         try {
-          const exploreResponse = utils.getMemoryStoreKeyAsObject(memoryStoreKey);
+          const exploreResponse = utils.getMemoryStoreKeyAsObject(
+            memoryStoreKey
+          );
           for (const widget of exploreResponse["widgets"]) {
             if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
               token = widget.token;
@@ -138,6 +132,31 @@ module.exports.getExplorerTrends = async (dailyTrends) => {
 /*******************************************************************************
  * Private API
  ******************************************************************************/
+
+function getUri(keyword) {
+  return (
+    GOOGLE_TRENDING_EXPLORER_URI +
+    "?" +
+    utils.getQueryString({
+      hl: GOOGLE_HOST_LANGUAGE,
+      tz: GOOGLE_TIME_ZONE,
+      req: {
+        geo: {
+          country: GOOGLE_GEO_COUNTRY_CODE,
+        },
+        comparisonItem: [
+          {
+            keyword: keyword,
+            geo: GOOGLE_GEO_COUNTRY_CODE,
+            time: GOOGLE_GEO_TIME_RANGES,
+          },
+        ],
+      },
+      category: 0,
+      property: "",
+    })
+  );
+}
 
 /**
  * Will query the ComparedGeo Google Trends API with the given options.
