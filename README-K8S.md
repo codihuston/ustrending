@@ -1,0 +1,208 @@
+# Getting Started
+
+> NOTE: This file was ported over from another project, and is a work in
+progress!
+
+## For Developers
+
+This document will tell you how to begin developing on this boilerplate.
+Documentation that details exactly either component in this project will be
+contained in the `docs` directory of each respective component. This only
+serves as an entry point into developing on the application it self; that is,
+how to start the application(s).
+
+Currently, you can develop in this project by starting it using the
+following tooling:
+
+1. Using `skaffold` (multi-container)
+
+In the future, there may be more ways to develop on this project.
+
+## Developing Using Skaffold
+
+This method relies on Kubernetes to run this project in a multi-container
+environment on any platform that supports Kubernetes in some form or fashion. The benefit of this is, we take this straight to production at
+scale with a few changes!
+
+### Prerequisites
+
+1. Kubernetes is installed ([Docker Desktop](https://www.docker.com/products/docker-desktop) with Kubernetes Enabled)
+
+    - Docker > Settings > Kubernetes > Check, Enable Kubernetes > Apply & Restart
+    - A [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) setup with `kubectl` should suffice as well
+    - Ultimately, when `kubectl` is operational
+    > NOTE: You may want to go to Docker > Settings > Resources and expand the
+    available resources to the K8s cluster. In the next section, you can
+    take advantage of those resources when you copy k8s configs to the
+    dev directory
+
+2. [Skaffold](https://skaffold.dev/) is installed
+
+### Starting the Project
+
+1. In order to begin, we must set up [ingress-nginx](https://kubernetes.github.io/ingress-nginx/). It is possible that you may already have one enabled on your machine. If that is the case, you may skip this setup.
+Otherwise, use the provided `ingress-nginx-config-example.yml` file as such:
+
+    ```cmd
+    kubectl apply -f ingress-nginx-config-example.yml
+    ```
+
+    This will install the `ingress controller`, which we will later configure
+    using an `ingress service`. The service will route traffic to the app(s)
+    as per the rules defined in our `k8s-dev\ingres-service.yml` file.
+
+    > Note: Once you restart your computer, you may have to restart this
+    controller in order to view your web app via your browser
+
+1. Copy the contents of the `k8s-examples` directory to the `k8s-development`
+
+    > Note: If you want to configure environment variables or other default
+    configurations, do so in the destination directory mentioned above.
+    The defaults work out-of-box for `Windows w/ Docker Desktop Kubernetes`.
+    See `k8s-dev/README.md` if you are operating in a different environment
+    for additional instructions
+
+1. Initialize secure environment variables. You can do this in your bash
+profile (Linux) or user/machine-level environment variables (Windows)
+
+    1. `FONTAWESOME_NPM_AUTH_TOKEN=GET_KEY_FROM_REPO_OWNER`.
+
+    > NOTE: This is used to authenticate to the fontawesome pro
+    registry, `and is required when building the client application.`
+
+1. Copy the contents of...
+
+    1. `server/.env-example` to `server/.env-development` and `server/.env-test`
+
+    1. `client/.env-example` to `client/.env-development` and `client/.env-test`
+
+    A few things to know about these files:
+
+    1. Out-of-box, these mirror the environment variables in the `k8s-dev/*-deployments.yml` files
+
+    1. The variables here will NOT overwrite any environment variables
+    pre-defined in said `k8s` files, as the `.env-*` files are ignored from the docker image build process, and will never appear in the `k8s` Pods
+
+    1. The purpose of doing this step is so that the commands used to set up the database (discussed later in this step-by-step) or run tests for the server can be
+    ran from your local machine (see: Testing the Server)
+
+    > Note: Any `REQUIRED` variables that exist in the `.env-example` file also should be defined in the `k8s-dev/*-deployments.yml` files!
+
+1. Install dependencies for each project.
+
+    ```cmd
+    cd server
+    yarn install
+
+    cd client
+    yarn install
+    ```
+
+    > Note that the `node_modules` directories are excluded during
+    the docker image process via `.dockerignore`, so you shouldn't see any
+    performance drops as as result of installing dependencies
+
+1. From the project root, run the `Skaffold` config file
+
+    ```cmd
+    skaffold dev
+    ```
+
+    > Note: You may see an error printed by the API server indicating a database error. This will be addressed in the next step.
+
+    > Note: You can exit the `Skaffold` via SIGINT (ctrl+c). Exiting `Skaffold`
+    will destroy any Kubernetes Objects defined in `k8s-dev`. The Persistent
+    Volume Claims should persist between `Skaffold` instances.
+
+    You can run the following commands to get the status of the
+    services/deployments/pods:
+
+    ```cmd
+    kubectl get ingress
+    kubectl get services
+    kubectl get deployments
+    kubectl get pods
+
+    kubectl describe service|deployment|pod <object_name>
+    ```
+
+    After the deployments are ready, the Kubernetes cluster is served at `localhost` on port `:8080` or `:443` (`WARNING:` no tls/ssl cert is used in development!). These ports are configured by default using `ingress-nginx-config.yml`. If you need to change those for any reason, make those changes to a new file locally named `ingress-nginx.yml`, and do not commit it to source (that filename is excluded from this repo by default).
+
+    This step will apply the kubernetes config files from `k8s-dev` into the
+    kubernetes cluster. This process works like so:
+
+    1. Initialize the Kubernetes Objects as per their definitions
+    1. Builds a docker image locally from each of the `Dockerfile.dev` files (if any) for the services being developed on in this project
+    1. Skaffold will listen for file changes and attempt to apply them to the containers without having to re-build them (if possible) and automatically rollout the changes to each of the deployments. These live updates might take a little more time than developing without `Skaffold`
+
+    The applications in this project are served on `localhost` as follows:
+
+    1. Client / front-end app: `localhost`
+    1. API Server: `localhost/api`
+    1. Redis Server: for now, you'll have to `ssh` into the container itself
+       to access this server.
+
+### Testing the Project
+
+You can run tests as follows:
+
+1. The ideal option: run tests Locally (on your host machine, while your pods are running)
+
+    `IMPORTANT:` Be sure that your dependencies are installed locally. Also
+    recall that your `.env-*` files must be configured as mentioned
+    previously in order for the tests that need to access external resouces
+    (e.g. the database).
+
+    The reason this is the preferred method is because the testing database
+    can be kept entirely separate from the `development` database.
+
+    Simply run `yarn run test` in the directory of the application that you
+    want to test.
+
+    > Note: Unit tests should not rely on external sources.
+    
+    > Note: Integration tests should test larger pieces of the codebase, and
+    sometimes, it may be appropriate to read/write to/from external services
+    (e.g. the database)
+
+    > Note: The End-to-End tests should be implemented
+    in by Testing Server (which this repo does not provide) during CI/CD. That
+    environment could make use of the `yarn test:db:*` commands if it needed to
+    configure such a database for such environment, exactly how the
+    `yarn dev:db:*` commands do
+
+  1. A secondary option: within the context of the pods
+
+      The reason that this is the secondary option is because, if you
+      run the tests from within the pods, the tests will be run using the
+      environment variables defined within said pods. Remember that the
+      `.env-*` files are not applied to the pods out-of-box, and that those
+      variables are defined in the `k8s-dev` files.
+
+      That is, if you run tests in the pods initialized from the `skaffold`
+      setup, those pods will contain the environment variables for the
+      `development` environment, and therefore your integration tests
+      may write to that database!
+
+      ```cmd
+      > kubectl get pods
+
+      NAME                                 READY   STATUS    RESTARTS   AGE
+      client-deployment-5dbd5ccd7f-nv8q5   1/1     Running   0          11m
+      server-deployment-747bfc4578-jfwd5   1/1     Running   0          11m
+      sql-deployment-5b8d4c57b-75q9c       1/1     Running   0          11m
+
+      # test the client
+      > kubectl exec -it client-deployment-5dbd5ccd7f-nv8q5 yarn run test
+
+      # test the server
+      > kubectl exec -it server-deployment-747bfc4578-jfwd5 yarn run test
+      ```
+
+  1. In the CI/CD pipeline
+
+      1. At some point in the pipeline you should build all of the
+      `<application>/Dockerfile.dev` files with the `npm run test` command set as the image Default Command. Be sure to inject the necessary
+      environment variables when running the image
+      1. You should then run each of those images, stopping the pipeline if
+      any of those fail unexpectedly
