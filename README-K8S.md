@@ -66,9 +66,12 @@ Otherwise, use the provided `ingress-nginx-example.yml` file as such:
     See `k8s-dev/README.md` if you are operating in a different environment
     for additional instructions
 
+    1. Replace the `REPLACE_ME_WITH_YOUR_DOCKER_ID` token in that file with
+    your name (if you want to use your own dockerhub). Not a strict requirement
+    if not
+
 1. Copy `skaffold-example.yml` to `skaffold.yml`; replace the
-`REPLACE_ME_WITH_YOUR_DOCKER_ID` token in that file with your name (if
-you want to use your own dockerhub). Not a strict requirement if not
+`REPLACE_ME_WITH_YOUR_DOCKER_ID` in this file as well
 
 1. Install dependencies for each project.
 

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: worker
+  template:
+    metadata:
+      labels:
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.1"
+            limits:
+              memory: "128Mi"
+              cpu: "0.1"
+          env:
+            # redis config
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_FAMILY
+              value: "4"
