@@ -66,6 +66,7 @@ module.exports.getExplorerTrends = async (dailyTrends) => {
             {
               keyword: keyword,
               geo: GOOGLE_GEO_COUNTRY_CODE,
+              // TODO: globalize this via env vars?
               time: "now 7-d",
             },
           ],
