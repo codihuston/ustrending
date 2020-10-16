@@ -41,10 +41,14 @@ scale with a few changes!
 ### Starting the Project
 
 1. In order to begin, we must set up [ingress-nginx](https://kubernetes.github.io/ingress-nginx/). It is possible that you may already have one enabled on your machine. If that is the case, you may skip this setup.
-Otherwise, use the provided `ingress-nginx-config-example.yml` file as such:
+Otherwise, use the provided `ingress-nginx-example.yml` file as such:
 
     ```cmd
-    kubectl apply -f ingress-nginx-config-example.yml
+    # to init / update
+    kubectl apply -f ingress-nginx-example.yml
+
+    # to delete (takes time)
+    kubectl delete -f ingress-nginx-example.yml
     ```
 
     This will install the `ingress controller`, which we will later configure
@@ -62,31 +66,9 @@ Otherwise, use the provided `ingress-nginx-config-example.yml` file as such:
     See `k8s-dev/README.md` if you are operating in a different environment
     for additional instructions
 
-1. Initialize secure environment variables. You can do this in your bash
-profile (Linux) or user/machine-level environment variables (Windows)
-
-    1. `FONTAWESOME_NPM_AUTH_TOKEN=GET_KEY_FROM_REPO_OWNER`.
-
-    > NOTE: This is used to authenticate to the fontawesome pro
-    registry, `and is required when building the client application.`
-
-1. Copy the contents of...
-
-    1. `server/.env-example` to `server/.env-development` and `server/.env-test`
-
-    1. `client/.env-example` to `client/.env-development` and `client/.env-test`
-
-    A few things to know about these files:
-
-    1. Out-of-box, these mirror the environment variables in the `k8s-dev/*-deployments.yml` files
-
-    1. The variables here will NOT overwrite any environment variables
-    pre-defined in said `k8s` files, as the `.env-*` files are ignored from the docker image build process, and will never appear in the `k8s` Pods
-
-    1. The purpose of doing this step is so that the commands used to set up the database (discussed later in this step-by-step) or run tests for the server can be
-    ran from your local machine (see: Testing the Server)
-
-    > Note: Any `REQUIRED` variables that exist in the `.env-example` file also should be defined in the `k8s-dev/*-deployments.yml` files!
+1. Copy `skaffold-example.yml` to `skaffold.yml`; replace the
+`REPLACE_ME_WITH_YOUR_DOCKER_ID` token in that file with your name (if
+you want to use your own dockerhub). Not a strict requirement if not
 
 1. Install dependencies for each project.
 
@@ -196,13 +178,12 @@ You can run tests as follows:
       > kubectl exec -it client-deployment-5dbd5ccd7f-nv8q5 yarn run test
 
       # test the server
-      > kubectl exec -it server-deployment-747bfc4578-jfwd5 yarn run test
+      > kubectl exec -it server-deployment-747bfc4578-jfwd5 npm run test
       ```
 
   1. In the CI/CD pipeline
 
       1. At some point in the pipeline you should build all of the
-      `<application>/Dockerfile.dev` files with the `npm run test` command set as the image Default Command. Be sure to inject the necessary
-      environment variables when running the image
+      `<application>/Dockerfile.dev` files with the `npm run test` command set as the image Default Command. Be sure to inject the necessary environment variables when running the image (if any)
       1. You should then run each of those images, stopping the pipeline if
       any of those fail unexpectedly
