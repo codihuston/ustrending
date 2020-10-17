@@ -49,7 +49,9 @@ module.exports.exploreTrends = async (dailyTrends) => {
 
   // for each trending item (from today)
   for (const [index, value] of dt.entries()) {
-    let keyword = value.title.query;
+    const keyword = value.title.query;
+    const exploreUri = getUri(keyword);
+    const memoryStoreKey = `ExploreApiBuffer${index + 1}`;
     const trendingRank = index + 1;
 
     if (trendingRank > TRENDING_LIMIT) {
@@ -65,65 +67,7 @@ module.exports.exploreTrends = async (dailyTrends) => {
     query the Explorer API for the token used by the 'fe_geo_chart_explore'
     widget. This is downloaded as a text file
     */
-    const exploreUri = getUri(keyword);
-
-    // fetch the token needed for the google trending api
-    try {
-      const memoryStoreKey = `ExploreApiBuffer${index + 1}`;
-      const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
-      let compareGeoRequest = {};
-
-      debug("Querying explorer URI:", exploreUri);
-      let res = await fetch(exploreUri);
-
-      // if we get http 429, use this hack to get past it (using cached cookie)
-      if (res.status === 429) {
-        const cookie = res.headers.get("set-cookie").split(";")[0];
-        res = await fetch(exploreUri, {
-          headers: {
-            cookie,
-            charset: "utf-8",
-          },
-        });
-      }
-
-      // stream response into memory
-      wstream.on("finish", async function () {
-        try {
-          // get the response we just wrote to the memory store
-          const exploreResponse = utils.getMemoryStoreKeyAsObject(
-            memoryStoreKey
-          );
-
-          // parse the response body for a token
-          for (const widget of exploreResponse["widgets"]) {
-            if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
-              token = widget.token;
-              compareGeoRequest = widget.request;
-              break;
-            }
-          } // end for
-
-          // use this token to get the trending geo comparisons
-          await getComparedGeoTrend({
-            compareGeoRequest,
-            keyword,
-            token,
-            trendingRank,
-          });
-        } catch (e) {
-          console.error(e);
-        }
-      }); // end write stream
-
-      // write response body to the stream
-      res.body.pipe(wstream);
-
-      // debugging purposes
-      debugExplorerResponse(res, trendingRank);
-    } catch (e) {
-      console.error("Error fetching explorer", e);
-    }
+    await exploreTrend(exploreUri, trendingRank, memoryStoreKey);
   } // end for
 
   // *** DOES NOT WORK*** TODO: once completed, return the full memorystore object?
@@ -159,6 +103,76 @@ function getUri(keyword) {
       property: "",
     })
   );
+}
+
+async function exploreTrend(exploreUri, trendingRank, memoryStoreKey){
+    try {
+      const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
+      let compareGeoRequest = {};
+
+      // fetch the token needed for the google trending api
+      debug("Querying explorer URI:", exploreUri);
+      let res = await fetch(exploreUri);
+
+      /**
+       * If we get http 429, use this hack to get past it (using cookie obtained
+       * from the request above). This happens then the API receieves a request
+       * without a cookie that their servers set in our sessions. 
+       * 
+       * The only way to get this cookie is to get a failing response from the
+       * first attempt. If the 3rd party library 'google-trends-api' allowed
+       * me to get the headers from the requests it uses, then I could
+       * probably use that instead of having to rely on a bad request like I
+       * am doing now.
+       */
+      if (res.status === 429) {
+        console.warn("WARNING: Google Trends API returned 429, re-attempting with cookie from first attempt request!");
+
+        const cookie = res.headers.get("set-cookie").split(";")[0];
+        res = await fetch(exploreUri, {
+          headers: {
+            cookie,
+            charset: "utf-8",
+          },
+        });
+      }
+
+      // stream response into memory
+      wstream.on("finish", async function () {
+        try {
+          // get the response we just wrote to the memory store
+          const exploreResponse = utils.getMemoryStoreKeyAsObject(
+            memoryStoreKey
+          );
+
+          // parse the response body for a token
+          for (const widget of exploreResponse["widgets"]) {
+            if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
+              token = widget.token;
+              compareGeoRequest = widget.request;
+              break;
+            }
+          } // end for
+
+          // use this token to get the trending geo comparisons
+          await getComparedGeoTrend({
+            compareGeoRequest,
+            token,
+            trendingRank,
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }); // end write stream
+
+      // write response body to the stream
+      res.body.pipe(wstream);
+
+      // debugging purposes
+      debugExplorerResponse(res, trendingRank);
+    } catch (e) {
+      console.error("Error fetching explorer", e);
+    }
 }
 
 /**
