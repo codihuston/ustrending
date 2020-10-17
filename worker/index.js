@@ -36,7 +36,7 @@ client.on("ready", async function(){
   try{
     // TODO: implement cron here
 
-    // get all daily trends
+    // Step 1/5: Get all daily trends
     const dailyTrends = await trends.getDailyTrends();
     debug("daily trends", dailyTrends);
 
@@ -44,16 +44,18 @@ client.on("ready", async function(){
       throw new Error("Unable to fetch daily trends from Google Trends API!");
     }
 
-    // get explorer trends
+    // Step 2/5: Get explorer trends
     const exploredTrends = await explorer.exploreTrends(dailyTrends);
     debug("explored trends", exploredTrends);
 
-    // get the "ComparedGeo" data from widget data API
+    // Step 3/5: Get the "ComparedGeo" data from widget data API
     const comparedGeo = await widgetData.comparedGeo(exploredTrends);
     debug("compared geo", comparedGeo);
 
-    // TODO: get data and process it into redis
+    // TODO: Step 4/5: Get data and process it for client use
     // process(dailyTrends, exploredTrends);
+
+    // Step 5/5: store in redis
 
   }
   catch(e){

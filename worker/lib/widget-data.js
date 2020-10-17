@@ -13,11 +13,12 @@ const GOOGLE_TRENDING_COMPARE_GEO_URI =
  ******************************************************************************/
 
 /**
- * Takes required parameters gathered from the Google Trends API, its
- * and its Explorer API (for each of the trends), and use those
+ * Step 3 of 5: Takes required parameters gathered from the Google Trends API,
+ * its and its Explorer API (for each of the trends), and use those
  * responses to invoke the ComparedGeo API
  *
  * Returns a json-ized response from the API
+ * 
  * @param {*} opts [{
  *  exploreResponse,
  *  comparedGeoRequest,

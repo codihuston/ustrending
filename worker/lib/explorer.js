@@ -31,7 +31,11 @@ let token = "";
  ******************************************************************************/
 
 /**
- * Step 2 of 3: Returns Google Trends Explorer data, given a set of daily
+ * Step 2 of 5: Returns Google Trends Explorer data, given a set of daily
+ * trending items. This response data (along with supplemental data) will
+ * be used to fetch the geographic data for each of the trends (i.e. the
+ * trending data for each trend by region)
+ * 
  * @param {*} dailyTrends 
  * @returns [<promise>{
  *  exploreResponse,

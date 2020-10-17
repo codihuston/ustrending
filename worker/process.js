@@ -1,6 +1,6 @@
 /**
- * Step 3 of 3: process this into client-usable data; contains data for each
- * state:
+ * Step 4 of 5: process this into client-usable data; requires geographic
+ * trending data for each trend (obtained from the widget-data GeoCompared API)
  * 
  * US STATE => [trend #1, trend #2]
  */
