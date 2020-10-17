@@ -51,8 +51,8 @@ module.exports.exploreTrends = async (dailyTrends) => {
   for (const [index, value] of dt.entries()) {
     const keyword = value.title.query;
     const exploreUri = getUri(keyword);
-    const memoryStoreKey = `ExploreApiBuffer${index + 1}`;
     const trendingRank = index + 1;
+    const memoryStoreKey = `#${trendingRank}: ${keyword}`;
 
     if (trendingRank > TRENDING_LIMIT) {
       console.warn(
@@ -61,13 +61,11 @@ module.exports.exploreTrends = async (dailyTrends) => {
       break;
     }
 
-    debug(`Trending #[${trendingRank}]`, keyword);
-
     /*
     query the Explorer API for the token used by the 'fe_geo_chart_explore'
     widget. This is downloaded as a text file
     */
-    await exploreTrend(exploreUri, trendingRank, memoryStoreKey);
+    await exploreTrend(exploreUri, memoryStoreKey);
   } // end for
 
   // *** DOES NOT WORK*** TODO: once completed, return the full memorystore object?
@@ -105,7 +103,7 @@ function getUri(keyword) {
   );
 }
 
-async function exploreTrend(exploreUri, trendingRank, memoryStoreKey){
+async function exploreTrend(exploreUri, memoryStoreKey){
     try {
       const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
       let compareGeoRequest = {};
@@ -115,6 +113,8 @@ async function exploreTrend(exploreUri, trendingRank, memoryStoreKey){
       let res = await fetch(exploreUri);
 
       /**
+       * IMPORTANT: This will always be true!
+       * 
        * If we get http 429, use this hack to get past it (using cookie obtained
        * from the request above). This happens then the API receieves a request
        * without a cookie that their servers set in our sessions. 
@@ -158,7 +158,7 @@ async function exploreTrend(exploreUri, trendingRank, memoryStoreKey){
           await getComparedGeoTrend({
             compareGeoRequest,
             token,
-            trendingRank,
+            memoryStoreKey,
           });
         } catch (e) {
           console.error(e);
@@ -169,7 +169,7 @@ async function exploreTrend(exploreUri, trendingRank, memoryStoreKey){
       res.body.pipe(wstream);
 
       // debugging purposes
-      debugExplorerResponse(res, trendingRank);
+      debug(`TRENDING [${memoryStoreKey}]`, res);
     } catch (e) {
       console.error("Error fetching explorer", e);
     }
@@ -182,11 +182,11 @@ async function exploreTrend(exploreUri, trendingRank, memoryStoreKey){
  * @param {*} opts
  */
 async function getComparedGeoTrend(opts) {
-  const { compareGeoRequest, token, trendingRank } = opts;
+  const { compareGeoRequest, token, memoryStoreKey } = opts;
 
-  if (!compareGeoRequest || !token || !trendingRank) {
+  if (!compareGeoRequest || !token || !memoryStoreKey) {
     throw new Error(
-      "A required value is not set (compareGeoRequest, token, trendingRank)!"
+      "A required value is not set (compareGeoRequest, token, memoryStoreKey)!"
     );
   }
 
@@ -205,13 +205,12 @@ async function getComparedGeoTrend(opts) {
     const res = await fetch(uri);
 
     // stream response into memory
-    const memoryStoreKey = `ComparedGeoApiBuffer-${trendingRank}`;
     const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
 
     // TODO: when this is complete, we ultimately need to return it to the
     // line that invokes `await explorer.exploreTrends(dailyTrends)`
     wstream.on("finish", function () {
-      debug("Finished writing to", memoryStoreKey);
+      debug(`Finished writing to memoryStore[${memoryStoreKey}]`);
     });
 
     // write it to our memory store
