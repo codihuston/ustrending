@@ -59,7 +59,7 @@ module.exports.exploreTrends = async (dailyTrends) => {
     const keyword = value.title.query;
     const exploreUri = getUri(keyword);
     const trendingRank = index + 1;
-    const memoryStoreKey = `#${trendingRank}: ${keyword}`;
+    const memoryStoreKey = `${trendingRank} - ${keyword}`;
 
     if (trendingRank > TRENDING_LIMIT) {
       console.warn(
@@ -175,15 +175,16 @@ async function exploreTrend(exploreUri, memoryStoreKey){
 
     // write response body to the stream
     res.body.pipe(wstream);
-
-    debugExplorerResponse(res, memoryStoreKey);
+    debugResponse(res, memoryStoreKey);
   });
 }
 
-function debugExplorerResponse(explorerAPIResponse, trendingRank) {
+function debugResponse(explorerAPIResponse, trendingRank) {
+  debug("QWEQWE");
   if (process.env.NODE_ENV == "development") {
-    const outputPath = path.resolve(__dirname, `../debug`, `${trendingRank}-explorer.txt`);
-    debug("DEBUG: Writing output...", results.keys());
+    const outputPath = path.resolve(__dirname, `../debug`, `${trendingRank}-explore.txt`);
+
+    debug("DEBUG: Writing output to: ", outputPath);
 
     // write explorer response to file system
     const dest = fs.createWriteStream(outputPath);

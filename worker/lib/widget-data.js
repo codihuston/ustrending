@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { resolve } = require("path");
+const path = require("path");
 const debug = require("debug")("worker:widget-data");
 const fetch = require("node-fetch");
 
@@ -79,14 +79,25 @@ function comparedGeoForTrend(opts){
   
       // write it to our memory store
       res.body.pipe(wstream);
-  
-      if (process.env.NODE_ENV == "debug") {
-        const dest = fs.createWriteStream(resolve(__dirname));
-        res.body.pipe(dest);
-      }
+      debugResponse(res, memoryStoreKey);
+
     } catch (e) {
       console.error("Failed to process widget-data for:", memoryStoreKey)
       reject(e);
     }
   }); // end promise
+}
+
+function debugResponse(explorerAPIResponse, memoryStoreKey) {
+  if (process.env.NODE_ENV == "development") {
+    const outputPath = path.resolve(__dirname, `../debug`, `${memoryStoreKey}-widgetdata-comparedgeo.txt`);
+    
+    debug("DEBUG: Writing output to: ", outputPath);
+
+    // write explorer response to file system
+    const dest = fs.createWriteStream(outputPath);
+
+    // pipe response into the file
+    explorerAPIResponse.body.pipe(dest);
+  }
 }

@@ -99,14 +99,14 @@ module.exports.process = function(dailyTrends, comparedGeo){
     } // end for
   } // end for
 
-  debugProcessorResponse(results);
+  debugResponse(results);
 
   return results;
 }
 /*******************************************************************************
  * Private API
  ******************************************************************************/
-function debugProcessorResponse(results) {
+function debugResponse(results) {
   if(process.env.NODE_ENV === "development"){
     const outputPath = path.resolve(__dirname, `../debug`, "client-ready-output.json");
 

@@ -41,7 +41,7 @@ async function dailyTrendsCallback(err, results) {
 
     debug("trendingResponse", trendingResponse);
 
-    debugTrendingResponse(trendingResponse);
+    debugResponse(trendingResponse);
 
     return trendingResponse;
   } // end else
@@ -53,15 +53,16 @@ async function dailyTrendsCallback(err, results) {
  *
  * Note: if using skaffold, this is written to the container, not your host
  * file system!
- * @param {*} explorerAPIResponse
- * @param {*} trendingRank
  * @param {*} trendingAPIResponse
  */
-function debugTrendingResponse(trendingAPIResponse) {
+function debugResponse(trendingAPIResponse) {
   if (process.env.NODE_ENV == "development") {
+    const outputPath = resolve(__dirname, `../debug`, "google-trends-api-response.json");
+
+    debug("DEBUG: Writing output to: ", outputPath);
+
     // write trending response to file system
-    fs.writeFileSync(
-      resolve(__dirname, `../debug`, "_trendingAPIResponse.json"),
+    fs.writeFileSync(outputPath,
       JSON.stringify(trendingAPIResponse, null, 4)
     );
   }
