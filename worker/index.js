@@ -16,6 +16,7 @@ const debug = require("debug")("worker:index");
 const Redis = require("ioredis");
 const trends = require("./lib/trends");
 const explorer = require("./lib/explorer");
+const widgetData = require("./lib/widget-data");
 const utils = require("./lib/utils");
 
 const client = new Redis({
@@ -43,9 +44,13 @@ client.on("ready", async function(){
       throw new Error("Unable to fetch daily trends from Google Trends API!");
     }
 
-    // TODO: get explorer trends
+    // get explorer trends
     const exploredTrends = await explorer.exploreTrends(dailyTrends);
     debug("explored trends", exploredTrends);
+
+    // get the "ComparedGeo" data from widget data API
+    const comparedGeo = await widgetData.comparedGeo(exploredTrends);
+    debug("compared geo", comparedGeo);
 
     // TODO: get data and process it into redis
     // process(dailyTrends, exploredTrends);
