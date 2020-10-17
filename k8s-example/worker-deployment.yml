@@ -28,6 +28,8 @@ spec:
             - name: MAX_TREND_LIMIT
               value: "1"
             # redis config
+            - name: REDIS_DAILY_TRENDS_KEY
+              value: "daily"
             - name: REDIS_HOST
               value: redis-cluster-ip-service
             - name: REDIS_PORT

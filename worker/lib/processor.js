@@ -17,6 +17,15 @@ const TRENDING_LIMIT =
 /*******************************************************************************
  * Public API
  ******************************************************************************/
+
+ /**
+  * Processes data from the Google Trends API and the associated geography
+  * for the region and returns a JS Map object.
+  * 
+  * @param {*} dailyTrends 
+  * @param {*} comparedGeo 
+  * @returns Map
+  */
 module.exports.process = function(dailyTrends, comparedGeo){
   // const trendingResponse = JSON.parse(fs.readFileSync(resolve(__dirname, `_trendingResponse.json`)));
 
