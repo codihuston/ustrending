@@ -29,7 +29,14 @@ util.inherits(WriteableMemoryStream, Writable);
 
 /**
  * Overrides default _write method. Will process a memory
- * stream into the custom `memoryStore` map.
+ * stream into the custom `memoryStore` map. The response data from the
+ * Google Trends API is actually quite small (for 10-20 trends total), so
+ * we don't really need to expect to process this into a final result in
+ * the fashion that we would a real "stream" of data. Therefore, we will process
+ * this data into a single static entity in memory, and then process it.
+ * 
+ * NOTE: I leave this data in the form of which it came; expected to have the
+ * type of Buffer
  * 
  * @param {*} chunk 
  * @param {*} enc 
@@ -40,7 +47,7 @@ WriteableMemoryStream.prototype._write = function (chunk, enc, cb) {
   var buffer = (Buffer.isBuffer(chunk)) ?
     chunk :  // already is Buffer use it
     Buffer.from(chunk, enc);  // string, convert
-
+    
   // concat to the buffer already there
   memoryStore[this.key] = Buffer.concat([memoryStore[this.key], buffer]);
   cb();
