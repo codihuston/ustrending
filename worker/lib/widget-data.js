@@ -70,8 +70,6 @@ function comparedGeoForTrend(opts){
       // stream response into memory
       const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
   
-      // TODO: when this is complete, we ultimately need to return it to the
-      // line that invokes `await explorer.exploreTrends(dailyTrends)`
       wstream.on("finish", function () {
         debug(`Finished writing to memoryStore[${memoryStoreKey}]`);
         resolve(utils.getMemoryStoreKeyAsObject(memoryStoreKey));
