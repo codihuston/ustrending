@@ -6,6 +6,42 @@ const Writable = stream.Writable || require('readable-stream').Writable
 // TODO: replace this by putting it in the WriteableMemoryStream object??
 const memoryStore = {};
 
+/*******************************************************************************
+ * Public API
+ ******************************************************************************/
+module.exports.getMemoryStoreAsObject = function(){
+  let res = [];
+  for(const [key] of Object.entries(memoryStore)){
+    res.push(getMemoryStoreKeyAsObject(key));
+  }
+  return res;
+};
+
+module.exports.getMemoryStoreKeyAsObject = getMemoryStoreKeyAsObject;
+
+module.exports.WriteableMemoryStream = WriteableMemoryStream;
+
+/**
+ * Builds the querystring that is set to the google trending API (as requried
+ * by the API itself). Converts a json object into a valid querystring parameter
+ * @param {*} opts 
+ */
+module.exports.getQueryString = function (opts){
+  let queryString = `?`;
+
+  debug("Given options", opts);
+
+  for(const [key, value] of Object.entries(opts)){
+    // encoding json object
+    if(typeof value === "object"){
+      queryString += `${key}=${encodeURIComponent(JSON.stringify(value))}&`
+    }
+    else{
+      queryString += `${key}=${value}&`
+    }
+  }
+  return queryString;
+}
 
 /*******************************************************************************
  * PRIVATE API
@@ -68,41 +104,4 @@ function getMemoryStoreKeyAsObject(key){
     return str ? JSON.parse(str) : null;
   }
   return null;
-}
-
-/*******************************************************************************
- * Public API
- ******************************************************************************/
-module.exports.getMemoryStoreAsObject = function(){
-  let res = [];
-  for(const [key] of Object.entries(memoryStore)){
-    res.push(getMemoryStoreKeyAsObject(key));
-  }
-  return res;
-};
-
-module.exports.getMemoryStoreKeyAsObject = getMemoryStoreKeyAsObject;
-
-module.exports.WriteableMemoryStream = WriteableMemoryStream;
-
-/**
- * Builds the querystring that is set to the google trending API (as requried
- * by the API itself). Converts a json object into a valid querystring parameter
- * @param {*} opts 
- */
-module.exports.getQueryString = function (opts){
-  let queryString = `?`;
-
-  debug("Given options", opts);
-
-  for(const [key, value] of Object.entries(opts)){
-    // encoding json object
-    if(typeof value === "object"){
-      queryString += `${key}=${encodeURIComponent(JSON.stringify(value))}&`
-    }
-    else{
-      queryString += `${key}=${value}&`
-    }
-  }
-  return queryString;
 }
