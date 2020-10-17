@@ -19,6 +19,7 @@ const Redis = require("ioredis");
 const trends = require("./lib/trends");
 const explorer = require("./lib/explorer");
 const widgetData = require("./lib/widget-data");
+const processor = require("./lib/processor");
 const utils = require("./lib/utils");
 
 const client = new Redis({
@@ -55,7 +56,8 @@ client.on("ready", async function(){
     debug("compared geo", comparedGeo);
 
     // TODO: Step 4/5: Get data and process it for client use
-    // process(dailyTrends, exploredTrends);
+    const results = processor.process(dailyTrends, comparedGeo);
+    debug("geographical data for trends", results);
 
     // Step 5/5: store in redis
 
