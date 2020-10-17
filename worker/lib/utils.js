@@ -3,6 +3,7 @@ const stream = require("stream");
 const util = require('util');
 const Writable = stream.Writable || require('readable-stream').Writable
 // a memory store buffer consisting of google trending api responses
+// TODO: replace this by putting it in the WriteableMemoryStream object??
 const memoryStore = {};
 
 
