@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { resolve } = require("path");
-const debug = require("debug")("worker:trends");
+const debug = require("debug")("worker:explorer");
 const fetch = require("node-fetch");
 
 const utils = require("./utils");
@@ -34,13 +34,18 @@ let token = "";
 
 /**
  * Step 2 of 3: Returns Google Trends Explorer data, given a set of daily
- * trending items
- *
- * @param {*} dailyTrends
+ * @param {*} dailyTrends 
+ * @returns: [<promise>{
+ *  exploreResponse,
+ *  compareGeoRequest,
+ *  token,
+ *  memoryStoreKey
+ * }]
  */
 module.exports.exploreTrends = async (dailyTrends) => {
   // get the most recent trending searches from the given daily trends response
   const dt = dailyTrends.default?.trendingSearchesDays?.[0]?.trendingSearches;
+  const promises = [];
 
   if (!dt) {
     console.warn("No daily trends -- cannot explore them.");
@@ -61,17 +66,15 @@ module.exports.exploreTrends = async (dailyTrends) => {
       break;
     }
 
-    /*
-    query the Explorer API for the token used by the 'fe_geo_chart_explore'
-    widget. This is downloaded as a text file
-    */
-    await exploreTrend(exploreUri, memoryStoreKey);
+  /*
+  query the Explorer API for the token used by the 'fe_geo_chart_explore'
+  widget. This is downloaded as a text file
+  */
+   promises.push(exploreTrend(exploreUri, memoryStoreKey));
   } // end for
 
-  // *** DOES NOT WORK*** TODO: once completed, return the full memorystore object?
-  // WARNING: this is returning null b/c the async for loop is not
-  // completing prior to this being returned
-  // return utils.getMemoryStoreAsObject();
+  // after all trends have been explored, run compareGeo()?
+  return Promise.all(promises);
 };
 
 /*******************************************************************************
@@ -104,77 +107,82 @@ function getUri(keyword) {
 }
 
 async function exploreTrend(exploreUri, memoryStoreKey){
-    try {
-      let compareGeoRequest = {};
-      const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
+  return new Promise(async (resolve, reject)=> {
+    let compareGeoRequest = {};
+    const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
 
-      // event callback for streaming response data into memory
-      wstream.on("finish", async function () {
-        try {
-          // get the response we just wrote to the memory store
-          const exploreResponse = utils.getMemoryStoreKeyAsObject(
-            memoryStoreKey
-          );
+    // event callback for streaming response data into memory
+    wstream.on("finish", async function () {
+      try {
+        // get the response we just wrote to the memory store
+        const exploreResponse = utils.getMemoryStoreKeyAsObject(
+          memoryStoreKey
+        );
 
-          // parse the response body for a token
-          for (const widget of exploreResponse["widgets"]) {
-            if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
-              token = widget.token;
-              compareGeoRequest = widget.request;
-              break;
-            }
-          } // end for
+        // parse the response body for a token
+        for (const widget of exploreResponse["widgets"]) {
+          if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
+            token = widget.token;
+            compareGeoRequest = widget.request;
+            break;
+          }
+        } // end for
 
-          // TODO: do not execute this yet, execute after all trends have 
-          // been explored?
-          // use this token to get the trending geo comparisons
-          await compareGeoTrend({
-            compareGeoRequest,
-            token,
-            memoryStoreKey,
-          });
-        } catch (e) {
-          console.error(e);
-        }
-      }); // end write stream
-
-      // fetch the token needed for the google trending api
-      debug("Querying explorer URI:", exploreUri);
-      let res = await fetch(exploreUri);
-
-      /**
-       * IMPORTANT: This will always be true!
-       * 
-       * If we get http 429, use this hack to get past it (using cookie obtained
-       * from the request above). This happens then the API receieves a request
-       * without a cookie that their servers set in our sessions. 
-       * 
-       * The only way to get this cookie is to get a failing response from the
-       * first attempt. If the 3rd party library 'google-trends-api' allowed
-       * me to get the headers from the requests it uses, then I could
-       * probably use that instead of having to rely on a bad request like I
-       * am doing now.
-       */
-      if (res.status === 429) {
-        console.warn("WARNING: Google Trends API returned 429, re-attempting with cookie from first attempt request!");
-
-        const cookie = res.headers.get("set-cookie").split(";")[0];
-        res = await fetch(exploreUri, {
-          headers: {
-            cookie,
-            charset: "utf-8",
-          },
+        resolve({
+          exploreResponse,
+          compareGeoRequest,
+          token,
+          memoryStoreKey
         });
+
+        // TODO: do not execute this yet, execute after all trends have 
+        // been explored?
+        // use this token to get the trending geo comparisons
+        // await compareGeoTrend({
+        //   compareGeoRequest,
+        //   token,
+        //   memoryStoreKey,
+        // });
+      } catch (e) {
+        // console.error(e);
+        reject(e);
       }
+    }); // end write stream
 
-      // write response body to the stream
-      res.body.pipe(wstream);
+    // fetch the token needed for the google trending api
+    debug("Querying explorer URI:", exploreUri);
+    let res = await fetch(exploreUri);
 
-      // debugging purposes
-      debug(`TRENDING [${memoryStoreKey}]`, res);
-    } catch (e) {
-      console.error("Error fetching explorer", e);
+    /**
+     * IMPORTANT: This will always be true!
+     * 
+     * If we get http 429, use this hack to get past it (using cookie obtained
+     * from the request above). This happens then the API receieves a request
+     * without a cookie that their servers set in our sessions. 
+     * 
+     * The only way to get this cookie is to get a failing response from the
+     * first attempt. If the 3rd party library 'google-trends-api' allowed
+     * me to get the headers from the requests it uses, then I could
+     * probably use that instead of having to rely on a bad request like I
+     * am doing now.
+     */
+    if (res.status === 429) {
+      console.warn("WARNING: Google Trends API returned 429, re-attempting with cookie from first attempt request!");
+
+      const cookie = res.headers.get("set-cookie").split(";")[0];
+
+      // send request -> responds with a BUFFER (containing JSON data)
+      res = await fetch(exploreUri, {
+        headers: {
+          cookie,
+          charset: "utf-8",
+        },
+      });
     }
+
+    // write response body to the stream
+    res.body.pipe(wstream);
+  });
 }
 
 /**
