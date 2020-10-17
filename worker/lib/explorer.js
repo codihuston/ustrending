@@ -88,11 +88,14 @@ module.exports.getExplorerTrends = async (dailyTrends) => {
       }
 
       // stream response into memory
-      wstream.on("finish", function () {
+      wstream.on("finish", async function () {
         try {
+          // get the response we just wrote to the memory store
           const exploreResponse = utils.getMemoryStoreKeyAsObject(
             memoryStoreKey
           );
+
+          // parse the response body for a token
           for (const widget of exploreResponse["widgets"]) {
             if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
               token = widget.token;
@@ -101,8 +104,8 @@ module.exports.getExplorerTrends = async (dailyTrends) => {
             }
           } // end for
 
-          // get the trending geo comparisons
-          getComparedGeoTrend({
+          // use this token to get the trending geo comparisons
+          await getComparedGeoTrend({
             compareGeoRequest,
             keyword,
             token,
@@ -183,18 +186,21 @@ async function getComparedGeoTrend(opts) {
 
   debug("Compared Geo URI", uri);
 
-  // download the file
   try {
+    // get / download the file
     const res = await fetch(uri);
 
     // stream response into memory
     const memoryStoreKey = `ComparedGeoApiBuffer-${trendingRank}`;
     const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
 
+    // TODO: when this is complete, we ultimately need to return it to the
+    // line that invokes `await explorer.getExplorerTrends(dailyTrends)`
     wstream.on("finish", function () {
       debug("Finished writing to", memoryStoreKey);
     });
 
+    // write it to our memory store
     res.body.pipe(wstream);
 
     if (process.env.NODE_ENV == "debug") {
