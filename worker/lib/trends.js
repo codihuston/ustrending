@@ -14,7 +14,7 @@ const GOOGLE_GEO_COUNTRY_CODE = process.env.GOOGLE_GEO_COUNTRY_CODE || defaults.
  ******************************************************************************/
 
 /**
- * Step 1 of 2: Returns Google Trends trending item data
+ * Step 1 of 3: Returns Google Trends trending item data
  */
 module.exports.getDailyTrends = async () =>
   googleTrends.dailyTrends(

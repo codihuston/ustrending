@@ -33,7 +33,7 @@ let token = "";
  ******************************************************************************/
 
 /**
- * Step 2 of 2: Returns Google Trends Explorer data, given a set of daily
+ * Step 2 of 3: Returns Google Trends Explorer data, given a set of daily
  * trending items
  *
  * @param {*} dailyTrends
@@ -129,7 +129,7 @@ module.exports.exploreTrends = async (dailyTrends) => {
   // *** DOES NOT WORK*** TODO: once completed, return the full memorystore object?
   // WARNING: this is returning null b/c the async for loop is not
   // completing prior to this being returned
-  return utils.getMemoryStoreAsObject();
+  // return utils.getMemoryStoreAsObject();
 };
 
 /*******************************************************************************

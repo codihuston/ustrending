@@ -35,7 +35,7 @@ client.on("ready", async function(){
   try{
     // TODO: implement cron here
 
-    // TODO: get all daily trends
+    // get all daily trends
     const dailyTrends = await trends.getDailyTrends();
     debug("daily trends", dailyTrends);
 
@@ -45,7 +45,7 @@ client.on("ready", async function(){
 
     // TODO: get explorer trends
     const exploredTrends = await explorer.exploreTrends(dailyTrends);
-    debug("explorered trends", exploredTrends);
+    debug("explored trends", exploredTrends);
 
     // TODO: get data and process it into redis
     // process(dailyTrends, exploredTrends);

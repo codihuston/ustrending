@@ -1,3 +1,9 @@
+/**
+ * Step 3 of 3: process this into client-usable data; contains data for each
+ * state:
+ * 
+ * US STATE => [trend #1, trend #2]
+ */
 const {resolve} = require('path');
 const fs = require('fs');
 
