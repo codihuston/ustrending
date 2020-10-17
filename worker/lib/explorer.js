@@ -105,8 +105,38 @@ function getUri(keyword) {
 
 async function exploreTrend(exploreUri, memoryStoreKey){
     try {
-      const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
       let compareGeoRequest = {};
+      const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
+
+      // event callback for streaming response data into memory
+      wstream.on("finish", async function () {
+        try {
+          // get the response we just wrote to the memory store
+          const exploreResponse = utils.getMemoryStoreKeyAsObject(
+            memoryStoreKey
+          );
+
+          // parse the response body for a token
+          for (const widget of exploreResponse["widgets"]) {
+            if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
+              token = widget.token;
+              compareGeoRequest = widget.request;
+              break;
+            }
+          } // end for
+
+          // TODO: do not execute this yet, execute after all trends have 
+          // been explored?
+          // use this token to get the trending geo comparisons
+          await compareGeoTrend({
+            compareGeoRequest,
+            token,
+            memoryStoreKey,
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }); // end write stream
 
       // fetch the token needed for the google trending api
       debug("Querying explorer URI:", exploreUri);
@@ -137,34 +167,6 @@ async function exploreTrend(exploreUri, memoryStoreKey){
         });
       }
 
-      // stream response into memory
-      wstream.on("finish", async function () {
-        try {
-          // get the response we just wrote to the memory store
-          const exploreResponse = utils.getMemoryStoreKeyAsObject(
-            memoryStoreKey
-          );
-
-          // parse the response body for a token
-          for (const widget of exploreResponse["widgets"]) {
-            if (widget.type == GOOGLE_TRENDING_GEO_WIDGET) {
-              token = widget.token;
-              compareGeoRequest = widget.request;
-              break;
-            }
-          } // end for
-
-          // use this token to get the trending geo comparisons
-          await getComparedGeoTrend({
-            compareGeoRequest,
-            token,
-            memoryStoreKey,
-          });
-        } catch (e) {
-          console.error(e);
-        }
-      }); // end write stream
-
       // write response body to the stream
       res.body.pipe(wstream);
 
@@ -176,12 +178,12 @@ async function exploreTrend(exploreUri, memoryStoreKey){
 }
 
 /**
- * Will query the ComparedGeo Google Trends API with the given options.
+ * Will query the CompareGeo Google Trends API with the given options.
  *
  * Returns a json-ized response from the API
  * @param {*} opts
  */
-async function getComparedGeoTrend(opts) {
+async function compareGeoTrend(opts) {
   const { compareGeoRequest, token, memoryStoreKey } = opts;
 
   if (!compareGeoRequest || !token || !memoryStoreKey) {
