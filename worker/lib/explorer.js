@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { resolve } = require("path");
+const path = require("path");
 const debug = require("debug")("worker:explorer");
 const fetch = require("node-fetch");
 
@@ -175,15 +175,18 @@ async function exploreTrend(exploreUri, memoryStoreKey){
 
     // write response body to the stream
     res.body.pipe(wstream);
+
+    debugExplorerResponse(res, memoryStoreKey);
   });
 }
 
 function debugExplorerResponse(explorerAPIResponse, trendingRank) {
   if (process.env.NODE_ENV == "development") {
+    const outputPath = path.resolve(__dirname, `../debug`, `${trendingRank}-explorer.txt`);
+    debug("DEBUG: Writing output...", results.keys());
+
     // write explorer response to file system
-    const dest = fs.createWriteStream(
-      resolve(__dirname, `../debug`, `${trendingRank}-explorer.txt`)
-    );
+    const dest = fs.createWriteStream(outputPath);
 
     // pipe response into the file
     explorerAPIResponse.body.pipe(dest);
