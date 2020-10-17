@@ -44,9 +44,12 @@ client.on("ready", async function(){
     }
 
     // TODO: get explorer trends
-    const explorerTrends = await explorer.getExplorerTrends(dailyTrends);
-    debug("explorer trends", explorerTrends);
-    // TODO: get data and process it 
+    const exploredTrends = await explorer.exploreTrends(dailyTrends);
+    debug("explorered trends", exploredTrends);
+
+    // TODO: get data and process it into redis
+    // process(dailyTrends, exploredTrends);
+
   }
   catch(e){
     // TODO: notify admins?

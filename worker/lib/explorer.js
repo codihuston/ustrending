@@ -38,7 +38,7 @@ let token = "";
  *
  * @param {*} dailyTrends
  */
-module.exports.getExplorerTrends = async (dailyTrends) => {
+module.exports.exploreTrends = async (dailyTrends) => {
   // get the most recent trending searches from the given daily trends response
   const dt = dailyTrends.default?.trendingSearchesDays?.[0]?.trendingSearches;
 
@@ -195,7 +195,7 @@ async function getComparedGeoTrend(opts) {
     const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
 
     // TODO: when this is complete, we ultimately need to return it to the
-    // line that invokes `await explorer.getExplorerTrends(dailyTrends)`
+    // line that invokes `await explorer.exploreTrends(dailyTrends)`
     wstream.on("finish", function () {
       debug("Finished writing to", memoryStoreKey);
     });
