@@ -3,9 +3,11 @@ const { resolve } = require("path");
 const debug = require("debug")("worker:trends");
 const googleTrends = require("google-trends-api");
 
+const defaults = require("./defaults");
+
 // shows trending for current trending topic for this country, see:
 // https://developers.google.com/adwords/api/docs/appendix/geotargeting
-const GOOGLE_GEO_COUNTRY_CODE = process.env.GOOGLE_GEO_COUNTRY_CODE || "US";
+const GOOGLE_GEO_COUNTRY_CODE = process.env.GOOGLE_GEO_COUNTRY_CODE || defaults.GOOGLE_GEO_COUNTRY_CODE;
 
 /*******************************************************************************
  * Public API
