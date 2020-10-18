@@ -26,7 +26,8 @@ const defaults = require("./lib/defaults");
 const utils = require("./lib/utils");
 
 const REDIS_DAILY_TRENDS_KEY = process.env.REDIS_DAILY_TRENDS_KEY || defaults.REDIS_DAILY_TRENDS_KEY;
-const REDIS_REALTIME_TRENDS_KEY = process.env.REDIS_REALTIME_TRENDS_KEY || defaults.REDIS_REALTIME_TRENDS_KEY;
+const REDIS_DAILY_TRENDS_BY_STATE_KEY = process.env.REDIS_DAILY_TRENDS_BY_STATE_KEY || defaults.REDIS_DAILY_TRENDS_BY_STATE_KEY;
+const REDIS_REALTIME_TRENDS_BY_STATE_KEY = process.env.REDIS_REALTIME_TRENDS_BY_STATE_KEY || defaults.REDIS_REALTIME_TRENDS_BY_STATE_KEY;
 const CRON_EXPRESSION_DAILY_TRENDS = process.env.CRON_EXPRESSION_DAILY_TRENDS || defaults.CRON_EXPRESSION_DAILY_TRENDS;
 const CRON_EXPRESSION_REALTIME_TRENDS = process.env.CRON_EXPRESSION_REALTIME_TRENDS || defaults.CRON_EXPRESSION_REALTIME_TRENDS;
 const CRON_TIMEZONE = process.env.CRON_TIMEZONE ||  defaults.CRON_TIMEZONE;
@@ -62,7 +63,8 @@ async function runDailyTrends(cronjobName){
     debug("geographical data for trends", results);
 
     // Step 5/5: store in redis
-    client.set(REDIS_DAILY_TRENDS_KEY, JSON.stringify([...results]));
+    client.set(REDIS_DAILY_TRENDS_KEY, JSON.stringify(dailyTrends.default?.trendingSearchesDays?.[0]?.trendingSearches));
+    client.set(REDIS_DAILY_TRENDS_BY_STATE_KEY, JSON.stringify([...results]));
   }
   catch(e){
     // TODO: notify admins?
