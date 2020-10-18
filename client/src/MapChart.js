@@ -222,6 +222,7 @@ const MapChart = ({ setTooltipContent }) => {
                         {cur &&
                           centroid[0] > -160 &&
                           centroid[0] < -67 &&
+                          // TODO: implement onhover / tooltips for markers?
                           (Object.keys(offsets).indexOf(cur.id) === -1 ? (
                             <Marker coordinates={centroid} style={labelStyle}>
                               <text
