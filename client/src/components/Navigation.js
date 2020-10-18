@@ -77,8 +77,8 @@ function ResponsiveDrawer(props) {
         <ListItemLink icon={<MapIcon />} primary={"Map View"} to={"/"} />
         <ListItemLink
           icon={<TableChartIcon />}
-          primary={"Chart View"}
-          to={"/chart"}
+          primary={"Table View"}
+          to={"/table"}
         />
       </List>
       <Divider />
