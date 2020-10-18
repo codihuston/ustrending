@@ -25,6 +25,7 @@ const processor = require("./lib/processor");
 const defaults = require("./lib/defaults");
 
 const REDIS_DAILY_TRENDS_KEY = process.env.REDIS_DAILY_TRENDS_KEY || defaults.REDIS_DAILY_TRENDS_KEY;
+const REDIS_REALTIME_TRENDS_KEY = process.env.REDIS_REALTIME_TRENDS_KEY || defaults.REDIS_REALTIME_TRENDS_KEY;
 const CRON_EXPRESSION_DAILY_TRENDS = process.env.CRON_EXPRESSION_DAILY_TRENDS || defaults.CRON_EXPRESSION_DAILY_TRENDS;
 const CRON_EXPRESSION_REALTIME_TRENDS = process.env.CRON_EXPRESSION_REALTIME_TRENDS || defaults.CRON_EXPRESSION_REALTIME_TRENDS;
 const CRON_TIMEZONE = process.env.CRON_TIMEZONE ||  defaults.CRON_TIMEZONE;

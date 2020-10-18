@@ -38,6 +38,8 @@ spec:
             # redis config
             - name: REDIS_DAILY_TRENDS_KEY
               value: "daily"
+            - name: REDIS_REALTIME_TRENDS_KEY
+              value: "realtime"
             - name: REDIS_HOST
               value: redis-cluster-ip-service
             - name: REDIS_PORT
