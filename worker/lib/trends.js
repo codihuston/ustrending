@@ -22,6 +22,18 @@ module.exports.getDailyTrends = async () =>
     dailyTrendsCallback
   ); // end daily trends
 
+/**
+ * TODO: implement realTimeTrends! This needs to be "explored" differently
+ * than the Daily Trends, and MAY need to be "ComparedGeo'd" differently
+ * as well...
+ */
+module.exports.realTimeTrends = async () =>
+  googleTrends.realTimeTrends(
+    { geo: GOOGLE_GEO_COUNTRY_CODE },
+    dailyTrendsCallback
+  ); // end daily trends
+
+
 /*******************************************************************************
  * Private API
  ******************************************************************************/
