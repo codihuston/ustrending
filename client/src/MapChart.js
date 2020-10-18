@@ -9,6 +9,9 @@ import {
   Annotation
 } from "react-simple-maps";
 import allStates from "./allstates.json";
+import debugLib from "debug";
+
+const debug = debugLib("client:mapchart");
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
@@ -120,7 +123,7 @@ const MapChart = ({ setTooltipContent }) => {
                       return;
                     }
 
-                    console.log(`Daily Trend for '${name}'`, dailyTrend);
+                    debug(`Daily Trend for '${name}'`, dailyTrend);
 
                     setTooltipContent(
                       dailyTrend
@@ -167,7 +170,7 @@ const MapChart = ({ setTooltipContent }) => {
                 const centroid = geoCentroid(geo);
                 const cur = allStates.find((s) => s.val === geo.id);
 
-                console.log(centroid, geo)
+                debug(centroid, geo)
 
                 return (
                   <g key={geo.rsmKey + "-name"}>
