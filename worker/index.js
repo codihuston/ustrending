@@ -25,7 +25,8 @@ const processor = require("./lib/processor");
 const defaults = require("./lib/defaults");
 
 const REDIS_DAILY_TRENDS_KEY = process.env.REDIS_DAILY_TRENDS_KEY || defaults.REDIS_DAILY_TRENDS_KEY;
-const CRON_EXPRESSION = process.env.CRON_EXPRESSION || defaults.CRON_EXPRESSION;
+const CRON_EXPRESSION_DAILY_TRENDS = process.env.CRON_EXPRESSION_DAILY_TRENDS || defaults.CRON_EXPRESSION_DAILY_TRENDS;
+const CRON_EXPRESSION_REALTIME_TRENDS = process.env.CRON_EXPRESSION_REALTIME_TRENDS || defaults.CRON_EXPRESSION_REALTIME_TRENDS;
 const CRON_TIMEZONE = process.env.CRON_TIMEZONE ||  defaults.CRON_TIMEZONE;
 
 const client = new Redis({
@@ -36,7 +37,7 @@ const client = new Redis({
   db: process.env.REDIS_DB,
 });
 
-async function run(){
+async function runDailyTrends(){
   try{  
     // Step 1/5: Get all daily trends
     const dailyTrends = await trends.getDailyTrends();
@@ -67,28 +68,45 @@ async function run(){
   }
 }
 
+/**
+ * TODO: implement me
+ */
+async function runRealtimeTrends(){}
+
 client.on("connect", function(){
   console.log("Connected to redis!");
 });
 
 client.on("ready", async function(){
   console.log("Redis connection ready!");
-  console.log("Crontab pattern: ", CRON_EXPRESSION)
+  console.log("Crontab pattern: ", CRON_EXPRESSION_DAILY_TRENDS)
 
-  // implement this worker in a cronjob
-  const job = new CronJob(CRON_EXPRESSION, async function() {
-    const interval = parser.parseExpression(CRON_EXPRESSION);
-    console.log('Executing cronjob. Next execution scheduled for ', interval.next().toISOString());
+  // run daily trends in a cronjob
+  const cronRunDailyTrends = new CronJob(CRON_EXPRESSION_DAILY_TRENDS, async function() {
+    const interval = parser.parseExpression(CRON_EXPRESSION_DAILY_TRENDS);
+    console.log('Executing DAILY TRENDS cronjob. Next execution scheduled for ', interval.next().toISOString());
 
-    await run();
+    await runDailyTrends();
 
   }, null, true, CRON_TIMEZONE);
 
-  await job.start();
+  // run realtime trends in a cronjob
+  const cronRunRealtimeTrends = new CronJob(CRON_EXPRESSION_REALTIME_TRENDS, async function() {
+    const interval = parser.parseExpression(CRON_EXPRESSION_REALTIME_TRENDS);
+    console.log('Executing REALTIME TRENDS cronjob. Next execution scheduled for ', interval.next().toISOString());
+
+    await runRealtimeTrends();
+
+  }, null, true, CRON_TIMEZONE);
+
+  // start the jobs
+  await cronRunDailyTrends.start();
+  await cronRunRealtimeTrends.start();
 
   // run in case it doesn't at first-run...
   console.log("Initializing first-run (outside of cronjob)")
-  await run();
+  await runDailyTrends();
+  await runRealtimeTrends();
 });
 
 client.on("close", function(){

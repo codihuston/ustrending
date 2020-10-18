@@ -24,8 +24,10 @@ spec:
               cpu: "0.1"
           env:
             # crontab config
-            - name: CRON_EXPRESSION
-              value: "1 * * * * *"
+            - name: CRON_EXPRESSION_DAILY_TRENDS
+              value: "0 * * * *"
+            - name: CRON_EXPRESSION_REALTIME_TRENDS
+              value: "0 * * * *"
             - name: CRON_TIMEZONE
               value: "America/Chicago"
             # google api config
