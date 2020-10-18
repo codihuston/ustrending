@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ReactTooltip from "react-tooltip";
-
-import MapChart from "../components/MapChart";
 
 const colors = [
   "#e6194b",
@@ -34,7 +31,6 @@ const colors = [
  */
 function TrendsContainer({ children }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [content, setContent] = useState("");
   const [dailyTrends, setDailyTrends] = useState(new Map());
   // state => color
   const [colorsByTopic, setColorsByTopic] = useState(new Map());
@@ -80,29 +76,21 @@ function TrendsContainer({ children }) {
    * container to handle generic children that might rely on the same data
    * but render differently (such as a MapChart or TableChart)
    */
-  const childrenWithProps = React.Children.map(children, child => {
+  const childrenWithProps = React.Children.map(children, (child) => {
     // checking isValidElement is the safe way and avoids a typescript error too
     const props = {
-      setTooltipContent: setContent,
       dailyTrends,
       colors,
       colorsByTopic,
     };
 
     if (React.isValidElement(child)) {
-        return React.cloneElement(child, props);
+      return React.cloneElement(child, props);
     }
     return child;
-});
+  });
 
-  return (
-    <>
-      {childrenWithProps}
-      <ReactTooltip html={true} multiline={true}>
-        {content}
-      </ReactTooltip>
-    </>
-  );
+  return <>{childrenWithProps}</>;
 }
 
 export default TrendsContainer;
