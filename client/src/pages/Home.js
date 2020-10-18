@@ -1,12 +1,9 @@
 import React, { useState } from "react";
-import ReactTooltip from "react-tooltip";
 import Typography from "@material-ui/core/Typography";
 
-import MapChart from "../components/MapChart";
+import TrendsContainer from "../containers/TrendsContainer";
 
 function Home() {
-  const [content, setContent] = useState("");
-
   return (
     <>
       <Typography paragraph>
@@ -40,10 +37,7 @@ function Home() {
         maecenas accumsan lacus vel facilisis. Nulla posuere sollicitudin
         aliquam ultrices sagittis orci a.
       </Typography>
-      <MapChart setTooltipContent={setContent} />
-      <ReactTooltip html={true} multiline={true}>
-        {content}
-      </ReactTooltip>
+      <TrendsContainer/>
       TODO: Show trends in order per state here
     </>
   );

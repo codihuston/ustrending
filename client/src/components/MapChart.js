@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect} from "react";
+import React, { memo } from "react";
 import { geoCentroid } from "d3-geo";
 import {
   ComposableMap,
@@ -8,13 +8,13 @@ import {
   Marker,
   Annotation
 } from "react-simple-maps";
-import allStates from "../allstates.json";
 import debugLib from "debug";
 
+import allStates from "../allstates.json";
+
+const tooltipFontSize = "1rem";
 const debug = debugLib("client:mapchart");
-
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
-
 const offsets = {
   VT: [50, -8],
   NH: [34, 2],
@@ -27,7 +27,6 @@ const offsets = {
   DC: [49, 21],
 };
 
-const fontSize = 14;
 const labelStyle = {
   default: {
     fill: "#FFFFFF",
@@ -42,67 +41,8 @@ const labelStyle = {
     outline: "none",
   },
 };
-const colors = [
-  "#e6194b",
-  "#3cb44b",
-  "#ffe119",
-  "#4363d8",
-  "#f58231",
-  "#911eb4",
-  "#46f0f0",
-  "#f032e6",
-  "#bcf60c",
-  "#fabebe",
-  "#008080",
-  "#e6beff",
-  "#9a6324",
-  "#fffac8",
-  "#800000",
-  "#aaffc3",
-  "#808000",
-  "#ffd8b1",
-  "#000075",
-  "#808080",
-  "#ffffff",
-  "#000000",
-];
 
-const MapChart = ({ setTooltipContent }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [dailyTrends, setDailyTrends] = useState(new Map());
-  // state => color
-  const [colorsByTopic, setColorsByTopic] = useState(new Map());
-
-  useEffect(() => {
-    fetch("/api/daily-trends-by-state")
-      .then((res) => res.json())
-      .then((result) => {
-        setIsLoading(false);
-        const processed = new Map();
-
-        result.map((x) => {
-          processed.set(x[0], x[1]);
-        });
-
-        setDailyTrends(processed);
-      });
-
-    fetch("/api/daily-trends")
-    .then((res) => res.json())
-    .then((result) => {
-      const trendColorMap = new Map();
-      result.map((x, i) => {
-        if(x?.title?.query){
-          trendColorMap.set(x.title.query, colors[i]);
-        }
-        else{
-          console.warn("WARNING: Title.Query is missing, cannot assign color to:", x);
-        }
-      })
-      setColorsByTopic(trendColorMap);
-    });
-
-  }, []);
+const MapChart = ({ setTooltipContent, dailyTrends, colorsByTopic }) => {
 
   return (
     <ComposableMap data-tip="" projection={"geoAlbersUsa"}>
@@ -182,7 +122,7 @@ const MapChart = ({ setTooltipContent }) => {
                         <Marker coordinates={centroid} style={labelStyle}>
                           <text
                             x={5}
-                            fontSize={fontSize}
+                            fontSize={tooltipFontSize}
                             textAnchor="middle"
                           >
                             {cur.id}
@@ -197,7 +137,7 @@ const MapChart = ({ setTooltipContent }) => {
                         >
                           <text
                             x={4}
-                            fontSize={fontSize}
+                            fontSize={tooltipFontSize}
                             alignmentBaseline="middle"
                           >
                             {cur.id}
