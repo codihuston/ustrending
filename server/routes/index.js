@@ -1,5 +1,8 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+
+const client = require('../db').client;
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -9,8 +12,12 @@ router.get('/', function(req, res, next) {
 /**
  * TODO: implement me
  */
-router.get('/daily-trends', function(req, res, next) {
-  return res.json({ title: 'return daily trends from redis' });
+router.get('/daily-trends', async function(req, res, next) {
+  const dailyTrends = await client.get(process.env.REDIS_DAILY_TRENDS_KEY) || null;
+  
+  console.log(dailyTrends);
+
+  return res.json(JSON.parse(dailyTrends));
 });
 
 /**
