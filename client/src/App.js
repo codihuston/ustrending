@@ -19,7 +19,7 @@ function App() {
       TODO: Show top trends here
       {/* TODO: show top trends here. Hyperlink to google's explore page */}
       <MapChart setTooltipContent={setContent} />
-      <ReactTooltip html={true}v multiline={true}>{content}</ReactTooltip>
+      <ReactTooltip html={true} multiline={true}>{content}</ReactTooltip>
       TODO: Show trends in order per state here
     </div>
   );
