@@ -38,7 +38,7 @@ const client = new Redis({
   db: process.env.REDIS_DB,
 });
 
-async function runDailyTrends(){
+async function runDailyTrends(cronjobName){
   try{  
     // Step 1/5: Get all daily trends
     const dailyTrends = await trends.getDailyTrends();
@@ -67,36 +67,43 @@ async function runDailyTrends(){
     // TODO: notify admins?
     console.error(e);
   }
+  console.log(`Cronjob '${cronjobName}' complete.`);
 }
 
 /**
  * TODO: implement me
  */
-async function runRealtimeTrends(){}
+async function runRealtimeTrends(cronjobName){
+  console.log(`Cronjob '${cronjobName}' complete.`);
+}
 
 client.on("connect", function(){
   console.log("Connected to redis!");
 });
 
 client.on("ready", async function(){
+  const CRONJOB_DAILY_TRENDS = "DAILY TRENDS";
+  const CRONJOB_NAME_REALTIME_TRENDS = "REALTIME TRENDS";
+
   console.log("Redis connection ready!");
   console.log("Crontab pattern: ", CRON_EXPRESSION_DAILY_TRENDS)
 
   // run daily trends in a cronjob
   const cronRunDailyTrends = new CronJob(CRON_EXPRESSION_DAILY_TRENDS, async function() {
     const interval = parser.parseExpression(CRON_EXPRESSION_DAILY_TRENDS);
-    console.log('Executing DAILY TRENDS cronjob. Next execution scheduled for ', interval.next().toISOString());
 
-    await runDailyTrends();
+    console.log(`Executing [${CRONJOB_DAILY_TRENDS}] cronjob. Next execution scheduled for `, interval.next().toISOString());
+
+    await runDailyTrends(CRONJOB_DAILY_TRENDS);
 
   }, null, true, CRON_TIMEZONE);
 
   // run realtime trends in a cronjob
   const cronRunRealtimeTrends = new CronJob(CRON_EXPRESSION_REALTIME_TRENDS, async function() {
     const interval = parser.parseExpression(CRON_EXPRESSION_REALTIME_TRENDS);
-    console.log('Executing REALTIME TRENDS cronjob. Next execution scheduled for ', interval.next().toISOString());
+    console.log(`Executing [${CRONJOB_NAME_REALTIME_TRENDS}] cronjob. Next execution scheduled for `, interval.next().toISOString());
 
-    await runRealtimeTrends();
+    await runRealtimeTrends(CRONJOB_NAME_REALTIME_TRENDS);
 
   }, null, true, CRON_TIMEZONE);
 
@@ -106,8 +113,8 @@ client.on("ready", async function(){
 
   // run in case it doesn't at first-run...
   console.log("Initializing first-run (outside of cronjob)")
-  await runDailyTrends();
-  await runRealtimeTrends();
+  await runDailyTrends(CRONJOB_DAILY_TRENDS);
+  await runRealtimeTrends(CRONJOB_NAME_REALTIME_TRENDS);
 });
 
 client.on("close", function(){
