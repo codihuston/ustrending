@@ -8,7 +8,7 @@ import {
   Marker,
   Annotation
 } from "react-simple-maps";
-import allStates from "./allstates.json";
+import allStates from "../allstates.json";
 import debugLib from "debug";
 
 const debug = debugLib("client:mapchart");
