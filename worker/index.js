@@ -23,6 +23,7 @@ const explorer = require("./lib/explorer");
 const widgetData = require("./lib/widget-data");
 const processor = require("./lib/processor");
 const defaults = require("./lib/defaults");
+const utils = require("./lib/utils");
 
 const REDIS_DAILY_TRENDS_KEY = process.env.REDIS_DAILY_TRENDS_KEY || defaults.REDIS_DAILY_TRENDS_KEY;
 const REDIS_REALTIME_TRENDS_KEY = process.env.REDIS_REALTIME_TRENDS_KEY || defaults.REDIS_REALTIME_TRENDS_KEY;

@@ -17,10 +17,6 @@ module.exports.getMemoryStoreAsObject = function(){
   return res;
 };
 
-module.exports.getMemoryStoreKeyAsObject = getMemoryStoreKeyAsObject;
-
-module.exports.WriteableMemoryStream = WriteableMemoryStream;
-
 /**
  * Builds the querystring that is set to the google trending API (as requried
  * by the API itself). Converts a json object into a valid querystring parameter
@@ -41,6 +37,22 @@ module.exports.getQueryString = function (opts){
     }
   }
   return queryString;
+}
+
+module.exports.getMemoryStoreKeyAsObject = getMemoryStoreKeyAsObject;
+
+module.exports.WriteableMemoryStream = WriteableMemoryStream;
+
+module.exports.strMapToObj = strMapToObj;
+
+module.exports.objToStrMap = objToStrMap;
+
+module.exports.strMapToJson = function (strMap) {
+  return JSON.stringify(strMapToObj(strMap));
+}
+
+module.exports.jsonToStrMap = function (jsonStr) {
+  return objToStrMap(JSON.parse(jsonStr));
 }
 
 /*******************************************************************************
@@ -104,4 +116,22 @@ function getMemoryStoreKeyAsObject(key){
     return str ? JSON.parse(str) : null;
   }
   return null;
+}
+
+function strMapToObj (strMap) {
+  let obj = Object.create(null);
+  for (let [k,v] of strMap) {
+    // We don’t escape the key '__proto__'
+    // which can cause problems on older engines
+    obj[k] = v;
+  }
+  return obj;
+}
+
+function objToStrMap (obj) {
+  let strMap = new Map();
+  for (let k of Object.keys(obj)) {
+    strMap.set(k, obj[k]);
+  }
+  return strMap;
 }
