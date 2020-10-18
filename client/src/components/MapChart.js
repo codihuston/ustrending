@@ -73,9 +73,9 @@ const MapChart = ({ dailyTrends, colorsByTopic }) => {
                           .map((trend, i) => {
                             const content = `<span style="color: ${colorsByTopic.get(
                               trend.topic
-                            )};">${i} - ${trend.topic} - ${colorsByTopic.get(
+                            )};">${i + 1} - ${
                               trend.topic
-                            )}</span>`;
+                            } - ${colorsByTopic.get(trend.topic)}</span>`;
                             return content;
                           })
                           .join("<br>")
