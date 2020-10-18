@@ -141,7 +141,7 @@ function ResponsiveDrawer(props) {
         <main className={classes.content}>
           <div className={classes.toolbar} />
           <Switch>
-            <Route path="/chart">TODO: show chart</Route>
+            <Route path="/table">TODO: show table</Route>
             <Route path="/about">TODO: show about</Route>
             <Route path="/" component={HomePage}></Route>
           </Switch>
