@@ -87,14 +87,14 @@ const MapChart = ({ setTooltipContent }) => {
     fetch("/api/daily-trends")
     .then((res) => res.json())
     .then((result) => {
-      // TODO: set loading somewhere else
-      // setIsLoading(false);
-
-      // TODO: fetch daily trends
       const trendColorMap = new Map();
-      console.log("daily trends", result);
       result.map((x, i) => {
-        trendColorMap.set(x.title.query, colors[i]);
+        if(x?.title?.query){
+          trendColorMap.set(x.title.query, colors[i]);
+        }
+        else{
+          console.warn("WARNING: Title.Query is missing, cannot assign color to:", x);
+        }
       })
       setColorsByTopic(trendColorMap);
     });
@@ -120,27 +120,12 @@ const MapChart = ({ setTooltipContent }) => {
                       return;
                     }
 
-                    // console.log(name, dailyTrends.get(name));
-                    /*
-                  TODO:
-                    - tooltips are not being built
-                    
-                    tooltip data {topic: "Alabama vs Georgia", value: 57, geoCode: "US-GA"} 0
-                    tooltip conttent <span style="color: undefined;">0 - Alabama vs Georgia - undefined</span>
-
-                  OLD TODO:
-                    - optimize by initializing this content when top 20 trends
-                    and thier colors are updated? Will doing this affect the
-                    react-tooltip?
-                  */
                     console.log(`Daily Trend for '${name}'`, dailyTrend);
 
                     setTooltipContent(
                       dailyTrend
                         .map((trend, i) => {
                           const content = `<span style="color: ${colorsByTopic.get(trend.topic)};">${i} - ${trend.topic} - ${colorsByTopic.get(trend.topic)}</span>`;
-                          // console.log("tooltip data", trend, i);
-                          // console.log("tooltip content", content);
                           return content;
                         })
                         .join("<br>")
@@ -182,13 +167,7 @@ const MapChart = ({ setTooltipContent }) => {
                 const centroid = geoCentroid(geo);
                 const cur = allStates.find((s) => s.val === geo.id);
 
-                // console.log(centroid, geo)
-                /*
-                TODO: maybe instead of the state abbreviation, or along side it,
-                show the trend # that is #1 trending in this state.
-                
-                For example, if trend # 2 is top trending in KY, show 2 there.
-                */
+                console.log(centroid, geo)
 
                 return (
                   <g key={geo.rsmKey + "-name"}>
