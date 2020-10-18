@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Typography from "@material-ui/core/Typography";
 
 import TrendsContainer from "../containers/TrendsContainer";
+import MapChart from "../components/MapChart";
 
 function Home() {
   return (
@@ -37,7 +38,9 @@ function Home() {
         maecenas accumsan lacus vel facilisis. Nulla posuere sollicitudin
         aliquam ultrices sagittis orci a.
       </Typography>
-      <TrendsContainer/>
+      <TrendsContainer>
+        <MapChart/>
+      </TrendsContainer>
       TODO: Show trends in order per state here
     </>
   );

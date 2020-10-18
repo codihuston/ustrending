@@ -32,7 +32,7 @@ const colors = [
  * Injects the processed respones from /daily-trends, /daily-trends-by-state
  * into a given component
  */
-function TrendsContainer() {
+function TrendsContainer({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [content, setContent] = useState("");
   const [dailyTrends, setDailyTrends] = useState(new Map());
@@ -75,14 +75,29 @@ function TrendsContainer() {
     return "Loading...";
   }
 
+  /**
+   * Clone children (shallow) and add custom props. This allows this
+   * container to handle generic children that might rely on the same data
+   * but render differently (such as a MapChart or TableChart)
+   */
+  const childrenWithProps = React.Children.map(children, child => {
+    // checking isValidElement is the safe way and avoids a typescript error too
+    const props = {
+      setTooltipContent: setContent,
+      dailyTrends,
+      colors,
+      colorsByTopic,
+    };
+
+    if (React.isValidElement(child)) {
+        return React.cloneElement(child, props);
+    }
+    return child;
+});
+
   return (
     <>
-      <MapChart
-        setTooltipContent={setContent}
-        dailyTrends={dailyTrends}
-        colors={colors}
-        colorsByTopic={colorsByTopic}
-      />
+      {childrenWithProps}
       <ReactTooltip html={true} multiline={true}>
         {content}
       </ReactTooltip>
