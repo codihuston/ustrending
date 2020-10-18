@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "cron": "^1.8.2",
+    "cron-parser": "^2.16.3",
     "cross-env": "^7.0.2",
     "debug": "^4.2.0",
     "google-trends-api": "^4.9.0",

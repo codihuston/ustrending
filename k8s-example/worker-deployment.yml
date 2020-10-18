@@ -23,6 +23,12 @@ spec:
               memory: "128Mi"
               cpu: "0.1"
           env:
+            # crontab config
+            - name: CRON_EXPRESSION
+              value: "1 * * * * *"
+            - name: CRON_TIMEZONE
+              value: "America/Chicago"
+            # google api config
             - name: GOOGLE_GEO_COUNTRY_CODE
               value: "US"
             - name: MAX_TREND_LIMIT

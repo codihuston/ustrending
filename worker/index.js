@@ -3,7 +3,6 @@
  * In production, this will likely be deployed in a separate cluster/standalone
  * instance (it doesn't need to be replciated).
  * 
- * TODO: 
  * 1. [x] connect to redis
  * 2. [] create cronjob, runs every X minutes
  *    2a. [x] query google -> gets all trends
@@ -16,6 +15,8 @@
  */
 const debug = require("debug")("worker:index");
 const Redis = require("ioredis");
+const CronJob = require('cron').CronJob;
+const parser = require('cron-parser');
 
 const trends = require("./lib/trends");
 const explorer = require("./lib/explorer");
@@ -23,7 +24,9 @@ const widgetData = require("./lib/widget-data");
 const processor = require("./lib/processor");
 const defaults = require("./lib/defaults");
 
-const REDIS_DAILY_TRENDS_KEY = process.env.REDIS_DAILY_TRENDS_KEY|| defaults.REDIS_DAILY_TRENDS_KEY;
+const REDIS_DAILY_TRENDS_KEY = process.env.REDIS_DAILY_TRENDS_KEY || defaults.REDIS_DAILY_TRENDS_KEY;
+const CRON_EXPRESSION = process.env.CRON_EXPRESSION || defaults.CRON_EXPRESSION;
+const CRON_TIMEZONE = process.env.CRON_TIMEZONE ||  defaults.CRON_TIMEZONE;
 
 const client = new Redis({
   port: process.env.REDIS_PORT, // Redis port
@@ -33,15 +36,8 @@ const client = new Redis({
   db: process.env.REDIS_DB,
 });
 
-client.on("connect", function(){
-  console.log("Connected to redis!");
-});
-
-client.on("ready", async function(){
-  console.log("Redis connection ready!");
-  try{
-    // TODO: implement cron here
-
+async function run(){
+  try{  
     // Step 1/5: Get all daily trends
     const dailyTrends = await trends.getDailyTrends();
     debug("daily trends", dailyTrends);
@@ -58,7 +54,7 @@ client.on("ready", async function(){
     const comparedGeo = await widgetData.comparedGeo(exploredTrends);
     debug("compared geo", comparedGeo);
 
-    // TODO: Step 4/5: Get data and process it for client use
+    // Step 4/5: Get data and process it for client use
     const results = processor.process(dailyTrends, comparedGeo);
     debug("geographical data for trends", results);
 
@@ -69,6 +65,30 @@ client.on("ready", async function(){
     // TODO: notify admins?
     console.error(e);
   }
+}
+
+client.on("connect", function(){
+  console.log("Connected to redis!");
+});
+
+client.on("ready", async function(){
+  console.log("Redis connection ready!");
+  console.log("Crontab pattern: ", CRON_EXPRESSION)
+
+  // implement this worker in a cronjob
+  const job = new CronJob(CRON_EXPRESSION, async function() {
+    const interval = parser.parseExpression(CRON_EXPRESSION);
+    console.log('Executing cronjob. Next execution scheduled for ', interval.next().toISOString());
+
+    await run();
+
+  }, null, true, CRON_TIMEZONE);
+
+  await job.start();
+
+  // run in case it doesn't at first-run...
+  console.log("Initializing first-run (outside of cronjob)")
+  await run();
 });
 
 client.on("close", function(){
