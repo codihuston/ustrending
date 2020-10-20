@@ -1,5 +1,4 @@
 import React from "react";
-
 import MaUTable from "@material-ui/core/Table";
 import PropTypes from "prop-types";
 import TableBody from "@material-ui/core/TableBody";
@@ -14,18 +13,28 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import TableToolbar from "./TableToolbar";
 import {
   useGlobalFilter,
+  useFilters,
   usePagination,
   useRowSelect,
   useSortBy,
   useTable,
 } from "react-table";
+import { matchSorter } from "match-sorter";
 import invert from "invert-color";
 
-const inputStyle = {
-  padding: 0,
-  margin: 0,
-  border: 0,
-  background: "transparent",
+function fuzzyTextFilterFn(rows, id, filterValue) {
+  return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
+}
+
+// Let the table remove the filter if the string is empty
+fuzzyTextFilterFn.autoRemove = (val) => !val;
+
+const Filter = ({ column }) => {
+  return (
+    <div style={{ marginTop: 5 }} onClick={(event) => event.stopPropagation()}>
+      {column.canFilter && column.render("Filter")}
+    </div>
+  );
 };
 
 const EnhancedTable = ({
@@ -36,6 +45,84 @@ const EnhancedTable = ({
   defaultPageSize,
   colorsByTopic,
 }) => {
+  const filterTypes = React.useMemo(
+    () => ({
+      // Add a new fuzzyTextFilterFn filter type.
+      fuzzyText: fuzzyTextFilterFn,
+      // Or, override the default text filter to use
+      // "startWith"
+      text: (rows, id, filterValue) => {
+        return rows.filter((row) => {
+          const rowValue = row.values[id];
+          return rowValue !== undefined
+            ? String(rowValue)
+                .toLowerCase()
+                .startsWith(String(filterValue).toLowerCase())
+            : true;
+        });
+      },
+    }),
+    []
+  );
+
+  // Define a default UI for filtering
+  function DefaultColumnFilter({
+    column: { filterValue, preFilteredRows, setFilter },
+  }) {
+    const count = preFilteredRows.length;
+
+    return (
+      <input
+        value={filterValue || ""}
+        onChange={(e) => {
+          setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+        }}
+        placeholder={`Search ${count} records...`}
+      />
+    );
+  }
+
+  // This is a custom filter UI for selecting
+  // a unique option from a list
+  function SelectColumnFilter({
+    column: { filterValue, setFilter, preFilteredRows, id },
+  }) {
+    // Calculate the options for filtering
+    // using the preFilteredRows
+    const options = React.useMemo(() => {
+      const options = new Set();
+      preFilteredRows.forEach((row) => {
+        options.add(row.values[id]);
+      });
+      return [...options.values()];
+    }, [id, preFilteredRows]);
+
+    // Render a multi-select box
+    return (
+      <select
+        value={filterValue}
+        onChange={(e) => {
+          setFilter(e.target.value || undefined);
+        }}
+      >
+        <option value="">All</option>
+        {options.map((option, i) => (
+          <option key={i} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  const defaultColumn = React.useMemo(
+    () => ({
+      // Let's set up our default Filter UI
+      Filter: DefaultColumnFilter,
+    }),
+    []
+  );
+
   const {
     getTableProps,
     headerGroups,
@@ -58,8 +145,11 @@ const EnhancedTable = ({
       initialState: {
         pageSize: defaultPageSize,
       },
+      defaultColumn,
+      filterTypes,
     },
     useGlobalFilter,
+    useFilters,
     useSortBy,
     usePagination,
     useRowSelect
@@ -102,14 +192,19 @@ const EnhancedTable = ({
                     ? column.getHeaderProps()
                     : column.getHeaderProps(column.getSortByToggleProps()))}
                 >
-                  {column.render("Header")}
-                  {column.id !== "selection" ? (
-                    <TableSortLabel
-                      active={column.isSorted}
-                      // react-table has a unsorted state which is not treated here
-                      direction={column.isSortedDesc ? "desc" : "asc"}
-                    />
-                  ) : null}
+                  <div>
+                    <span>
+                      {column.render("Header")}
+                      {column.id !== "selection" ? (
+                        <TableSortLabel
+                          active={column.isSorted}
+                          // react-table has a unsorted state which is not treated here
+                          direction={column.isSortedDesc ? "desc" : "asc"}
+                        />
+                      ) : null}
+                    </span>
+                  </div>
+                  <Filter column={column} />
                 </TableCell>
               ))}
             </TableRow>
