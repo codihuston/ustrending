@@ -145,6 +145,15 @@ const EnhancedTableToolbar = (props) => {
       </Typography>
       <FormControlLabel
         control={
+          <Switch
+            checked={props.isBackgroundColored}
+            onChange={props.handleChangeIsBackgroundColored}
+          />
+        }
+        label="Background colors"
+      />
+      <FormControlLabel
+        control={
           <Switch checked={props.dense} onChange={props.handleChangeDense} />
         }
         label="Dense padding"
@@ -190,6 +199,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(true);
   const [rowsPerPage, setRowsPerPage] = React.useState(dailyTrends.size);
+  const [isBackgroundColored, setIsBackgroundColored] = React.useState(false);
 
   if (!dailyTrends) {
     return "Loading...";
@@ -264,6 +274,10 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
     setDense(event.target.checked);
   };
 
+  function handleChangeIsBackgroundColored(event) {
+    setIsBackgroundColored(event.target.checked);
+  }
+
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
@@ -287,6 +301,8 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
         <EnhancedTableToolbar
           dense={dense}
           handleChangeDense={handleChangeDense}
+          isBackgroundColored={isBackgroundColored}
+          handleChangeIsBackgroundColored={handleChangeIsBackgroundColored}
         />
         <TableContainer>
           <Table
@@ -309,6 +325,12 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const labelId = `enhanced-table-cell-${index}`;
+                  const style = isBackgroundColored
+                    ? {
+                        backgroundColor: colorsByTopic.get(row[0]),
+                        color: invert(colorsByTopic.get(row[0]), true),
+                      }
+                    : {};
 
                   // TODO: make rows dynamic!
                   return (
@@ -321,13 +343,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                       <TableCell component="th" id={labelId} scope="row">
                         {row.name}
                       </TableCell>
-                      <TableCell
-                        align="left"
-                        style={{
-                          backgroundColor: colorsByTopic.get(row[0]),
-                          color: invert(colorsByTopic.get(row[0]), true),
-                        }}
-                      >
+                      <TableCell align="left" style={style}>
                         {row[0]}
                       </TableCell>
                       <TableCell
