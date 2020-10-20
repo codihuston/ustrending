@@ -44,6 +44,14 @@ const TrendingTable = ({ dailyTrends, colorsByTopic }) => {
       },
       {
         Header: "#8",
+        accessor: "7",
+      },
+      {
+        Header: "#9",
+        accessor: "8",
+      },
+      {
+        Header: "#10",
         accessor: "9",
       },
     ],

@@ -11,6 +11,13 @@ import TablePaginationActions from "./TablePaginationActions";
 import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 import TableToolbar from "./TableToolbar";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+import Button from "@material-ui/core/Button";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import InsertChartIcon from "@material-ui/icons/InsertChart";
+import GetAppIcon from "@material-ui/icons/GetApp";
+import PictureAsPdfIcon from "@material-ui/icons/PictureAsPdf";
 import {
   useGlobalFilter,
   useFilters,
@@ -19,6 +26,11 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
+import { useExportData } from "react-table-plugins";
+import Papa from "papaparse";
+import XLSX from "xlsx";
+import JsPDF from "jspdf";
+import "jspdf-autotable";
 import { matchSorter } from "match-sorter";
 import invert from "invert-color";
 
@@ -28,6 +40,58 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 
 // Let the table remove the filter if the string is empty
 fuzzyTextFilterFn.autoRemove = (val) => !val;
+
+function getExportFileBlob({ columns, data, fileType, fileName }) {
+  if (fileType === "csv") {
+    // CSV example
+    const headerNames = columns.map((col) => col.exportValue);
+    const csvString = Papa.unparse({ fields: headerNames, data });
+    return new Blob([csvString], { type: "text/csv" });
+  } else if (fileType === "xlsx") {
+    // XLSX example
+
+    const header = columns.map((c) => c.exportValue);
+    const compatibleData = data.map((row) => {
+      const obj = {};
+      header.forEach((col, index) => {
+        obj[col] = row[index];
+      });
+      return obj;
+    });
+
+    let wb = XLSX.utils.book_new();
+    let ws1 = XLSX.utils.json_to_sheet(compatibleData, {
+      header,
+    });
+    XLSX.utils.book_append_sheet(wb, ws1, "React Table Data");
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+
+    // Returning false as downloading of file is already taken care of
+    return false;
+  }
+  //PDF example
+  if (fileType === "pdf") {
+    const headerNames = columns.map((column) => column.exportValue);
+    const doc = new JsPDF();
+    doc.autoTable({
+      head: [headerNames],
+      body: data,
+      margin: { top: 20 },
+      styles: {
+        minCellHeight: 9,
+        halign: "left",
+        valign: "center",
+        fontSize: 11,
+      },
+    });
+    doc.save(`${fileName}.pdf`);
+
+    return false;
+  }
+
+  // Other formats goes here
+  return false;
+}
 
 const Filter = ({ column }) => {
   return (
@@ -131,6 +195,7 @@ const EnhancedTable = ({
     gotoPage,
     setPageSize,
     state: { pageIndex, pageSize },
+    exportData,
   } = useTable(
     {
       columns,
@@ -147,12 +212,14 @@ const EnhancedTable = ({
       },
       defaultColumn,
       filterTypes,
+      getExportFileBlob,
     },
     useGlobalFilter,
     useFilters,
     useSortBy,
     usePagination,
-    useRowSelect
+    useRowSelect,
+    useExportData
   );
 
   const [dense, setDense] = React.useState(true);
@@ -177,11 +244,51 @@ const EnhancedTable = ({
   // Render the UI for your table
   return (
     <TableContainer>
-      <TableToolbar
-        handleChangeIsBackgroundColored={handleChangeIsBackgroundColored}
-        dense={dense}
-        handleChangeDense={handleChangeDense}
-      />
+      <TableToolbar>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isBackgroundColored}
+              onChange={handleChangeIsBackgroundColored}
+            />
+          }
+          label="Background colors"
+        />
+        <FormControlLabel
+          control={<Switch checked={dense} onChange={handleChangeDense} />}
+          label="Dense padding"
+        />
+        <ButtonGroup
+          variant="contained"
+          color="primary"
+          aria-label="contained primary button group"
+        >
+          <Button
+            title="Export as .csv"
+            onClick={() => {
+              exportData("csv", false);
+            }}
+          >
+            <GetAppIcon />
+          </Button>
+          <Button
+            title="Export as .xlsx"
+            onClick={() => {
+              exportData("xlsx", false);
+            }}
+          >
+            <InsertChartIcon />
+          </Button>
+          <Button
+            title="Export as .pdf"
+            onClick={() => {
+              exportData("pdf", false);
+            }}
+          >
+            <PictureAsPdfIcon />
+          </Button>
+        </ButtonGroup>
+      </TableToolbar>
       <MaUTable size={dense ? "small" : "medium"} {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup) => (
