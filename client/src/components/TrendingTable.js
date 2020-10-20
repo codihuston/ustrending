@@ -3,7 +3,7 @@ import React from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "./EnhancedTable";
 
-const NewTableChart = ({ dailyTrends, colorsByTopic }) => {
+const TrendingTable = ({ dailyTrends, colorsByTopic }) => {
   const rows = [];
   const columns = React.useMemo(
     () => [
@@ -69,10 +69,6 @@ const NewTableChart = ({ dailyTrends, colorsByTopic }) => {
     return 0;
   });
 
-  if (!rows.length) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div>
       <CssBaseline />
@@ -86,4 +82,4 @@ const NewTableChart = ({ dailyTrends, colorsByTopic }) => {
   );
 };
 
-export default NewTableChart;
+export default TrendingTable;

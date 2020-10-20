@@ -1,13 +1,13 @@
 import React from "react";
 
-import NewTableChart from "../components/NewTableChart";
+import TrendingTable from "../components/TrendingTable";
 
 function TableView({ dailyTrends, colorsByTopic }) {
   return (
-    <NewTableChart
+    <TrendingTable
       dailyTrends={dailyTrends}
       colorsByTopic={colorsByTopic}
-    ></NewTableChart>
+    ></TrendingTable>
   );
 }
 
