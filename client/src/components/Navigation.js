@@ -200,25 +200,9 @@ function ResponsiveDrawer(props) {
           <Typography paragraph>TODO: Show top trends marquee here?</Typography>
           <Switch>
             <Route path="/about">TODO: show about</Route>
-            <Route
-              path="/table"
-              render={() => (
-                <TableViewPage
-                  dailyTrends={props.dailyTrends}
-                  colorsByTopic={props.colorsByTopic}
-                />
-              )}
-            />
+            <Route path="/table" render={() => <TableViewPage {...props} />} />
             <Route path="/trending">TODO: show top trending table</Route>
-            <Route
-              path="/"
-              render={() => (
-                <HomePage
-                  dailyTrends={props.dailyTrends}
-                  colorsByTopic={props.colorsByTopic}
-                />
-              )}
-            />
+            <Route path="/" render={() => <HomePage {...props} />} />
           </Switch>
         </main>
       </Router>
