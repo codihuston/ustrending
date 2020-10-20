@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import clsx from "clsx";
 import { lighten, makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -17,8 +16,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
-import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
+import invert from "invert-color";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -199,16 +198,17 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
       topics.push(topic.topic);
     });
 
-    // console.log("topics", topics);
-
     rows.push({
       name: key,
       ...topics,
     });
   });
 
-  // TODO: sort
-  rows.sort((a, b) => a.name - b.name);
+  rows.sort((a, b) => {
+    if (a.name < b.name) return -1;
+    if (a.name > b.name) return 1;
+    return 0;
+  });
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -316,6 +316,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[0]),
+                          color: invert(colorsByTopic.get(row[0]), true),
                         }}
                       >
                         {row[0]}
@@ -324,6 +325,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[1]),
+                          color: invert(colorsByTopic.get(row[1]), true),
                         }}
                       >
                         {row[1]}
@@ -332,6 +334,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[2]),
+                          color: invert(colorsByTopic.get(row[2]), true),
                         }}
                       >
                         {row[2]}
@@ -340,6 +343,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[3]),
+                          color: invert(colorsByTopic.get(row[3]), true),
                         }}
                       >
                         {row[3]}
@@ -348,6 +352,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[4]),
+                          color: invert(colorsByTopic.get(row[4]), true),
                         }}
                       >
                         {row[4]}
@@ -356,6 +361,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[5]),
+                          color: invert(colorsByTopic.get(row[5]), true),
                         }}
                       >
                         {row[5]}
@@ -364,6 +370,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[6]),
+                          color: invert(colorsByTopic.get(row[6]), true),
                         }}
                       >
                         {row[6]}
@@ -372,6 +379,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[7]),
+                          color: invert(colorsByTopic.get(row[7]), true),
                         }}
                       >
                         {row[7]}
@@ -380,6 +388,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[8]),
+                          color: invert(colorsByTopic.get(row[8]), true),
                         }}
                       >
                         {row[8]}
@@ -388,6 +397,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
                         align="left"
                         style={{
                           backgroundColor: colorsByTopic.get(row[9]),
+                          color: invert(colorsByTopic.get(row[9]), true),
                         }}
                       >
                         {row[9]}
