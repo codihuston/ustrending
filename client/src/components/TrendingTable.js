@@ -4,7 +4,10 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "./EnhancedTable";
 
 const TrendingTable = ({ dailyTrends, colorsByTopic }) => {
+  // account for all 50 states
+  const DEFAULT_MAX_ROW_LENGTH = 51;
   const rows = [];
+  // TODO: generate this dynamically
   const columns = React.useMemo(
     () => [
       {
@@ -75,7 +78,7 @@ const TrendingTable = ({ dailyTrends, colorsByTopic }) => {
       <EnhancedTable
         columns={columns}
         data={rows}
-        defaultPageSize={rows.length ? rows.length : 10}
+        defaultPageSize={rows.length ? rows.length : DEFAULT_MAX_ROW_LENGTH}
         colorsByTopic={colorsByTopic}
       />
     </div>
