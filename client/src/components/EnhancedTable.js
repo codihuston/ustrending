@@ -27,7 +27,13 @@ const inputStyle = {
   background: "transparent",
 };
 
-const EnhancedTable = ({ columns, data, updateMyData, skipPageReset }) => {
+const EnhancedTable = ({
+  columns,
+  data,
+  updateMyData,
+  skipPageReset,
+  defaultPageSize,
+}) => {
   const {
     getTableProps,
     headerGroups,
@@ -47,6 +53,9 @@ const EnhancedTable = ({ columns, data, updateMyData, skipPageReset }) => {
       // That way we can call this function from our
       // cell renderer!
       updateMyData,
+      initialState: {
+        pageSize: defaultPageSize,
+      },
     },
     useGlobalFilter,
     useSortBy,
@@ -151,7 +160,6 @@ const EnhancedTable = ({ columns, data, updateMyData, skipPageReset }) => {
 EnhancedTable.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
-  skipPageReset: PropTypes.bool.isRequired,
 };
 
 export default EnhancedTable;

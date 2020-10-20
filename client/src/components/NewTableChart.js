@@ -2,11 +2,8 @@ import React from "react";
 
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "./EnhancedTable";
-import makeData from "../makeData";
 
 const NewTableChart = ({ dailyTrends, colorsByTopic }) => {
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
-
   const rows = [];
   const columns = React.useMemo(
     () => [
@@ -72,13 +69,17 @@ const NewTableChart = ({ dailyTrends, colorsByTopic }) => {
     return 0;
   });
 
+  if (!rows.length) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <CssBaseline />
       <EnhancedTable
         columns={columns}
         data={rows}
-        skipPageReset={skipPageReset}
+        defaultPageSize={rows.length}
       />
     </div>
   );
