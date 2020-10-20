@@ -32,7 +32,8 @@ const colors = [
 function TrendsContainer({ children }) {
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [dailyTrends, setDailyTrends] = useState(new Map());
+  const [dailyTrends, setDailyTrends] = useState();
+  const [dailyTrendsByState, setDailyTrendsByState] = useState(new Map());
   // state => color
   const [colorsByTopic, setColorsByTopic] = useState(new Map());
 
@@ -47,7 +48,7 @@ function TrendsContainer({ children }) {
             processed.set(x[0], x[1]);
           });
 
-          setDailyTrends(processed);
+          setDailyTrendsByState(processed);
           setError(false);
         } else {
           setError(true);
@@ -70,6 +71,8 @@ function TrendsContainer({ children }) {
               );
             }
           });
+
+          setDailyTrends(result);
           setColorsByTopic(trendColorMap);
           setIsLoading(false);
           setError(false);
@@ -92,6 +95,7 @@ function TrendsContainer({ children }) {
     // checking isValidElement is the safe way and avoids a typescript error too
     const props = {
       dailyTrends,
+      dailyTrendsByState,
       colors,
       colorsByTopic,
       error,

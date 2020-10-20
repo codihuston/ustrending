@@ -43,7 +43,7 @@ const labelStyle = {
   },
 };
 
-const MapChart = ({ dailyTrends, colorsByTopic }) => {
+const MapChart = ({ dailyTrendsByState, colorsByTopic }) => {
   const [tooltipContent, setTooltipContent] = useState("");
 
   return (
@@ -60,7 +60,7 @@ const MapChart = ({ dailyTrends, colorsByTopic }) => {
                     geography={geo}
                     onMouseEnter={() => {
                       const { name } = geo.properties;
-                      const dailyTrend = dailyTrends.get(name);
+                      const dailyTrend = dailyTrendsByState.get(name);
                       if (!dailyTrend) {
                         console.warn(`Trends not found for state '${name}'`);
                         return;
@@ -87,8 +87,8 @@ const MapChart = ({ dailyTrends, colorsByTopic }) => {
                     style={(() => {
                       // get color of top trending item for this state
                       const { name } = geo.properties;
-                      const topicName = dailyTrends.get(name)
-                        ? dailyTrends.get(name)[0].topic
+                      const topicName = dailyTrendsByState.get(name)
+                        ? dailyTrendsByState.get(name)[0].topic
                         : null;
                       const style = {
                         default: {

@@ -23,15 +23,16 @@ debug("Trending Limit:", TRENDING_LIMIT);
  * Processes data from the Google Trends API and the associated geography
  * for the region and returns a JS Map object.
  *
- * @param {*} dailyTrends
+ * @param {*} dailyTrendsByState
  * @param {*} comparedGeo
  * @returns Map
  */
-module.exports.process = function (dailyTrends, comparedGeo) {
+module.exports.process = function (dailyTrendsByState, comparedGeo) {
   // const trendingResponse = JSON.parse(fs.readFileSync(resolve(__dirname, `_trendingResponse.json`)));
 
   // get the most recent trending searches from the given daily trends response
-  const dt = dailyTrends.default?.trendingSearchesDays?.[0]?.trendingSearches;
+  const dt =
+    dailyTrendsByState.default?.trendingSearchesDays?.[0]?.trendingSearches;
   debug("Count of given daily trends:", dt.length);
 
   if (!dt) {

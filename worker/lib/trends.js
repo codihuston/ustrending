@@ -7,7 +7,8 @@ const defaults = require("./defaults");
 
 // shows trending for current trending topic for this country, see:
 // https://developers.google.com/adwords/api/docs/appendix/geotargeting
-const GOOGLE_GEO_COUNTRY_CODE = process.env.GOOGLE_GEO_COUNTRY_CODE || defaults.GOOGLE_GEO_COUNTRY_CODE;
+const GOOGLE_GEO_COUNTRY_CODE =
+  process.env.GOOGLE_GEO_COUNTRY_CODE || defaults.GOOGLE_GEO_COUNTRY_CODE;
 
 /*******************************************************************************
  * Public API
@@ -17,7 +18,7 @@ const GOOGLE_GEO_COUNTRY_CODE = process.env.GOOGLE_GEO_COUNTRY_CODE || defaults.
  * Step 1 of 5: Returns Google Trends trending item data
  */
 module.exports.getDailyTrends = async () =>
-  googleTrends.dailyTrends(
+  googleTrends.dailyTrendsByState(
     { geo: GOOGLE_GEO_COUNTRY_CODE },
     dailyTrendsCallback
   ); // end daily trends
@@ -32,7 +33,6 @@ module.exports.realTimeTrends = async () =>
     { geo: GOOGLE_GEO_COUNTRY_CODE },
     dailyTrendsCallback
   ); // end daily trends
-
 
 /*******************************************************************************
  * Private API
@@ -69,13 +69,15 @@ async function dailyTrendsCallback(err, results) {
  */
 function debugResponse(trendingAPIResponse) {
   if (process.env.NODE_ENV == "development") {
-    const outputPath = resolve(__dirname, `../debug`, "google-trends-api-response.json");
+    const outputPath = resolve(
+      __dirname,
+      `../debug`,
+      "google-trends-api-response.json"
+    );
 
     debug("DEBUG: Writing output to: ", outputPath);
 
     // write trending response to file system
-    fs.writeFileSync(outputPath,
-      JSON.stringify(trendingAPIResponse, null, 4)
-    );
+    fs.writeFileSync(outputPath, JSON.stringify(trendingAPIResponse, null, 4));
   }
 }

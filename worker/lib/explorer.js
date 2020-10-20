@@ -38,7 +38,7 @@ debug("Trending Limit:", TRENDING_LIMIT);
  * be used to fetch the geographic data for each of the trends (i.e. the
  * trending data for each trend by region)
  *
- * @param {*} dailyTrends
+ * @param {*} dailyTrendsByState
  * @returns [<promise>{
  *  exploreResponse,
  *  comparedGeoRequest,
@@ -46,9 +46,10 @@ debug("Trending Limit:", TRENDING_LIMIT);
  *  memoryStoreKey
  * }]
  */
-module.exports.exploreTrends = async (dailyTrends) => {
+module.exports.exploreTrends = async (dailyTrendsByState) => {
   // get the most recent trending searches from the given daily trends response
-  const dt = dailyTrends.default?.trendingSearchesDays?.[0]?.trendingSearches;
+  const dt =
+    dailyTrendsByState.default?.trendingSearchesDays?.[0]?.trendingSearches;
   const promises = [];
 
   if (!dt) {

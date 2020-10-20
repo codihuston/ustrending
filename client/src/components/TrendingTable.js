@@ -3,7 +3,7 @@ import React from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "./EnhancedTable";
 
-const TrendingTable = ({ dailyTrends, colorsByTopic }) => {
+const TrendingTable = ({ dailyTrendsByState, colorsByTopic }) => {
   // account for all 50 states
   const DEFAULT_MAX_ROW_LENGTH = 51;
   const rows = [];
@@ -58,7 +58,7 @@ const TrendingTable = ({ dailyTrends, colorsByTopic }) => {
     []
   );
 
-  dailyTrends.forEach((value, key) => {
+  dailyTrendsByState.forEach((value, key) => {
     const topics = [];
 
     value.forEach((topic) => {
