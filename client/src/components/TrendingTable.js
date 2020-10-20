@@ -75,7 +75,7 @@ const TrendingTable = ({ dailyTrends, colorsByTopic }) => {
       <EnhancedTable
         columns={columns}
         data={rows}
-        defaultPageSize={rows.length}
+        defaultPageSize={rows.length ? rows.length : 10}
         colorsByTopic={colorsByTopic}
       />
     </div>
