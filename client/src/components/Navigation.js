@@ -100,13 +100,13 @@ function ResponsiveDrawer(props) {
       <List>
         <ListItemLink
           icon={<TrendingUpIcon />}
-          primary={"Trending"}
+          primary={"Trending Today"}
           to={"/trending"}
         />
-        <ListItemLink icon={<MapIcon />} primary={"Map View"} to={"/"} />
+        <ListItemLink icon={<MapIcon />} primary={"Map"} to={"/"} />
         <ListItemLink
           icon={<TableChartIcon />}
-          primary={"Table View"}
+          primary={"Table"}
           to={"/table"}
         />
       </List>
