@@ -177,7 +177,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable({ dailyTrends }) {
+export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
   const classes = useStyles();
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -199,7 +199,8 @@ export default function EnhancedTable({ dailyTrends }) {
       topics.push(topic.topic);
     });
 
-    console.log("topics", topics);
+    // console.log("topics", topics);
+
     rows.push({
       name: key,
       ...topics,
@@ -311,16 +312,86 @@ export default function EnhancedTable({ dailyTrends }) {
                       <TableCell component="th" id={labelId} scope="row">
                         {row.name}
                       </TableCell>
-                      <TableCell align="left">{row[0]}</TableCell>
-                      <TableCell align="left">{row[1]}</TableCell>
-                      <TableCell align="left">{row[2]}</TableCell>
-                      <TableCell align="left">{row[3]}</TableCell>
-                      <TableCell align="left">{row[4]}</TableCell>
-                      <TableCell align="left">{row[5]}</TableCell>
-                      <TableCell align="left">{row[6]}</TableCell>
-                      <TableCell align="left">{row[7]}</TableCell>
-                      <TableCell align="left">{row[8]}</TableCell>
-                      <TableCell align="left">{row[9]}</TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[0]),
+                        }}
+                      >
+                        {row[0]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[1]),
+                        }}
+                      >
+                        {row[1]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[2]),
+                        }}
+                      >
+                        {row[2]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[3]),
+                        }}
+                      >
+                        {row[3]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[4]),
+                        }}
+                      >
+                        {row[4]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[5]),
+                        }}
+                      >
+                        {row[5]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[6]),
+                        }}
+                      >
+                        {row[6]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[7]),
+                        }}
+                      >
+                        {row[7]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[8]),
+                        }}
+                      >
+                        {row[8]}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        style={{
+                          backgroundColor: colorsByTopic.get(row[9]),
+                        }}
+                      >
+                        {row[9]}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
