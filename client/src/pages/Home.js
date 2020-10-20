@@ -1,15 +1,13 @@
-import React, { useState } from "react";
+import React, { memo } from "react";
+import { withRouter } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 
-import TrendsContainer from "../containers/TrendsContainer";
 import MapChart from "../components/MapChart";
 
-function Home() {
+function Home({ dailyTrends, colorsByTopic }) {
   return (
     <>
-      <Typography paragraph>
-          TODO: Show top trends marquee here?
-      </Typography>
+      <Typography paragraph>TODO: Show top trends marquee here?</Typography>
       <Typography paragraph>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus
@@ -38,12 +36,10 @@ function Home() {
         maecenas accumsan lacus vel facilisis. Nulla posuere sollicitudin
         aliquam ultrices sagittis orci a.
       </Typography>
-      <TrendsContainer>
-        <MapChart/>
-      </TrendsContainer>
+      <MapChart dailyTrends={dailyTrends} colorsByTopic={colorsByTopic} />
       TODO: Show trends in order per state here
     </>
   );
 }
 
-export default Home;
+export default memo(withRouter(Home));
