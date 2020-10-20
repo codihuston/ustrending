@@ -4,7 +4,7 @@ import Typography from "@material-ui/core/Typography";
 
 import MapChart from "../components/MapChart";
 
-function Home({ dailyTrends, colorsByTopic }) {
+function Home(props) {
   return (
     <>
       <Typography paragraph>
@@ -35,7 +35,7 @@ function Home({ dailyTrends, colorsByTopic }) {
         maecenas accumsan lacus vel facilisis. Nulla posuere sollicitudin
         aliquam ultrices sagittis orci a.
       </Typography>
-      <MapChart dailyTrends={dailyTrends} colorsByTopic={colorsByTopic} />
+      <MapChart {...props} />
       TODO: Show trends in order per state here
     </>
   );
