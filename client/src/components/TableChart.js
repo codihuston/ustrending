@@ -13,7 +13,6 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import Checkbox from "@material-ui/core/Checkbox";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -51,31 +50,23 @@ const headCells = [
   {
     id: "name",
     numeric: false,
-    disablePadding: true,
-    label: "Dessert (100g serving)",
+    disablePadding: false,
+    label: "State",
   },
-  { id: "0", numeric: true, disablePadding: false, label: "1" },
-  { id: "1", numeric: true, disablePadding: false, label: "2" },
-  { id: "2", numeric: true, disablePadding: false, label: "3" },
-  { id: "3", numeric: true, disablePadding: false, label: "4" },
-  { id: "4", numeric: true, disablePadding: false, label: "5" },
-  { id: "5", numeric: true, disablePadding: false, label: "6" },
-  { id: "6", numeric: true, disablePadding: false, label: "7" },
-  { id: "7", numeric: true, disablePadding: false, label: "8" },
-  { id: "8", numeric: true, disablePadding: false, label: "9" },
-  { id: "9", numeric: true, disablePadding: false, label: "10" },
+  { id: "0", numeric: true, disablePadding: false, label: "#1" },
+  { id: "1", numeric: true, disablePadding: false, label: "#2" },
+  { id: "2", numeric: true, disablePadding: false, label: "#3" },
+  { id: "3", numeric: true, disablePadding: false, label: "#4" },
+  { id: "4", numeric: true, disablePadding: false, label: "#5" },
+  { id: "5", numeric: true, disablePadding: false, label: "#6" },
+  { id: "6", numeric: true, disablePadding: false, label: "#7" },
+  { id: "7", numeric: true, disablePadding: false, label: "#8" },
+  { id: "8", numeric: true, disablePadding: false, label: "#9" },
+  { id: "9", numeric: true, disablePadding: false, label: "#10" },
 ];
 
 function EnhancedTableHead(props) {
-  const {
-    classes,
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
+  const { classes, order, orderBy, onRequestSort } = props;
 
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -84,14 +75,6 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{ "aria-label": "select all desserts" }}
-          />
-        </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -120,7 +103,6 @@ function EnhancedTableHead(props) {
 
 EnhancedTableHead.propTypes = {
   classes: PropTypes.object.isRequired,
-  numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
   onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
@@ -150,53 +132,24 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected } = props;
 
   return (
-    <Toolbar
-      className={clsx(classes.root, {
-        [classes.highlight]: numSelected > 0,
-      })}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          className={classes.title}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          className={classes.title}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Nutrition
-        </Typography>
-      )}
-
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete">
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
+    <Toolbar>
+      <Typography
+        className={classes.title}
+        variant="h6"
+        id="tableTitle"
+        component="div"
+      >
+        Trending by US State
+      </Typography>
+      <Tooltip title="Filter list">
+        <IconButton aria-label="filter list">
+          <FilterListIcon />
+        </IconButton>
+      </Tooltip>
     </Toolbar>
   );
-};
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -230,7 +183,7 @@ export default function EnhancedTable({ dailyTrends }) {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(dailyTrends.size);
 
   if (!dailyTrends) {
     return "Loading...";
@@ -252,9 +205,7 @@ export default function EnhancedTable({ dailyTrends }) {
     });
   });
 
-  console.log("QWE ROWS", rows);
-
-  // sort
+  // TODO: sort
   rows.sort((a, b) => a.name - b.name);
 
   const handleRequestSort = (event, property) => {
@@ -305,8 +256,6 @@ export default function EnhancedTable({ dailyTrends }) {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
@@ -327,7 +276,7 @@ export default function EnhancedTable({ dailyTrends }) {
         Lorem donec massa sapien faucibus et molestie ac.
       </Typography>
       <Paper className={classes.paper}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar />
         <TableContainer>
           <Table
             className={classes.table}
@@ -338,7 +287,6 @@ export default function EnhancedTable({ dailyTrends }) {
           >
             <EnhancedTableHead
               classes={classes}
-              numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
@@ -349,43 +297,28 @@ export default function EnhancedTable({ dailyTrends }) {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                  const labelId = `enhanced-table-cell-${index}`;
 
                   return (
                     <TableRow
                       hover
                       onClick={(event) => handleClick(event, row.name)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
                       key={row.name}
-                      selected={isItemSelected}
                     >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isItemSelected}
-                          inputProps={{ "aria-labelledby": labelId }}
-                        />
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                      >
+                      <TableCell component="th" id={labelId} scope="row">
                         {row.name}
                       </TableCell>
-                      <TableCell align="right">{row[0]}</TableCell>
-                      <TableCell align="right">{row[1]}</TableCell>
-                      <TableCell align="right">{row[2]}</TableCell>
-                      <TableCell align="right">{row[3]}</TableCell>
-                      <TableCell align="right">{row[4]}</TableCell>
-                      <TableCell align="right">{row[5]}</TableCell>
-                      <TableCell align="right">{row[6]}</TableCell>
-                      <TableCell align="right">{row[7]}</TableCell>
-                      <TableCell align="right">{row[8]}</TableCell>
-                      <TableCell align="right">{row[9]}</TableCell>
+                      <TableCell align="left">{row[0]}</TableCell>
+                      <TableCell align="left">{row[1]}</TableCell>
+                      <TableCell align="left">{row[2]}</TableCell>
+                      <TableCell align="left">{row[3]}</TableCell>
+                      <TableCell align="left">{row[4]}</TableCell>
+                      <TableCell align="left">{row[5]}</TableCell>
+                      <TableCell align="left">{row[6]}</TableCell>
+                      <TableCell align="left">{row[7]}</TableCell>
+                      <TableCell align="left">{row[8]}</TableCell>
+                      <TableCell align="left">{row[9]}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -398,7 +331,7 @@ export default function EnhancedTable({ dailyTrends }) {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 50, 51]}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
