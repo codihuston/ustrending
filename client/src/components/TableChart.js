@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { lighten, makeStyles } from "@material-ui/core/styles";
+import MaterialTable from "material-table";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -17,6 +18,8 @@ import Tooltip from "@material-ui/core/Tooltip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import FilterListIcon from "@material-ui/icons/FilterList";
+import GetAppIcon from "@material-ui/icons/GetApp";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import invert from "invert-color";
 
 function descendingComparator(a, b, orderBy) {
@@ -47,23 +50,36 @@ function stableSort(array, comparator) {
 
 // TODO make dynamic
 const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: false,
-    label: "State",
-  },
-  { id: "0", numeric: true, disablePadding: false, label: "#1" },
-  { id: "1", numeric: true, disablePadding: false, label: "#2" },
-  { id: "2", numeric: true, disablePadding: false, label: "#3" },
-  { id: "3", numeric: true, disablePadding: false, label: "#4" },
-  { id: "4", numeric: true, disablePadding: false, label: "#5" },
-  { id: "5", numeric: true, disablePadding: false, label: "#6" },
-  { id: "6", numeric: true, disablePadding: false, label: "#7" },
-  { id: "7", numeric: true, disablePadding: false, label: "#8" },
-  { id: "8", numeric: true, disablePadding: false, label: "#9" },
-  { id: "9", numeric: true, disablePadding: false, label: "#10" },
+  { title: "State", field: "name" },
+  { title: "#1", field: "0" },
+  { title: "#2", field: "1" },
+  { title: "#3", field: "2" },
+  { title: "#4", field: "3" },
+  { title: "#5", field: "4" },
+  { title: "#6", field: "5" },
+  { title: "#7", field: "6" },
+  { title: "#8", field: "7" },
+  { title: "#9", field: "8" },
+  { title: "#10", field: "9" },
 ];
+// const headCells = [
+//   {
+//     name: "name",
+//     numeric: false,
+//     disablePadding: false,
+//     title: "State",
+//   },
+//   { name: "0", numeric: true, disablePadding: false, title: "#1" },
+//   { name: "1", numeric: true, disablePadding: false, title: "#2" },
+//   { name: "2", numeric: true, disablePadding: false, title: "#3" },
+//   { name: "3", numeric: true, disablePadding: false, title: "#4" },
+//   { name: "4", numeric: true, disablePadding: false, title: "#5" },
+//   { name: "5", numeric: true, disablePadding: false, title: "#6" },
+//   { name: "6", numeric: true, disablePadding: false, title: "#7" },
+//   { name: "7", numeric: true, disablePadding: false, title: "#8" },
+//   { name: "8", numeric: true, disablePadding: false, title: "#9" },
+//   { name: "9", numeric: true, disablePadding: false, title: "#10" },
+// ];
 
 function EnhancedTableHead(props) {
   const { classes, order, orderBy, onRequestSort } = props;
@@ -217,6 +233,9 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
     rows.push({
       name: key,
       ...topics,
+      cellStyle: {
+        backgroundColor: "red",
+      },
     });
   });
 
@@ -281,6 +300,8 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
+  console.log("head/rows", headCells, rows);
+
   return (
     <div className={classes.root}>
       <Typography paragraph>
@@ -298,13 +319,29 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
         Lorem donec massa sapien faucibus et molestie ac.
       </Typography>
       <Paper className={classes.paper}>
+        {/* <MaterialTable
+          title="Google Trends - USA"
+          icons={{
+            Filter: () => <div />,
+            Export: () => <GetAppIcon />,
+          }}
+          columns={headCells}
+          data={rows}
+          options={{
+            search: false,
+            exportButton: true,
+            filtering: true,
+          }}
+        /> */}
+      </Paper>
+      <Paper className={classes.paper}>
         <EnhancedTableToolbar
           dense={dense}
           handleChangeDense={handleChangeDense}
           isBackgroundColored={isBackgroundColored}
           handleChangeIsBackgroundColored={handleChangeIsBackgroundColored}
         />
-        <TableContainer>
+        {/* <TableContainer>
           <Table
             className={classes.table}
             aria-labelledby="tableTitle"
@@ -437,7 +474,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
               )}
             </TableBody>
           </Table>
-        </TableContainer>
+        </TableContainer> */}
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50, 51]}
           component="div"
