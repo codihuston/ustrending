@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
@@ -9,6 +9,9 @@ import Drawer from "@material-ui/core/Drawer";
 import Hidden from "@material-ui/core/Hidden";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
@@ -96,6 +99,25 @@ function ResponsiveDrawer(props) {
   const drawer = (
     <div>
       <div className={classes.toolbar} />
+      <List>
+        <ListItemLink
+          icon={<InfoIcon />}
+          primary={"About This App"}
+          to={"/about"}
+        />
+      </List>
+      <Divider />
+      <List>
+        <a
+          href="https://trends.google.com/trends"
+          className="text-decoration-none"
+        >
+          <ListItem>
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary={"Google Trends"} />
+          </ListItem>
+        </a>
+      </List>
       <Divider />
       <List>
         <ListItemLink
@@ -109,10 +131,6 @@ function ResponsiveDrawer(props) {
           primary={"Table"}
           to={"/table"}
         />
-      </List>
-      <Divider />
-      <List>
-        <ListItemLink icon={<InfoIcon />} primary={"About"} to={"/about"} />
       </List>
     </div>
   );
