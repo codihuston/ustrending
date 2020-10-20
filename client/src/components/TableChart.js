@@ -46,6 +46,7 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
+// TODO make dynamic
 const headCells = [
   {
     id: "name",
@@ -299,6 +300,7 @@ export default function EnhancedTable({ dailyTrends }) {
                 .map((row, index) => {
                   const labelId = `enhanced-table-cell-${index}`;
 
+                  // TODO: make rows dynamic!
                   return (
                     <TableRow
                       hover
