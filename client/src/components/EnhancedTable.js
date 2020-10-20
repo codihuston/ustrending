@@ -19,6 +19,7 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
+import invert from "invert-color";
 
 const inputStyle = {
   padding: 0,
@@ -33,6 +34,7 @@ const EnhancedTable = ({
   updateMyData,
   skipPageReset,
   defaultPageSize,
+  colorsByTopic,
 }) => {
   const {
     getTableProps,
@@ -120,7 +122,21 @@ const EnhancedTable = ({
               <TableRow {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
-                    <TableCell {...cell.getCellProps()}>
+                    <TableCell
+                      {...cell.getCellProps()}
+                      style={(function () {
+                        // handle coloring of cells
+                        const backgroundColor = colorsByTopic.get(cell.value);
+
+                        if (isBackgroundColored && backgroundColor) {
+                          return {
+                            backgroundColor,
+                            color: invert(backgroundColor, true),
+                          };
+                        }
+                        return {};
+                      })()}
+                    >
                       {cell.render("Cell")}
                     </TableCell>
                   );

@@ -80,6 +80,7 @@ const NewTableChart = ({ dailyTrends, colorsByTopic }) => {
         columns={columns}
         data={rows}
         defaultPageSize={rows.length}
+        colorsByTopic={colorsByTopic}
       />
     </div>
   );
