@@ -1,6 +1,6 @@
 import React from "react";
+import Paper from "@material-ui/core/Paper";
 
-import CssBaseline from "@material-ui/core/CssBaseline";
 import EnhancedTable from "./EnhancedTable";
 
 const TrendingTable = ({ dailyTrendsByState, colorsByTopic }) => {
@@ -81,15 +81,14 @@ const TrendingTable = ({ dailyTrendsByState, colorsByTopic }) => {
   });
 
   return (
-    <div>
-      <CssBaseline />
+    <Paper>
       <EnhancedTable
         columns={columns}
         data={rows}
         defaultPageSize={rows.length ? rows.length : DEFAULT_MAX_ROW_LENGTH}
         colorsByTopic={colorsByTopic}
       />
-    </div>
+    </Paper>
   );
 };
 
