@@ -48,6 +48,7 @@ function TrendsContainer({ children }) {
           });
 
           setDailyTrends(processed);
+          setError(false);
         } else {
           setError(true);
         }
@@ -71,6 +72,7 @@ function TrendsContainer({ children }) {
           });
           setColorsByTopic(trendColorMap);
           setIsLoading(false);
+          setError(false);
         } else {
           setError(true);
         }
