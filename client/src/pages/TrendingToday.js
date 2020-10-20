@@ -3,6 +3,7 @@ import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 
 function TrendingToday({ dailyTrends }) {
+  console.log("Daily Trends", dailyTrends);
   return (
     <Paper>
       <Typography>Today's trending topics!</Typography>
