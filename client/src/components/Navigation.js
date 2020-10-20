@@ -16,6 +16,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import MapIcon from "@material-ui/icons/Map";
 import TableChartIcon from "@material-ui/icons/TableChart";
 import InfoIcon from "@material-ui/icons/Info";
+import TrendingUpIcon from "@material-ui/icons/TrendingUp";
 
 // import MapChart from "./MapChart";
 import HomePage from "../pages/Home";
@@ -97,6 +98,11 @@ function ResponsiveDrawer(props) {
       <div className={classes.toolbar} />
       <Divider />
       <List>
+        <ListItemLink
+          icon={<TrendingUpIcon />}
+          primary={"Trending"}
+          to={"/trending"}
+        />
         <ListItemLink icon={<MapIcon />} primary={"Map View"} to={"/"} />
         <ListItemLink
           icon={<TableChartIcon />}
@@ -114,7 +120,6 @@ function ResponsiveDrawer(props) {
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
-  console.log("QQ PROPS", props);
   return (
     <div className={classes.root}>
       <Router>
@@ -176,6 +181,7 @@ function ResponsiveDrawer(props) {
           ) : null}
           <Typography paragraph>TODO: Show top trends marquee here?</Typography>
           <Switch>
+            <Route path="/about">TODO: show about</Route>
             <Route
               path="/table"
               render={() => (
@@ -185,7 +191,7 @@ function ResponsiveDrawer(props) {
                 />
               )}
             />
-            <Route path="/about">TODO: show about</Route>
+            <Route path="/trending">TODO: show top trending table</Route>
             <Route
               path="/"
               render={() => (
