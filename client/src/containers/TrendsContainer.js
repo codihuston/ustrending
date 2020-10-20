@@ -30,6 +30,7 @@ const colors = [
  * into a given component
  */
 function TrendsContainer({ children }) {
+  const [error, setError] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [dailyTrends, setDailyTrends] = useState(new Map());
   // state => color
@@ -41,33 +42,42 @@ function TrendsContainer({ children }) {
       .then((result) => {
         const processed = new Map();
 
-        result.map((x) => {
-          processed.set(x[0], x[1]);
-        });
+        if (result) {
+          result.map((x) => {
+            processed.set(x[0], x[1]);
+          });
 
-        setDailyTrends(processed);
+          setDailyTrends(processed);
+        } else {
+          setError(true);
+        }
       });
 
     fetch("/api/daily-trends")
       .then((res) => res.json())
       .then((result) => {
         const trendColorMap = new Map();
-        result.map((x, i) => {
-          if (x?.title?.query) {
-            trendColorMap.set(x.title.query, colors[i]);
-          } else {
-            console.warn(
-              "WARNING: Title.Query is missing, cannot assign color to:",
-              x
-            );
-          }
-        });
-        setColorsByTopic(trendColorMap);
-        setIsLoading(false);
+
+        if (result) {
+          result.map((x, i) => {
+            if (x?.title?.query) {
+              trendColorMap.set(x.title.query, colors[i]);
+            } else {
+              console.warn(
+                "WARNING: Title.Query is missing, cannot assign color to:",
+                x
+              );
+            }
+          });
+          setColorsByTopic(trendColorMap);
+          setIsLoading(false);
+        } else {
+          setError(true);
+        }
       });
   }, []);
 
-  if (isLoading) {
+  if (isLoading && !error) {
     return "Loading...";
   }
 
@@ -82,6 +92,7 @@ function TrendsContainer({ children }) {
       dailyTrends,
       colors,
       colorsByTopic,
+      error,
     };
 
     if (React.isValidElement(child)) {

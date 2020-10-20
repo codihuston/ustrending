@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
+import Alert from "@material-ui/lab/Alert";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
@@ -113,6 +114,7 @@ function ResponsiveDrawer(props) {
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
+  console.log("QQ PROPS", props);
   return (
     <div className={classes.root}>
       <Router>
@@ -166,6 +168,12 @@ function ResponsiveDrawer(props) {
         </nav>
         <main className={classes.content}>
           <div className={classes.toolbar} />
+          {props.error ? (
+            <Alert variant="filled" severity="error">
+              There was a problem fetching data from our servers :(. Please
+              check back in a little while!
+            </Alert>
+          ) : null}
           <Typography paragraph>TODO: Show top trends marquee here?</Typography>
           <Switch>
             <Route
