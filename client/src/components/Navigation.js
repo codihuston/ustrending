@@ -24,6 +24,8 @@ import TrendingUpIcon from "@material-ui/icons/TrendingUp";
 // import MapChart from "./MapChart";
 import HomePage from "../pages/Home";
 import TableViewPage from "../pages/TableView";
+import TrendingTodayPage from "../pages/TrendingToday";
+
 import ListItemLink from "./ListItemLink";
 
 const drawerWidth = 240;
@@ -201,7 +203,10 @@ function ResponsiveDrawer(props) {
           <Switch>
             <Route path="/about">TODO: show about</Route>
             <Route path="/table" render={() => <TableViewPage {...props} />} />
-            <Route path="/trending">TODO: show top trending table</Route>
+            <Route
+              path="/trending"
+              render={() => <TrendingTodayPage {...props} />}
+            />
             <Route path="/" render={() => <HomePage {...props} />} />
           </Switch>
         </main>
