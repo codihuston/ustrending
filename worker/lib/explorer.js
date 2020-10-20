@@ -26,6 +26,8 @@ const GOOGLE_GEO_TIME_RANGES =
 // the token used when querying the Google "ComparedGeo" widget data API
 let token = "";
 
+debug("Trending Limit:", TRENDING_LIMIT);
+
 /*******************************************************************************
  * Public API
  ******************************************************************************/
@@ -35,8 +37,8 @@ let token = "";
  * trending items. This response data (along with supplemental data) will
  * be used to fetch the geographic data for each of the trends (i.e. the
  * trending data for each trend by region)
- * 
- * @param {*} dailyTrends 
+ *
+ * @param {*} dailyTrends
  * @returns [<promise>{
  *  exploreResponse,
  *  comparedGeoRequest,
@@ -68,11 +70,11 @@ module.exports.exploreTrends = async (dailyTrends) => {
       break;
     }
 
-  /*
+    /*
   query the Explorer API for the token used by the 'fe_geo_chart_explore'
   widget. This is downloaded as a text file
   */
-   promises.push(exploreTrend(exploreUri, memoryStoreKey));
+    promises.push(exploreTrend(exploreUri, memoryStoreKey));
   } // end for
 
   // after all trends have been explored, run comparedGeo()?
@@ -108,8 +110,8 @@ function getUri(keyword) {
   );
 }
 
-async function exploreTrend(exploreUri, memoryStoreKey){
-  return new Promise(async (resolve, reject)=> {
+async function exploreTrend(exploreUri, memoryStoreKey) {
+  return new Promise(async (resolve, reject) => {
     let comparedGeoRequest = {};
     const wstream = new utils.WriteableMemoryStream(memoryStoreKey);
 
@@ -117,9 +119,7 @@ async function exploreTrend(exploreUri, memoryStoreKey){
     wstream.on("finish", async function () {
       try {
         // get the response we just wrote to the memory store
-        const exploreResponse = utils.getMemoryStoreKeyAsObject(
-          memoryStoreKey
-        );
+        const exploreResponse = utils.getMemoryStoreKeyAsObject(memoryStoreKey);
 
         // parse response body for a token and gep request data for this item
         for (const widget of exploreResponse["widgets"]) {
@@ -134,7 +134,7 @@ async function exploreTrend(exploreUri, memoryStoreKey){
           exploreResponse,
           comparedGeoRequest,
           token,
-          memoryStoreKey
+          memoryStoreKey,
         });
       } catch (e) {
         // console.error(e);
@@ -148,11 +148,11 @@ async function exploreTrend(exploreUri, memoryStoreKey){
 
     /**
      * IMPORTANT: This will always be true!
-     * 
+     *
      * If we get http 429, use this hack to get past it (using cookie obtained
      * from the request above). This happens then the API receieves a request
-     * without a cookie that their servers set in our sessions. 
-     * 
+     * without a cookie that their servers set in our sessions.
+     *
      * The only way to get this cookie is to get a failing response from the
      * first attempt. If the 3rd party library 'google-trends-api' allowed
      * me to get the headers from the requests it uses, then I could
@@ -160,7 +160,9 @@ async function exploreTrend(exploreUri, memoryStoreKey){
      * am doing now.
      */
     if (res.status === 429) {
-      console.warn("WARNING: Google Trends API returned 429, re-attempting with cookie from first attempt request!");
+      console.warn(
+        "WARNING: Google Trends API returned 429, re-attempting with cookie from first attempt request!"
+      );
 
       const cookie = res.headers.get("set-cookie").split(";")[0];
 
@@ -182,7 +184,11 @@ async function exploreTrend(exploreUri, memoryStoreKey){
 function debugResponse(explorerAPIResponse, trendingRank) {
   debug("QWEQWE");
   if (process.env.NODE_ENV == "development") {
-    const outputPath = path.resolve(__dirname, `../debug`, `${trendingRank}-explore.txt`);
+    const outputPath = path.resolve(
+      __dirname,
+      `../debug`,
+      `${trendingRank}-explore.txt`
+    );
 
     debug("DEBUG: Writing output to: ", outputPath);
 
