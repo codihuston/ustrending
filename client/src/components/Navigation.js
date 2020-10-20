@@ -18,6 +18,7 @@ import InfoIcon from "@material-ui/icons/Info";
 
 // import MapChart from "./MapChart";
 import HomePage from "../pages/Home";
+import TableViewPage from "../pages/TableView";
 import ListItemLink from "./ListItemLink";
 
 const drawerWidth = 240;
@@ -165,8 +166,17 @@ function ResponsiveDrawer(props) {
         </nav>
         <main className={classes.content}>
           <div className={classes.toolbar} />
+          <Typography paragraph>TODO: Show top trends marquee here?</Typography>
           <Switch>
-            <Route path="/table">TODO: show table</Route>
+            <Route
+              path="/table"
+              render={() => (
+                <TableViewPage
+                  dailyTrends={props.dailyTrends}
+                  colorsByTopic={props.colorsByTopic}
+                />
+              )}
+            />
             <Route path="/about">TODO: show about</Route>
             <Route
               path="/"
@@ -176,7 +186,7 @@ function ResponsiveDrawer(props) {
                   colorsByTopic={props.colorsByTopic}
                 />
               )}
-            ></Route>
+            />
           </Switch>
         </main>
       </Router>

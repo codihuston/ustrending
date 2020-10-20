@@ -7,7 +7,6 @@ import MapChart from "../components/MapChart";
 function Home({ dailyTrends, colorsByTopic }) {
   return (
     <>
-      <Typography paragraph>TODO: Show top trends marquee here?</Typography>
       <Typography paragraph>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus
