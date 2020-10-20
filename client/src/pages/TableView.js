@@ -2,13 +2,8 @@ import React from "react";
 
 import TrendingTable from "../components/TrendingTable";
 
-function TableView({ dailyTrends, colorsByTopic }) {
-  return (
-    <TrendingTable
-      dailyTrends={dailyTrends}
-      colorsByTopic={colorsByTopic}
-    ></TrendingTable>
-  );
+function TableView(props) {
+  return <TrendingTable {...props}></TrendingTable>;
 }
 
 export default TableView;
