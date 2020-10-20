@@ -30,7 +30,7 @@ const colors = [
  * into a given component
  */
 function TrendsContainer({ children }) {
-  const [error, setError] = useState(true);
+  const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [dailyTrends, setDailyTrends] = useState(new Map());
   // state => color
