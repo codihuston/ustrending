@@ -143,6 +143,12 @@ const EnhancedTableToolbar = (props) => {
       >
         Trending by US State
       </Typography>
+      <FormControlLabel
+        control={
+          <Switch checked={props.dense} onChange={props.handleChangeDense} />
+        }
+        label="Dense padding"
+      />
       <Tooltip title="Filter list">
         <IconButton aria-label="filter list">
           <FilterListIcon />
@@ -182,7 +188,7 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
+  const [dense, setDense] = React.useState(true);
   const [rowsPerPage, setRowsPerPage] = React.useState(dailyTrends.size);
 
   if (!dailyTrends) {
@@ -278,7 +284,10 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
         Lorem donec massa sapien faucibus et molestie ac.
       </Typography>
       <Paper className={classes.paper}>
-        <EnhancedTableToolbar />
+        <EnhancedTableToolbar
+          dense={dense}
+          handleChangeDense={handleChangeDense}
+        />
         <TableContainer>
           <Table
             className={classes.table}
@@ -423,10 +432,6 @@ export default function EnhancedTable({ dailyTrends, colorsByTopic }) {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </div>
   );
 }
