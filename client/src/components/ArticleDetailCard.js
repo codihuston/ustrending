@@ -29,10 +29,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     paddingBottom: theme.spacing(1),
   },
-  playIcon: {
-    height: 38,
-    width: 38,
-  },
 }));
 
 export default function MediaControlCard({ article, number }) {

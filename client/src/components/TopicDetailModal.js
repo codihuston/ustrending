@@ -43,7 +43,7 @@ export default function TopicDetailModal(props) {
   }
 
   return (
-    <ListItem>
+    <ListItem className="cursor-pointer">
       <ListItemText type="button" onClick={handleOpen}>
         {rank} {topic?.title?.query} ({topic?.formattedTraffic})
       </ListItemText>

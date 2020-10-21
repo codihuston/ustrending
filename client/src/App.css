@@ -46,3 +46,7 @@ a.text-decoration-none:hover{
 .d-inline-block{
   display: inline-block;
 }
+
+.cursor-pointer{
+  cursor: pointer;
+}

@@ -1,17 +1,24 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
-import Box from "@material-ui/core/Box";
 
 import TopicDetailModal from "./TopicDetailModal";
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: "100%",
+    maxWidth: 360,
+  },
+}));
+
 const TrendingTable = ({ dailyTrends }) => {
-  console.log("Daily Trends", dailyTrends);
+  const classes = useStyles();
   const rows = dailyTrends;
 
   return (
-    <Box maxWidth="25%">
-      <List>
+    <div className={classes.root}>
+      <List aria-label="Top Google Trending Topics">
         {rows.map((row, i) => (
           <TopicDetailModal
             key={row.title?.query ? row.title?.query : i}
@@ -20,7 +27,7 @@ const TrendingTable = ({ dailyTrends }) => {
           />
         ))}
       </List>
-    </Box>
+    </div>
   );
 };
 
