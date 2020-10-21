@@ -17,11 +17,10 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     width: "80vh",
     backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
     overflowY: "scroll",
-    maxHeight: "80vh",
+    maxHeight: "90vh",
+    outline: "none",
   },
 }));
 
