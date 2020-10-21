@@ -21,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
     overflowY: "scroll",
     maxHeight: "90vh",
     outline: "none",
+    borderRadius: "3px",
   },
 }));
 
