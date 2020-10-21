@@ -5,6 +5,7 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
+import { AllHtmlEntities } from "html-entities";
 
 import SocialBar from "./SocialBar";
 
@@ -46,7 +47,7 @@ export default function MediaControlCard({ article, number }) {
               href={article.url}
               className="text-decoration-none d-inline-block"
             >
-              {article.title}
+              {AllHtmlEntities.decode(article.title)}
             </Link>
           </Typography>
           <Typography variant="subtitle1" color="textSecondary">
@@ -55,16 +56,19 @@ export default function MediaControlCard({ article, number }) {
         </CardContent>
         <CardContent className={classes.content}>
           <Typography className={classes.controls}>
-            {article.snippet}
+            {AllHtmlEntities.decode(article.snippet)}
           </Typography>
-          <SocialBar url={article.url} title={article.title} />
+          <SocialBar
+            url={article.url}
+            title={AllHtmlEntities.decode(article.title)}
+          />
         </CardContent>
       </div>
       <CardMedia
         className={classes.cover}
         // some articles haven't an image
         image={article.image?.imageUrl ? article.image?.imageUrl : "Not found"}
-        title={article.title}
+        title={AllHtmlEntities.decode(article.title)}
       />
     </Card>
   );
