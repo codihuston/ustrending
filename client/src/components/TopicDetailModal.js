@@ -3,10 +3,21 @@ import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import ListItemText from "@material-ui/core/ListItemText";
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  LinkedinShareButton,
+  RedditShareButton,
+  TwitterShareButton,
+  FacebookIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  RedditIcon,
+  EmailIcon,
+  FacebookShareCount,
+  RedditShareCount,
+} from "react-share";
 
 function getModalStyle() {
   const top = 0;
@@ -46,35 +57,6 @@ export default function TopicDetailModal(props) {
     setOpen(false);
   };
 
-  function ModalBody({ article, topic, rank }) {
-    if (!topic) {
-      return <div>Not Found</div>;
-    }
-
-    return (
-      <div style={modalStyle} className={classes.paper}>
-        <h2 id="simple-modal-title">
-          {rank} {topic?.title?.query} ({topic?.formattedTraffic})
-        </h2>
-        {/* <p id="simple-modal-description">
-          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-        </p> */}
-        <ListItem>
-          <ListItemText>
-            <div>{article.image?.imageUrl}</div>
-            <div>{article.image?.newsUrl}</div>
-            <div>{article.image?.source}</div>
-            <div>{article.snippet}</div>
-            <div>{article.source}</div>
-            <div>{article.timeAgo}</div>
-            <div>{article.title}</div>
-            <div>{article.url}</div>
-          </ListItemText>
-        </ListItem>
-      </div>
-    );
-  }
-
   console.log(`Topic #${rank}`, topic);
 
   // TOOD: validate incoming topic properties?
@@ -105,14 +87,86 @@ export default function TopicDetailModal(props) {
                   <div>
                     Article #{i + 1}/{topic.articles.length}
                   </div>
-                  <div>{article.image?.imageUrl}</div>
-                  <div>{article.image?.newsUrl}</div>
-                  <div>{article.image?.source}</div>
-                  <div>{article.snippet}</div>
-                  <div>{article.source}</div>
+                  <div>
+                    <img src={article.image?.imageUrl} />
+                  </div>
+                  <div>
+                    {article.image?.source}:
+                    <a href={article.url}>{article.title}</a>
+                    {/* <div>{article.image?.newsUrl}</div> */}
+                  </div>
                   <div>{article.timeAgo}</div>
-                  <div>{article.title}</div>
-                  <div>{article.url}</div>
+                  <div>{article.snippet}</div>
+                  <div>
+                    <EmailShareButton
+                      url={article.url}
+                      subject={article.title}
+                      body="body"
+                      className="Demo__some-network__share-button"
+                    >
+                      <EmailIcon size={32} round />
+                    </EmailShareButton>
+                  </div>
+                  <div className="Demo__some-network">
+                    <FacebookShareButton
+                      url={article.url}
+                      quote={article.title}
+                      className="Demo__some-network__share-button"
+                    >
+                      <FacebookIcon size={32} round />
+                    </FacebookShareButton>
+
+                    <div>
+                      <FacebookShareCount
+                        url={article.url}
+                        className="Demo__some-network__share-count"
+                      >
+                        {(count) => count}
+                      </FacebookShareCount>
+                    </div>
+                    <div>
+                      <div className="Demo__some-network">
+                        <RedditShareButton
+                          url={article.url}
+                          title={article.title}
+                          windowWidth={660}
+                          windowHeight={460}
+                          className="Demo__some-network__share-button"
+                        >
+                          <RedditIcon size={32} round />
+                        </RedditShareButton>
+
+                        <div>
+                          <RedditShareCount
+                            url={article.url}
+                            className="Demo__some-network__share-count"
+                          />
+                        </div>
+                      </div>
+                      <div className="Demo__some-network">
+                        <LinkedinShareButton
+                          url={article.url}
+                          className="Demo__some-network__share-button"
+                        >
+                          <LinkedinIcon size={32} round />
+                        </LinkedinShareButton>
+                      </div>
+
+                      <div className="Demo__some-network">
+                        <TwitterShareButton
+                          url={article.url}
+                          title={article.title}
+                          className="Demo__some-network__share-button"
+                        >
+                          <TwitterIcon size={32} round />
+                        </TwitterShareButton>
+
+                        <div className="Demo__some-network__share-count">
+                          &nbsp;
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </ListItemText>
               </ListItem>
             ))}
