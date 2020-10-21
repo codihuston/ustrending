@@ -2,11 +2,14 @@ import React from "react";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 
-function TrendingToday({ dailyTrends }) {
-  console.log("Daily Trends", dailyTrends);
+import TrendingTable from "../components/TrendingTable";
+
+function TrendingToday(props) {
   return (
     <Paper>
-      <Typography>Today's trending topics!</Typography>
+      <TrendingTable {...props}
+      
+      ></TrendingTable>
     </Paper>
   );
 }

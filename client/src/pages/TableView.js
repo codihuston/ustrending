@@ -1,9 +1,9 @@
 import React from "react";
 
-import TrendingTable from "../components/TrendingTable";
+import TrendingByStateTable from "../components/TrendingByStateTable";
 
 function TableView(props) {
-  return <TrendingTable {...props}></TrendingTable>;
+  return <TrendingByStateTable {...props}></TrendingByStateTable>;
 }
 
 export default TableView;

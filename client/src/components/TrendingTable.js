@@ -1,12 +1,83 @@
 import React from "react";
+import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import Link from "@material-ui/core/Link";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Box from "@material-ui/core/Box";
+import Collapse from "@material-ui/core/Collapse";
+import IconButton from "@material-ui/core/IconButton";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
-import EnhancedTable from "./EnhancedTable";
+const useRowStyles = makeStyles({
+  root: {
+    "& > *": {
+      borderBottom: "unset",
+    },
+  },
+});
 
-const TrendingTable = ({ dailyTrendsByState, colorsByTopic }) => {
-  // account for all 50 states
-  const DEFAULT_MAX_ROW_LENGTH = 51;
-  const rows = [];
+const useStyles = makeStyles({
+  table: {
+    minWidth: 650,
+  },
+});
+
+function Row(props) {
+  const { row, index } = props;
+  const [open, setOpen] = React.useState(false);
+  const classes = useRowStyles();
+
+  return (
+    <React.Fragment>
+      <TableRow className={classes.root}>
+        <TableCell component="th" scope="row">
+          <Link href={row.shareUrl}>
+            {index + 1} {row.title.query} ({row.formattedTraffic})
+          </Link>
+        </TableCell>
+        <TableCell width="5%">
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box margin={1}>
+              <Typography variant="h6" gutterBottom component="div">
+                Articles
+              </Typography>
+              {row.articles.map((articleRow) => (
+                <Link key={articleRow.url} href={articleRow.url}>
+                  {articleRow.source}
+                </Link>
+              ))}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+  );
+}
+
+const TrendingTable = ({ dailyTrends }) => {
+  console.log("Daily Trends", dailyTrends);
+  const classes = useStyles();
+  const rows = dailyTrends;
   // TODO: generate this dynamically
   const columns = React.useMemo(
     () => [
@@ -14,81 +85,22 @@ const TrendingTable = ({ dailyTrendsByState, colorsByTopic }) => {
         Header: "State",
         accessor: "name",
       },
-      {
-        Header: "#1",
-        accessor: "0",
-      },
-      {
-        Header: "#2",
-        accessor: "1",
-      },
-      {
-        Header: "#3",
-        accessor: "2",
-      },
-      {
-        Header: "#4",
-        accessor: "3",
-      },
-      {
-        Header: "#5",
-        accessor: "4",
-      },
-      {
-        Header: "#6",
-        accessor: "5",
-      },
-      {
-        Header: "#7",
-        accessor: "6",
-      },
-      {
-        Header: "#8",
-        accessor: "7",
-      },
-      {
-        Header: "#9",
-        accessor: "8",
-      },
-      {
-        Header: "#10",
-        accessor: "9",
-      },
     ],
     []
   );
 
-  dailyTrendsByState.forEach((value, key) => {
-    const topics = [];
-
-    value.forEach((topic) => {
-      topics.push(topic.topic);
-    });
-
-    rows.push({
-      name: key,
-      ...topics,
-      cellStyle: {
-        backgroundColor: "red",
-      },
-    });
-  });
-
-  rows.sort((a, b) => {
-    if (a.name < b.name) return -1;
-    if (a.name > b.name) return 1;
-    return 0;
-  });
-
   return (
-    <Paper>
-      <EnhancedTable
-        columns={columns}
-        data={rows}
-        defaultPageSize={rows.length ? rows.length : DEFAULT_MAX_ROW_LENGTH}
-        colorsByTopic={colorsByTopic}
-      />
-    </Paper>
+    <>
+      <TableContainer>
+        <Table className={classes.table} aria-label="simple table">
+          <TableBody>
+            {rows.map((row, i) => (
+              <Row key={row.title.query} row={row} index={i}></Row>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 };
 
