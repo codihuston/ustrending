@@ -23,6 +23,12 @@ const useStyles = makeStyles((theme) => ({
     outline: "none",
     borderRadius: "3px",
   },
+  closeButton: {
+    position: "absolute",
+    top: "8px",
+    right: "16px",
+    fontSize: "18px",
+  },
 }));
 
 export default function TopicDetailModal(props) {
@@ -60,6 +66,12 @@ export default function TopicDetailModal(props) {
               Trending #{rank}: {topic?.title?.query} ({topic?.formattedTraffic}
               )
             </Typography>
+            <Typography variant="subtitle1" color="textSecondary">
+              Tap outside of the modal to close it.
+            </Typography>
+            <button className={classes.closeButton} onClick={handleClose}>
+              Close
+            </button>
           </Box>
           {topic.articles.map((article, i) => (
             <Box mb={2} key={article.title?.query ? article.title?.query : i}>
