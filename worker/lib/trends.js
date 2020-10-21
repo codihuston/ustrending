@@ -18,7 +18,7 @@ const GOOGLE_GEO_COUNTRY_CODE =
  * Step 1 of 5: Returns Google Trends trending item data
  */
 module.exports.getDailyTrends = async () =>
-  googleTrends.dailyTrendsByState(
+  googleTrends.dailyTrends(
     { geo: GOOGLE_GEO_COUNTRY_CODE },
     dailyTrendsCallback
   ); // end daily trends

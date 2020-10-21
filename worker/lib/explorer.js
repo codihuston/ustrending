@@ -183,7 +183,6 @@ async function exploreTrend(exploreUri, memoryStoreKey) {
 }
 
 function debugResponse(explorerAPIResponse, trendingRank) {
-  debug("QWEQWE");
   if (process.env.NODE_ENV == "development") {
     const outputPath = path.resolve(
       __dirname,
