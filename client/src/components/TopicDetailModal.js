@@ -4,20 +4,8 @@ import Modal from "@material-ui/core/Modal";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import {
-  EmailShareButton,
-  FacebookShareButton,
-  LinkedinShareButton,
-  RedditShareButton,
-  TwitterShareButton,
-  FacebookIcon,
-  TwitterIcon,
-  LinkedinIcon,
-  RedditIcon,
-  EmailIcon,
-  FacebookShareCount,
-  RedditShareCount,
-} from "react-share";
+
+import SocialBar from "./SocialBar";
 
 function getModalStyle() {
   const top = 0;
@@ -97,76 +85,7 @@ export default function TopicDetailModal(props) {
                   </div>
                   <div>{article.timeAgo}</div>
                   <div>{article.snippet}</div>
-                  <div>
-                    <EmailShareButton
-                      url={article.url}
-                      subject={article.title}
-                      body="body"
-                      className="Demo__some-network__share-button"
-                    >
-                      <EmailIcon size={32} round />
-                    </EmailShareButton>
-                  </div>
-                  <div className="Demo__some-network">
-                    <FacebookShareButton
-                      url={article.url}
-                      quote={article.title}
-                      className="Demo__some-network__share-button"
-                    >
-                      <FacebookIcon size={32} round />
-                    </FacebookShareButton>
-
-                    <div>
-                      <FacebookShareCount
-                        url={article.url}
-                        className="Demo__some-network__share-count"
-                      >
-                        {(count) => count}
-                      </FacebookShareCount>
-                    </div>
-                    <div>
-                      <div className="Demo__some-network">
-                        <RedditShareButton
-                          url={article.url}
-                          title={article.title}
-                          windowWidth={660}
-                          windowHeight={460}
-                          className="Demo__some-network__share-button"
-                        >
-                          <RedditIcon size={32} round />
-                        </RedditShareButton>
-
-                        <div>
-                          <RedditShareCount
-                            url={article.url}
-                            className="Demo__some-network__share-count"
-                          />
-                        </div>
-                      </div>
-                      <div className="Demo__some-network">
-                        <LinkedinShareButton
-                          url={article.url}
-                          className="Demo__some-network__share-button"
-                        >
-                          <LinkedinIcon size={32} round />
-                        </LinkedinShareButton>
-                      </div>
-
-                      <div className="Demo__some-network">
-                        <TwitterShareButton
-                          url={article.url}
-                          title={article.title}
-                          className="Demo__some-network__share-button"
-                        >
-                          <TwitterIcon size={32} round />
-                        </TwitterShareButton>
-
-                        <div className="Demo__some-network__share-count">
-                          &nbsp;
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <SocialBar url={article.url} title={article.title} />
                 </ListItemText>
               </ListItem>
             ))}
