@@ -1,24 +1,19 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
-import List from "@material-ui/core/List";
+import Box from "@material-ui/core/Box";
+import Typography from "@material-ui/core/Typography";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import SocialBar from "./SocialBar";
-
-function getModalStyle() {
-  const top = 0;
-  const left = 0;
-
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  };
-}
+import ArticleDetailCard from "./ArticleDetailCard";
 
 const useStyles = makeStyles((theme) => ({
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   paper: {
     width: "80vh",
     backgroundColor: theme.palette.background.paper,
@@ -33,8 +28,6 @@ const useStyles = makeStyles((theme) => ({
 export default function TopicDetailModal(props) {
   const { topic, rank } = props;
   const classes = useStyles();
-  // getModalStyle is not a pure function, we roll the style only on the first render
-  const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => {
@@ -44,10 +37,6 @@ export default function TopicDetailModal(props) {
   const handleClose = () => {
     setOpen(false);
   };
-
-  console.log(`Topic #${rank}`, topic);
-
-  // TOOD: validate incoming topic properties?
 
   if (!topic) {
     return <ListItem>Not found</ListItem>;
@@ -61,39 +50,26 @@ export default function TopicDetailModal(props) {
       <Modal
         open={open}
         onClose={handleClose}
+        className={classes.modal}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
       >
-        <List>
-          <div style={modalStyle} className={classes.paper}>
-            <h2 id="simple-modal-title">
-              {rank} {topic?.title?.query} ({topic?.formattedTraffic})
-            </h2>
-            {topic.articles.map((article, i) => (
-              <ListItem>
-                <ListItemText>
-                  <div>
-                    Article #{i + 1}/{topic.articles.length}
-                  </div>
-                  <div>
-                    <img src={article.image?.imageUrl} />
-                  </div>
-                  <div>
-                    {article.image?.source}:
-                    <a href={article.url}>{article.title}</a>
-                    {/* <div>{article.image?.newsUrl}</div> */}
-                  </div>
-                  <div>{article.timeAgo}</div>
-                  <div>{article.snippet}</div>
-                  <SocialBar url={article.url} title={article.title} />
-                </ListItemText>
-              </ListItem>
-            ))}
-            {/* <p id="simple-modal-description">
-              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-            </p> */}
-          </div>
-        </List>
+        <div className={classes.paper}>
+          <Box textAlign="center" mb={3}>
+            <Typography component="h5" variant="h5">
+              Trending #{rank}: {topic?.title?.query} ({topic?.formattedTraffic}
+              )
+            </Typography>
+          </Box>
+          {topic.articles.map((article, i) => (
+            <Box mb={2} key={article.title?.query ? article.title?.query : i}>
+              <ArticleDetailCard
+                article={article}
+                number={i}
+              ></ArticleDetailCard>
+            </Box>
+          ))}
+        </div>
       </Modal>
     </ListItem>
   );

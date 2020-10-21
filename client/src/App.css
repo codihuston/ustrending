@@ -38,6 +38,11 @@
 }
 
 .text-decoration-none, 
-.text-decoration-none:visited{
+a.text-decoration-none:visited,
+a.text-decoration-none:hover{
   text-decoration: none;
+}
+
+.d-inline-block{
+  display: inline-block;
 }
