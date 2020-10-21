@@ -51,7 +51,7 @@ export default function TopicDetailModal(props) {
   return (
     <ListItem className="cursor-pointer">
       <ListItemText type="button" onClick={handleOpen}>
-        {rank} {topic?.title?.query} ({topic?.formattedTraffic})
+        {rank + 1} {topic?.title?.query} ({topic?.formattedTraffic})
       </ListItemText>
       <Modal
         open={open}
@@ -63,8 +63,8 @@ export default function TopicDetailModal(props) {
         <div className={classes.paper}>
           <Box textAlign="center" mb={3}>
             <Typography component="h5" variant="h5">
-              Trending #{rank}: {topic?.title?.query} ({topic?.formattedTraffic}
-              )
+              Trending #{rank + 1}: {topic?.title?.query} (
+              {topic?.formattedTraffic})
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
               Tap outside of the modal to close it.
