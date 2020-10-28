@@ -54,6 +54,7 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
                   marginRight={1}
                   padding={2}
                   height="100%"
+                  width="80%"
                   display="flex"
                   flexDirection="column"
                   justifyContent="center"
