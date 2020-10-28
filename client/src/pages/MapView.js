@@ -64,6 +64,13 @@ function MapView(props) {
   return (
     <Paper>
       <Box p={3}>
+        <Typography variant="h2">Trending Map</Typography>
+        <Typography paragraph>
+          Below is a color-coded map that will display the top Google Trends for
+          each U.S. state. The colors are assigned by
+          <b> topic rank</b> rather than by topic title. For example, if topic A
+          is trending #10, then reaches #2, its color would change accordingly.
+        </Typography>
         <Box mb={3}>
           <Alert severity="info">
             Note: It is normal for there to be fewer topics towards the
@@ -72,12 +79,6 @@ function MapView(props) {
             hourly intervals.
           </Alert>
         </Box>
-        <Typography paragraph>
-          Below is a color-coded map that will display the top Google Trends for
-          each U.S. state. The colors are assigned by
-          <b> topic rank</b> rather than by topic title. For example, if topic A
-          is trending #10, then reaches #2, its color would change accordingly.
-        </Typography>
         <Box fontStyle="italic">
           <Typography
             paragraph
