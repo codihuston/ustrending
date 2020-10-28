@@ -11,6 +11,7 @@ import {
 } from "react-simple-maps";
 import debugLib from "debug";
 import invert from "invert-color";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 
 import allStates from "../allstates.json";
@@ -106,6 +107,7 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
 
   function handleButtonClick(event, value) {
     handleMouseEnter(event, offsets[value].name);
+    handleClick(event, offsets[value].name);
   }
 
   function handleMouseEnter(event, name) {
@@ -137,19 +139,21 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
 
   return (
     <>
-      {Object.keys(offsets)
-        .sort()
-        .map((key) => {
-          return (
-            <Button
-              key={key}
-              onClick={(e) => handleButtonClick(e, key)}
-              color="primary"
-            >
-              {key}
-            </Button>
-          );
-        })}
+      <Box align="center">
+        {Object.keys(offsets)
+          .sort()
+          .map((key) => {
+            return (
+              <Button
+                key={key}
+                onClick={(e) => handleButtonClick(e, key)}
+                color="primary"
+              >
+                {key}
+              </Button>
+            );
+          })}
+      </Box>
       <ComposableMap data-tip="" projection={"geoAlbersUsa"}>
         <Geographies geography={geoUrl}>
           {({ geographies }) => {
@@ -167,7 +171,9 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                       setTooltipContent("");
                     }}
                     style={tooltipStyle(geo)}
-                    onClick={(event) => handleClick(event, geo)}
+                    onClick={(event) =>
+                      handleClick(event, geo?.properties?.name)
+                    }
                   />
                 ))}
                 {/* Build the annotations */}

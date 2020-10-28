@@ -24,10 +24,7 @@ function MapView(props) {
   // TODO: make modal function based on a given dailyTrends instead of index?
   const [selectedTopicNumber, setSelectedTopicNumber] = useState(null);
 
-  const handleClick = (event, geo) => {
-    const {
-      properties: { name },
-    } = geo;
+  const handleClick = (event, name) => {
     if (name) {
       // get trends for this state
       const dailyStateTrends = dailyTrendsByState.get(name);
@@ -90,7 +87,11 @@ function MapView(props) {
             state!
           </Typography>
         </Box>
-        <Box align="center" className={buttonText ? "" : classes.invisible}>
+        <Box
+          align="center"
+          className={buttonText ? "" : classes.invisible}
+          mb={3}
+        >
           <Button
             onClick={handleOpen}
             variant="contained"
