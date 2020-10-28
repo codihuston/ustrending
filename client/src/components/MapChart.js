@@ -46,6 +46,59 @@ const labelStyle = {
 const MapChart = ({ dailyTrendsByState, colorsByTopic }) => {
   const [tooltipContent, setTooltipContent] = useState("");
 
+  function tooltipStyle(geo) {
+    // get color of top trending item for this state
+    const { name } = geo.properties;
+    const topicName = dailyTrendsByState.get(name)
+      ? dailyTrendsByState.get(name)[0].topic
+      : null;
+    const style = {
+      default: {
+        fill: "#D6D6DA",
+        outline: "none",
+      },
+      hover: {
+        fill: "#F53",
+        outline: "none",
+      },
+      pressed: {
+        fill: "#E42",
+        outline: "none",
+      },
+    };
+
+    // style each state with color matching the #1 topic
+    if (topicName) {
+      style.default.fill = colorsByTopic.get(topicName);
+    }
+
+    return style;
+  }
+
+  function handleMouseEnter(event, geo) {
+    const { name } = geo.properties;
+    const dailyTrend = dailyTrendsByState.get(name);
+    if (!dailyTrend) {
+      console.warn(`Trends not found for state '${name}'`);
+      return;
+    }
+
+    debug(`Daily Trend for '${name}'`, dailyTrend);
+
+    setTooltipContent(
+      dailyTrend
+        .map((trend, i) => {
+          const content = `<span style="color: ${colorsByTopic.get(
+            trend.topic
+          )};">${i + 1} - ${trend.topic} - ${colorsByTopic.get(
+            trend.topic
+          )}</span>`;
+          return content;
+        })
+        .join("<br>")
+    );
+  }
+
   return (
     <>
       <ComposableMap data-tip="" projection={"geoAlbersUsa"}>
@@ -58,60 +111,11 @@ const MapChart = ({ dailyTrendsByState, colorsByTopic }) => {
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    onMouseEnter={() => {
-                      const { name } = geo.properties;
-                      const dailyTrend = dailyTrendsByState.get(name);
-                      if (!dailyTrend) {
-                        console.warn(`Trends not found for state '${name}'`);
-                        return;
-                      }
-
-                      debug(`Daily Trend for '${name}'`, dailyTrend);
-
-                      setTooltipContent(
-                        dailyTrend
-                          .map((trend, i) => {
-                            const content = `<span style="color: ${colorsByTopic.get(
-                              trend.topic
-                            )};">${i + 1} - ${
-                              trend.topic
-                            } - ${colorsByTopic.get(trend.topic)}</span>`;
-                            return content;
-                          })
-                          .join("<br>")
-                      );
-                    }}
+                    onMouseEnter={(event) => handleMouseEnter(event, geo)}
                     onMouseLeave={() => {
                       setTooltipContent("");
                     }}
-                    style={(() => {
-                      // get color of top trending item for this state
-                      const { name } = geo.properties;
-                      const topicName = dailyTrendsByState.get(name)
-                        ? dailyTrendsByState.get(name)[0].topic
-                        : null;
-                      const style = {
-                        default: {
-                          fill: "#D6D6DA",
-                          outline: "none",
-                        },
-                        hover: {
-                          fill: "#F53",
-                          outline: "none",
-                        },
-                        pressed: {
-                          fill: "#E42",
-                          outline: "none",
-                        },
-                      };
-
-                      // style each state with color matching the #1 topic
-                      if (topicName) {
-                        style.default.fill = colorsByTopic.get(topicName);
-                      }
-
-                      return style;
-                    })()}
+                    style={tooltipStyle(geo)}
                   />
                 ))}
                 {/* Build the annotations */}
