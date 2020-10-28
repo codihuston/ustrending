@@ -76,9 +76,13 @@ const labelStyle = {
 const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
   const [tooltipContent, setTooltipContent] = useState("");
 
-  function tooltipStyle(geo) {
+  function tooltipStyle(name) {
+    if (!name) {
+      console.warn(`Unable to fetch tooltip style for state '${name}'`);
+      return;
+    }
+
     // get color of top trending item for this state
-    const { name } = geo.properties;
     const topicName = dailyTrendsByState.get(name)
       ? dailyTrendsByState.get(name)[0].topic
       : null;
@@ -114,6 +118,10 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
     const dailyTrend = dailyTrendsByState.get(name);
     if (!dailyTrend) {
       console.warn(`Trends not found for state '${name}'`);
+      return;
+    }
+    if (!name) {
+      console.warn(`Unable to generate tooltip for state '${name}'`);
       return;
     }
 
@@ -170,7 +178,7 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                     onMouseLeave={() => {
                       setTooltipContent("");
                     }}
-                    style={tooltipStyle(geo)}
+                    style={tooltipStyle(geo?.properties?.name)}
                     onClick={(event) =>
                       handleClick(event, geo?.properties?.name)
                     }
