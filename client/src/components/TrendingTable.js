@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import { AllHtmlEntities } from "html-entities";
+import invert from "invert-color";
+
+import ColorContext, { colorPalettes } from "../context/ColorContext";
+import { padZero } from "../lib/utils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +23,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TrendingTable = ({ dailyTrends, handleOpen }) => {
+  const colorPalette = useContext(ColorContext);
+  const colors = colorPalettes[colorPalette];
   const classes = useStyles();
   const rows = dailyTrends;
 
@@ -26,6 +33,8 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
       <Grid container>
         {rows.map((topic, rank) => {
           const article = topic?.articles?.[0];
+          const backgroundColor = colors[rank];
+
           return (
             <Grid
               container
@@ -35,7 +44,18 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
             >
               <Grid item xs={1} className={classes.fixedColumn}>
                 <Typography variant="h6" component="h2" align={"center"}>
-                  {rank + 1}
+                  <Box
+                    style={{
+                      backgroundColor,
+                      color: invert(backgroundColor, true),
+                    }}
+                    marginRight={1}
+                    padding={2}
+                  >
+                    <Paper>
+                      <Box padding={1}>#{padZero(rank + 1)}</Box>
+                    </Paper>
+                  </Box>
                 </Typography>
               </Grid>
               <Grid item xs={8} md={7} lg={8}>
