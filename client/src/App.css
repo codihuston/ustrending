@@ -50,7 +50,3 @@ a.text-decoration-none:hover{
 .cursor-pointer{
   cursor: pointer;
 }
-
-.react-tooltip-clickable-link {
-  pointer-events: auto !important;
-}

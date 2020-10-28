@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flex: "1 0 auto",
   },
-  cover: {
+  articleImage: {
     minWidth: "85px",
     maxHeight: "85px",
   },
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function MediaControlCard({ article, number }) {
+export default function MediaControlCard({ article }) {
   const classes = useStyles();
 
   return (
@@ -61,7 +61,7 @@ export default function MediaControlCard({ article, number }) {
         </CardContent>
       </div>
       <CardMedia
-        className={classes.cover}
+        className={classes.articleImage}
         // some articles haven't an image
         image={article.image?.imageUrl ? article.image?.imageUrl : ""}
         title={AllHtmlEntities.decode(article.title)}
