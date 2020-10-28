@@ -43,7 +43,7 @@ const labelStyle = {
   },
 };
 
-const MapChart = ({ dailyTrendsByState, colorsByTopic }) => {
+const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
   const [tooltipContent, setTooltipContent] = useState("");
 
   function tooltipStyle(geo) {
@@ -116,6 +116,7 @@ const MapChart = ({ dailyTrendsByState, colorsByTopic }) => {
                       setTooltipContent("");
                     }}
                     style={tooltipStyle(geo)}
+                    onClick={(event) => handleClick(event, geo)}
                   />
                 ))}
                 {/* Build the annotations */}
