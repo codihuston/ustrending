@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
     flex: "1 0 auto",
   },
   articleImage: {
-    minWidth: "85px",
-    maxHeight: "85px",
+    minWidth: "100px",
+    maxHeight: "100px",
   },
   controls: {
     display: "flex",

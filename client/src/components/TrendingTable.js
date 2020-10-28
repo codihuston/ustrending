@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
     width: "50%",
   },
   img: {
-    width: "100px",
-    length: "100px",
+    minWidth: "100px",
+    maxHeight: "100px",
   },
 }));
 
