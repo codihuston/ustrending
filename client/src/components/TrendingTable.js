@@ -22,21 +22,6 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
   const rows = dailyTrends;
 
   return (
-    //     >
-    //     {AllHtmlEntities.decode(article.title)}
-    //   </Link>
-    // </Typography>
-    // <Typography variant="subtitle1" color="textSecondary">
-    //   {article.timeAgo} – {article.source}
-    // </Typography>
-    // </CardContent>
-    // <CardContent className={classes.content}>
-    // <Typography className={classes.controls}>
-    //   {AllHtmlEntities.decode(article.snippet)}
-    // </Typography>
-    // <SocialBar
-    //   url={article.url}
-    //   title={AllHtmlEntities.decode(article.title)}
     <Box className={classes.root} p={3}>
       <Grid container>
         {rows.map((topic, rank) => {
