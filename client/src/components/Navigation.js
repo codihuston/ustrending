@@ -21,8 +21,7 @@ import TableChartIcon from "@material-ui/icons/TableChart";
 import InfoIcon from "@material-ui/icons/Info";
 import TrendingUpIcon from "@material-ui/icons/TrendingUp";
 
-// import MapChart from "./MapChart";
-import HomePage from "../pages/Home";
+import MapViewPage from "../pages/MapView";
 import TableViewPage from "../pages/TableView";
 import TrendingTodayPage from "../pages/TrendingToday";
 
@@ -207,7 +206,7 @@ function ResponsiveDrawer(props) {
               path="/trending"
               render={() => <TrendingTodayPage {...props} />}
             />
-            <Route path="/" render={() => <HomePage {...props} />} />
+            <Route path="/" render={() => <MapViewPage {...props} />} />
           </Switch>
         </main>
       </Router>

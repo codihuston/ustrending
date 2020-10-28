@@ -4,7 +4,7 @@ import Typography from "@material-ui/core/Typography";
 
 import MapChart from "../components/MapChart";
 
-function Home(props) {
+function MapView(props) {
   return (
     <>
       <Typography paragraph>
@@ -41,4 +41,4 @@ function Home(props) {
   );
 }
 
-export default memo(withRouter(Home));
+export default memo(withRouter(MapView));

@@ -1,13 +1,19 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
+import { AllHtmlEntities } from "html-entities";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    maxWidth: 360,
+  },
+  topicRow: {
+    width: "100%",
+  },
+  fixedColumn: {
+    width: "50%",
   },
 }));
 
@@ -16,17 +22,104 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
   const rows = dailyTrends;
 
   return (
-    <div className={classes.root}>
-      <List aria-label="Top Google Trending Topics">
-        {rows.map((topic, rank) => (
-          <ListItem className="cursor-pointer" key={topic?.title?.query}>
-            <ListItemText type="button" onClick={(e) => handleOpen(e, rank)}>
-              {rank + 1} {topic?.title?.query} ({topic?.formattedTraffic})
-            </ListItemText>
-          </ListItem>
-        ))}
-      </List>
-    </div>
+    //     >
+    //     {AllHtmlEntities.decode(article.title)}
+    //   </Link>
+    // </Typography>
+    // <Typography variant="subtitle1" color="textSecondary">
+    //   {article.timeAgo} – {article.source}
+    // </Typography>
+    // </CardContent>
+    // <CardContent className={classes.content}>
+    // <Typography className={classes.controls}>
+    //   {AllHtmlEntities.decode(article.snippet)}
+    // </Typography>
+    // <SocialBar
+    //   url={article.url}
+    //   title={AllHtmlEntities.decode(article.title)}
+    <Box className={classes.root} p={3}>
+      <Grid container>
+        {rows.map((topic, rank) => {
+          const article = topic?.articles?.[0];
+          return (
+            <Grid
+              container
+              className="cursor-pointer"
+              key={topic?.title?.query}
+              onClick={(e) => handleOpen(e, rank)}
+            >
+              <Grid item xs={1} className={classes.fixedColumn}>
+                <Typography variant="h6" component="h2" align={"center"}>
+                  {rank + 1}
+                </Typography>
+              </Grid>
+              <Grid item xs={8} md={7} lg={8}>
+                <Typography variant="h6" component="h2">
+                  {topic?.title?.query}
+                </Typography>
+                <Typography>
+                  {article ? (
+                    <>
+                      <a
+                        href={article.url}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {AllHtmlEntities.decode(article.title)}
+                      </a>
+                      &nbsp;
+                      {article.source} – {article.timeAgo}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </Typography>
+              </Grid>
+              <Grid item xs={2} sm={3} md={2}>
+                <Typography variant="h6" component="h2" align={"center"}>
+                  {topic?.formattedTraffic}
+                </Typography>
+                <Typography variant="subtitle1" component="h2" align={"center"}>
+                  searches
+                </Typography>
+              </Grid>
+              <Box
+                component={Grid}
+                item
+                xs={1}
+                display={{ xs: "none", sm: "none", md: "inline" }}
+              >
+                <Grid item xs={1}>
+                  {article ? (
+                    <>
+                      <a
+                        href={article.url}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img
+                          alt={
+                            "Image for article " +
+                            AllHtmlEntities.decode(article.title)
+                          }
+                          title={AllHtmlEntities.decode(article.title)}
+                          src={
+                            article.image?.imageUrl
+                              ? article.image?.imageUrl
+                              : ""
+                          }
+                          href={article.url}
+                        ></img>
+                      </a>
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </Grid>
+              </Box>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </Box>
   );
 };
 

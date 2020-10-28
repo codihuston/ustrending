@@ -63,7 +63,7 @@ export default function MediaControlCard({ article, number }) {
       <CardMedia
         className={classes.cover}
         // some articles haven't an image
-        image={article.image?.imageUrl ? article.image?.imageUrl : "Not found"}
+        image={article.image?.imageUrl ? article.image?.imageUrl : ""}
         title={AllHtmlEntities.decode(article.title)}
       />
     </Card>

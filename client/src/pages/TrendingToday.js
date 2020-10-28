@@ -8,7 +8,6 @@ import TopicDetailModal from "../components/TopicDetailModal";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    maxWidth: 360,
   },
 }));
 
