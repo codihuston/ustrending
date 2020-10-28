@@ -73,11 +73,22 @@ function MapView(props) {
           </Alert>
         </Box>
         <Typography paragraph>
-          Below is a color-coded map that will display which Google Trends are
-          trending the most for each U.S. state. The colors are assigned by
+          Below is a color-coded map that will display the top Google Trends for
+          each U.S. state. The colors are assigned by
           <b> topic rank</b> rather than by topic title. For example, if topic A
           is trending #10, then reaches #2, its color would change accordingly.
         </Typography>
+        <Box fontStyle="italic">
+          <Typography
+            paragraph
+            align="center"
+            variant="subtitle1"
+            color="textSecondary"
+          >
+            Click / hover / tap on a state to get trending information for that
+            state!
+          </Typography>
+        </Box>
         <Box align="center" className={buttonText ? "" : classes.invisible}>
           <Button
             onClick={handleOpen}

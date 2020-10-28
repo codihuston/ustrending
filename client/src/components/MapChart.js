@@ -10,6 +10,7 @@ import {
   Annotation,
 } from "react-simple-maps";
 import debugLib from "debug";
+import invert from "invert-color";
 
 import allStates from "../allstates.json";
 
@@ -88,11 +89,14 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
     setTooltipContent(
       dailyTrend
         .map((trend, i) => {
-          const content = `<span style="color: ${colorsByTopic.get(
+          const style = `background-color: ${colorsByTopic.get(trend.topic)}; 
+          padding: 1px 3px;
+          color: ${invert(colorsByTopic.get(trend.topic), true)};
+          font-weight: 900;`;
+
+          const content = `<span style="${style}">${i + 1}</span><span> – ${
             trend.topic
-          )};">${i + 1} - ${trend.topic} - ${colorsByTopic.get(
-            trend.topic
-          )}</span>`;
+          }</span>`;
           return content;
         })
         .join("<br>")
