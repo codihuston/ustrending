@@ -181,7 +181,6 @@ function ResponsiveDrawer(props) {
               check back in a little while!
             </Alert>
           ) : null}
-          <Typography paragraph>TODO: Show top trends marquee here?</Typography>
           <Switch>
             <Route path="/about">TODO: show about</Route>
             <Route path="/table" render={() => <TableViewPage {...props} />} />
