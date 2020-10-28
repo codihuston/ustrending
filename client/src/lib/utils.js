@@ -47,3 +47,7 @@ export function capitalizeFirst(str) {
   }
   return res;
 }
+
+export function addDefaultSrc(event) {
+  event.target.src = "/default-no-img.png";
+}

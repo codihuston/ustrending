@@ -8,6 +8,7 @@ import { AllHtmlEntities } from "html-entities";
 import invert from "invert-color";
 
 import ColorContext, { colorPalettes } from "../context/ColorContext";
+import { addDefaultSrc } from "../lib/utils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +19,10 @@ const useStyles = makeStyles((theme) => ({
   },
   fixedColumn: {
     width: "50%",
+  },
+  img: {
+    width: "100px",
+    length: "100px",
   },
 }));
 
@@ -100,6 +105,7 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <img
+                          className={classes.img}
                           alt={
                             "Image for article " +
                             AllHtmlEntities.decode(article.title)
@@ -111,6 +117,7 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
                               : ""
                           }
                           href={article.url}
+                          onError={addDefaultSrc}
                         ></img>
                       </a>
                     </>
