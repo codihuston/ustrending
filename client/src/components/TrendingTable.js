@@ -14,11 +14,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
   },
-  topicRow: {
-    width: "100%",
-  },
-  fixedColumn: {
-    width: "50%",
+  row: {
+    "&:hover": {
+      background: "#ebedf5",
+    },
   },
   img: {
     minWidth: "100px",
@@ -42,25 +41,27 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
           return (
             <Grid
               container
-              className="cursor-pointer"
+              className={classes.row}
               key={topic?.title?.query}
               onClick={(e) => handleOpen(e, rank)}
             >
-              <Grid item xs={1} className={classes.fixedColumn}>
-                <Typography variant="h6" component="h2" align={"center"}>
-                  <Box
-                    style={{
-                      backgroundColor,
-                      color: invert(backgroundColor, true),
-                    }}
-                    marginRight={1}
-                    padding={2}
-                  >
-                    <Paper>
-                      <Box padding={1}>#{rank + 1}</Box>
-                    </Paper>
-                  </Box>
-                </Typography>
+              <Grid item xs={1}>
+                <Box
+                  style={{
+                    backgroundColor,
+                    color: invert(backgroundColor, true),
+                  }}
+                  marginRight={1}
+                  padding={2}
+                  height="100%"
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                >
+                  <Typography variant="h6" component="h2" align={"center"}>
+                    <Paper>#{rank + 1}</Paper>
+                  </Typography>
+                </Box>
               </Grid>
               <Grid item xs={8} md={7} lg={8}>
                 <Typography variant="h6" component="h2">
