@@ -10,21 +10,21 @@ import logo from "./logo.svg";
 import "./App.css";
 import Navigation from "./components/Navigation";
 
-import ColorContext, { colors } from "./context/ColorContext";
+import ColorContext, { colorPalettes } from "./context/ColorContext";
 import TrendsContainer from "./containers/TrendsContainer";
 
 function App() {
-  const [colorPalatte, setColorPalatte] = useState(colors.default);
+  const [colorPalatte, setColorPalatte] = useState("default");
 
   /**
    * Used to handle color theme for the map/tables. See ColorContext.
    * @param {*} value
    */
   function handleChangeColors(value) {
-    if (value && colors[value]) {
-      setColorPalatte(colors[value]);
+    if (value && colorPalettes[value]) {
+      setColorPalatte(value);
     } else {
-      setColorPalatte(colors.default);
+      setColorPalatte(colorPalettes.default);
     }
   }
 

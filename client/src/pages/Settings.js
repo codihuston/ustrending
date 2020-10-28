@@ -2,9 +2,9 @@ import React, { useContext } from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import Paper from "@material-ui/core/Paper";
-import ColorContext from "../context/ColorContext";
 import invert from "invert-color";
 
+import ColorContext, { colorPalettes } from "../context/ColorContext";
 import ColorSelector from "../components/ColorSelector";
 import { padZero } from "../lib/utils";
 
@@ -16,7 +16,8 @@ const useStyles = makeStyles((theme) => ({
 
 function Settings(props) {
   const classes = useStyles();
-  const currentColors = useContext(ColorContext);
+  const colorPalette = useContext(ColorContext);
+  const currentColors = colorPalettes[colorPalette];
 
   return (
     <Paper className={classes.root}>

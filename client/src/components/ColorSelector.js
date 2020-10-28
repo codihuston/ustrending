@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import InputLabel from "@material-ui/core/InputLabel";
-import { colors } from "../context/ColorContext";
+import ColorContext, { colorPalettes } from "../context/ColorContext";
 
 import { capitalizeFirst } from "../lib/utils";
 
 function ColorSelector(props) {
+  const colorPalett = useContext(ColorContext);
   const { handleChangeColors } = props;
-  const [colorScheme, setColorScheme] = React.useState("default");
+  const [colorScheme, setColorScheme] = React.useState(colorPalett);
 
   const handleSelect = (event) => {
     setColorScheme(event.target.value);
@@ -30,7 +31,7 @@ function ColorSelector(props) {
         fullWidth={true}
         mb={3}
       >
-        {Object.keys(colors).map((theme) => (
+        {Object.keys(colorPalettes).map((theme) => (
           <MenuItem key={theme} value={theme}>
             {capitalizeFirst(theme)}
           </MenuItem>

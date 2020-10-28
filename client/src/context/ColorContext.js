@@ -1,7 +1,7 @@
 import { createContext } from "react";
 
 // https://mokole.com/palette.html
-export const colors = {
+export const colorPalettes = {
   default: [
     "#072AC8",
     "#1E96FC",
@@ -50,4 +50,4 @@ export const colors = {
   ],
 };
 
-export default createContext(colors.default);
+export default createContext(colorPalettes.default);

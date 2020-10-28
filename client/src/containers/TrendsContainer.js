@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 
-import ColorContext from "../context/ColorContext";
+import ColorContext, { colorPalettes } from "../context/ColorContext";
 
 /**
  * Injects the processed respones from /daily-trends, /daily-trends-by-state
  * into a given component
  */
 function TrendsContainer({ children }) {
-  const colors = useContext(ColorContext);
+  const colorPalette = useContext(ColorContext);
+  const colors = colorPalettes[colorPalette];
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [dailyTrends, setDailyTrends] = useState();
