@@ -45,7 +45,7 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
               key={topic?.title?.query}
               onClick={(e) => handleOpen(e, rank)}
             >
-              <Grid item xs={1}>
+              <Grid item xs={2} sm={2} md={2} lg={1}>
                 <Box
                   style={{
                     backgroundColor,
@@ -63,7 +63,7 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={8} md={7} lg={8}>
+              <Grid item xs={8} sm={6} md={7} lg={8}>
                 <Typography variant="h6" component="h2">
                   {topic?.title?.query}
                 </Typography>
@@ -84,14 +84,25 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
                   )}
                 </Typography>
               </Grid>
-              <Grid item xs={2} sm={3} md={2}>
-                <Typography variant="h6" component="h2" align={"center"}>
-                  {topic?.formattedTraffic}
-                </Typography>
-                <Typography variant="subtitle1" component="h2" align={"center"}>
-                  searches
-                </Typography>
-              </Grid>
+              <Box
+                component={Grid}
+                item
+                xs={2}
+                display={{ xs: "none", sm: "none", md: "inline" }}
+              >
+                <Grid item xs={2} sm={3} md={2}>
+                  <Typography variant="h6" component="h2" align={"center"}>
+                    {topic?.formattedTraffic}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    component="h2"
+                    align={"center"}
+                  >
+                    searches
+                  </Typography>
+                </Grid>
+              </Box>
               <Box
                 component={Grid}
                 item
