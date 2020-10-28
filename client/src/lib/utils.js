@@ -35,3 +35,15 @@ export function padZero(str, len) {
   var zeros = new Array(len).join("0");
   return (zeros + str).slice(-len);
 }
+
+export function capitalizeFirst(str) {
+  let res = "";
+  for (let i = 0; i < str.length; i++) {
+    if (i == 0) {
+      res += str[i].toUpperCase();
+    } else {
+      res += str[i];
+    }
+  }
+  return res;
+}

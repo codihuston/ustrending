@@ -1,35 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
-const colors = [
-  "#e6194b",
-  "#3cb44b",
-  "#ffe119",
-  "#4363d8",
-  "#f58231",
-  "#911eb4",
-  "#46f0f0",
-  "#f032e6",
-  "#bcf60c",
-  "#fabebe",
-  "#008080",
-  "#e6beff",
-  "#9a6324",
-  "#fffac8",
-  "#800000",
-  "#aaffc3",
-  "#808000",
-  "#ffd8b1",
-  "#000075",
-  "#808080",
-  "#ffffff",
-  "#000000",
-];
+import ColorContext from "../context/ColorContext";
 
 /**
  * Injects the processed respones from /daily-trends, /daily-trends-by-state
  * into a given component
  */
 function TrendsContainer({ children }) {
+  const colors = useContext(ColorContext);
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [dailyTrends, setDailyTrends] = useState();
@@ -80,7 +58,7 @@ function TrendsContainer({ children }) {
           setError(true);
         }
       });
-  }, []);
+  }, [colors]);
 
   if (isLoading && !error) {
     return "Loading...";

@@ -20,11 +20,12 @@ import MapIcon from "@material-ui/icons/Map";
 import TableChartIcon from "@material-ui/icons/TableChart";
 import InfoIcon from "@material-ui/icons/Info";
 import TrendingUpIcon from "@material-ui/icons/TrendingUp";
+import SettingsIcon from "@material-ui/icons/Settings";
 
 import MapViewPage from "../pages/MapView";
 import TableViewPage from "../pages/TableView";
 import TrendingTodayPage from "../pages/TrendingToday";
-
+import SettingsPage from "../pages/Settings";
 import ListItemLink from "./ListItemLink";
 
 const drawerWidth = 240;
@@ -63,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ResponsiveDrawer(props) {
-  const { window } = props;
+  const { window, handleChangeColors } = props;
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -71,7 +72,6 @@ function ResponsiveDrawer(props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-
   const drawer = (
     <div>
       <div className={classes.toolbar} />
@@ -106,6 +106,14 @@ function ResponsiveDrawer(props) {
           icon={<TableChartIcon />}
           primary={"Table"}
           to={"/table"}
+        />
+      </List>
+      <Divider />
+      <List>
+        <ListItemLink
+          icon={<SettingsIcon />}
+          primary={"Settings"}
+          to={"/settings"}
         />
       </List>
     </div>
@@ -180,6 +188,10 @@ function ResponsiveDrawer(props) {
             <Route
               path="/trending"
               render={() => <TrendingTodayPage {...props} />}
+            />
+            <Route
+              path="/settings"
+              render={() => <SettingsPage {...props} />}
             />
             <Route path="/" render={() => <MapViewPage {...props} />} />
           </Switch>
