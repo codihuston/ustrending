@@ -8,7 +8,6 @@ import { AllHtmlEntities } from "html-entities";
 import invert from "invert-color";
 
 import ColorContext, { colorPalettes } from "../context/ColorContext";
-import { padZero } from "../lib/utils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,7 +52,7 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
                     padding={2}
                   >
                     <Paper>
-                      <Box padding={1}>#{padZero(rank + 1)}</Box>
+                      <Box padding={1}>#{rank + 1}</Box>
                     </Paper>
                   </Box>
                 </Typography>
