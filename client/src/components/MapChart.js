@@ -11,6 +11,7 @@ import {
 } from "react-simple-maps";
 import debugLib from "debug";
 import invert from "invert-color";
+import Button from "@material-ui/core/Button";
 
 import allStates from "../allstates.json";
 
@@ -18,15 +19,42 @@ const tooltipFontSize = "1rem";
 const debug = debugLib("client:mapchart");
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 const offsets = {
-  VT: [50, -8],
-  NH: [34, 2],
-  MA: [30, -1],
-  RI: [28, 2],
-  CT: [35, 10],
-  NJ: [34, 1],
-  DE: [33, 0],
-  MD: [47, 10],
-  DC: [49, 21],
+  VT: {
+    name: "Vermont",
+    offsets: [50, -8],
+  },
+  NH: {
+    name: "New Hampshire",
+    offsets: [34, 2],
+  },
+  MA: {
+    name: "Massachusetts",
+    offsets: [30, -1],
+  },
+  RI: {
+    name: "Rhode Island",
+    offsets: [28, 2],
+  },
+  CT: {
+    name: "Connecticut",
+    offsets: [35, 10],
+  },
+  NJ: {
+    name: "New Jersey",
+    offsets: [34, 1],
+  },
+  DE: {
+    name: "Delaware",
+    offsets: [33, 0],
+  },
+  MD: {
+    name: "Maryland",
+    offsets: [47, 10],
+  },
+  DC: {
+    name: "District of Columbia",
+    offsets: [49, 21],
+  },
 };
 
 const labelStyle = {
@@ -76,8 +104,11 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
     return style;
   }
 
-  function handleMouseEnter(event, geo) {
-    const { name } = geo.properties;
+  function handleButtonClick(event, value) {
+    handleMouseEnter(event, offsets[value].name);
+  }
+
+  function handleMouseEnter(event, name) {
     const dailyTrend = dailyTrendsByState.get(name);
     if (!dailyTrend) {
       console.warn(`Trends not found for state '${name}'`);
@@ -87,24 +118,38 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
     debug(`Daily Trend for '${name}'`, dailyTrend);
 
     setTooltipContent(
-      dailyTrend
-        .map((trend, i) => {
-          const style = `background-color: ${colorsByTopic.get(trend.topic)}; 
+      `Trending for ${name}<br><br>` +
+        dailyTrend
+          .map((trend, i) => {
+            const style = `background-color: ${colorsByTopic.get(trend.topic)}; 
           padding: 1px 3px;
           color: ${invert(colorsByTopic.get(trend.topic), true)};
           font-weight: 900;`;
 
-          const content = `<span style="${style}">${i + 1}</span><span> – ${
-            trend.topic
-          }</span>`;
-          return content;
-        })
-        .join("<br>")
+            const content = `<span style="${style}">${i + 1}</span><span> – ${
+              trend.topic
+            }</span>`;
+            return content;
+          })
+          .join("<br>")
     );
   }
 
   return (
     <>
+      {Object.keys(offsets)
+        .sort()
+        .map((key) => {
+          return (
+            <Button
+              key={key}
+              onClick={(e) => handleButtonClick(e, key)}
+              color="primary"
+            >
+              {key}
+            </Button>
+          );
+        })}
       <ComposableMap data-tip="" projection={"geoAlbersUsa"}>
         <Geographies geography={geoUrl}>
           {({ geographies }) => {
@@ -115,7 +160,9 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    onMouseEnter={(event) => handleMouseEnter(event, geo)}
+                    onMouseEnter={(event) =>
+                      handleMouseEnter(event, geo?.properties?.name)
+                    }
                     onMouseLeave={() => {
                       setTooltipContent("");
                     }}
@@ -149,8 +196,8 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                         ) : (
                           <Annotation
                             subject={centroid}
-                            dx={offsets[cur.id][0]}
-                            dy={offsets[cur.id][1]}
+                            dx={offsets[cur.id].offsets[0]}
+                            dy={offsets[cur.id].offsets[1]}
                             style={labelStyle}
                           >
                             <text
