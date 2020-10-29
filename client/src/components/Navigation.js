@@ -77,18 +77,6 @@ function ResponsiveDrawer(props) {
     <div>
       <div className={classes.toolbar} />
       <List>
-        <a
-          href="https://trends.google.com/trends"
-          className="text-decoration-none"
-        >
-          <ListItem>
-            <ListItemIcon></ListItemIcon>
-            <ListItemText primary={"Google Trends"} />
-          </ListItem>
-        </a>
-      </List>
-      <Divider />
-      <List>
         <ListItemLink
           icon={<TrendingUpIcon />}
           primary={"Trending Today"}

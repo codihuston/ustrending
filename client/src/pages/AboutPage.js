@@ -42,11 +42,12 @@ function AboutPage() {
           <Typography variant="h2">About</Typography>
           <Typography paragraph>
             The primary purpose of this app is to provide a means of seeing
-            trending data on a per U.S. state basis. Google Trends' Daily Trends
-            does offer a means of seeing how popular certain trends are per
-            state, but it does not do so in a manner that shows you the
-            distribution of trends across all states in one view (from what I
-            could find).
+            trending data on a per U.S. state basis, and is sourced from{" "}
+            <a href="https://trends.google.com/trends">Google Trends</a>. Google
+            Trends' Daily Trends does offer a means of seeing how popular
+            certain trends are per state, but it does not do so in a manner that
+            shows you the distribution of trends across all states in one view
+            (from what I could find).
           </Typography>
           <Typography paragraph>
             This project was designed for the sake of working and learning
