@@ -59,6 +59,15 @@ function MapPage(props) {
     setSelectedTopicNumber(null);
   };
 
+  const buttonStyle = {
+    margin: 0,
+    top: "auto",
+    right: 20,
+    bottom: 20,
+    left: "auto",
+    position: "fixed",
+  };
+
   return (
     <Paper>
       <Box p={3}>
@@ -101,6 +110,7 @@ function MapPage(props) {
             variant="contained"
             color="primary"
             m="auto"
+            style={buttonStyle}
           >
             Click Here for News About #1 in {buttonText}
           </Button>

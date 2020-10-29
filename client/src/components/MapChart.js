@@ -150,6 +150,21 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
       <ReactTooltip html={true} multiline={true}>
         {tooltipContent}
       </ReactTooltip>
+      <Box align="center">
+        {Object.keys(offsets)
+          .sort()
+          .map((key) => {
+            return (
+              <Button
+                key={key}
+                onClick={(e) => handleButtonClick(e, key)}
+                color="primary"
+              >
+                {key}
+              </Button>
+            );
+          })}
+      </Box>
       <ComposableMap data-tip="" projection={"geoAlbersUsa"}>
         <Geographies geography={geoUrl}>
           {({ geographies }) => {
@@ -194,6 +209,9 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                               onMouseEnter={(event) =>
                                 handleMouseEnter(event, geo?.properties?.name)
                               }
+                              onClick={(event) =>
+                                handleClick(event, geo?.properties?.name)
+                              }
                             >
                               {cur.id}
                             </text>
@@ -206,6 +224,9 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                             style={labelStyle}
                             onMouseEnter={(event) =>
                               handleMouseEnter(event, geo?.properties?.name)
+                            }
+                            onClick={(event) =>
+                              handleClick(event, geo?.properties?.name)
                             }
                           >
                             <text
@@ -225,21 +246,6 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
           }}
         </Geographies>
       </ComposableMap>
-      <Box align="center">
-        {Object.keys(offsets)
-          .sort()
-          .map((key) => {
-            return (
-              <Button
-                key={key}
-                onClick={(e) => handleButtonClick(e, key)}
-                color="primary"
-              >
-                {key}
-              </Button>
-            );
-          })}
-      </Box>
     </>
   );
 };
