@@ -60,12 +60,10 @@ function MapPage(props) {
   };
 
   const buttonStyle = {
-    margin: 0,
-    top: "auto",
-    right: 20,
-    bottom: 20,
-    left: "auto",
     position: "fixed",
+    top: "10vh",
+    right: "5vh",
+    // position: "fixed",
   };
 
   return (
@@ -112,7 +110,7 @@ function MapPage(props) {
             m="auto"
             style={buttonStyle}
           >
-            Click Here for News About #1 in {buttonText}
+            See News About #1 in {buttonText}
           </Button>
         </Box>
         <MapChart {...props} handleClick={handleClick} />
