@@ -22,6 +22,7 @@ import InfoIcon from "@material-ui/icons/Info";
 import TrendingUpIcon from "@material-ui/icons/TrendingUp";
 import SettingsIcon from "@material-ui/icons/Settings";
 
+import AboutPage from "../pages/AboutPage";
 import MapViewPage from "../pages/MapPage";
 import TableViewPage from "../pages/TablePage";
 import TrendingTodayPage from "../pages/TrendingTodayPage";
@@ -182,7 +183,7 @@ function ResponsiveDrawer(props) {
             </Alert>
           ) : null}
           <Switch>
-            <Route path="/about">TODO: show about</Route>
+            <Route path="/About" render={() => <AboutPage {...props} />} />
             <Route path="/table" render={() => <TableViewPage {...props} />} />
             <Route
               path="/trending"
