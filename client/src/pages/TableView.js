@@ -11,7 +11,8 @@ function TableView(props) {
       <Box p={3}>
         <Typography variant="h2">Trending Table</Typography>
         <Typography paragraph>
-          Below is a table-view of the trending data for each U.S. State.
+          Below is a table-view of today's trending Google searches by U.S.
+          State.
         </Typography>
         <TrendingByStateTable {...props}></TrendingByStateTable>
       </Box>

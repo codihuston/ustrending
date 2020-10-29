@@ -1,4 +1,5 @@
 import React, { memo, useState } from "react";
+import { Link } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
@@ -64,9 +65,12 @@ function MapView(props) {
         <Typography variant="h2">Trending Map</Typography>
         <Typography paragraph>
           Below is a color-coded map that will display the top Google Trends for
-          each U.S. state. The colors are assigned by
-          <b> topic rank</b> rather than by topic title. For example, if topic A
-          is trending #10, then reaches #2, its color would change accordingly.
+          each U.S. state for today. Note that these are the most googled
+          searches for the duration of the day—it is <i>not</i> indicative of
+          what is trending at this current moment. The colors are assigned by
+          <i> topic rank</i> rather than by topic title. For example, if topic A
+          is trending #10, then reaches #2, its color would change according to
+          the <Link to="/settings">color palette settings</Link>.
         </Typography>
         <Box mb={3}>
           <Alert severity="info">
