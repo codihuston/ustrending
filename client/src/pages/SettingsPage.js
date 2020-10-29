@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
 import invert from "invert-color";
 
 import ColorContext, { colorPalettes } from "../context/ColorContext";
@@ -22,6 +23,7 @@ function Settings(props) {
   return (
     <Paper className={classes.root}>
       <Box p={3}>
+        <Typography variant="h2">Settings</Typography>
         <Box mb={1}>
           <ColorSelector {...props}></ColorSelector>
         </Box>
