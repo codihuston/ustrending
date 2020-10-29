@@ -147,21 +147,9 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
 
   return (
     <>
-      <Box align="center">
-        {Object.keys(offsets)
-          .sort()
-          .map((key) => {
-            return (
-              <Button
-                key={key}
-                onClick={(e) => handleButtonClick(e, key)}
-                color="primary"
-              >
-                {key}
-              </Button>
-            );
-          })}
-      </Box>
+      <ReactTooltip html={true} multiline={true}>
+        {tooltipContent}
+      </ReactTooltip>
       <ComposableMap data-tip="" projection={"geoAlbersUsa"}>
         <Geographies geography={geoUrl}>
           {({ geographies }) => {
@@ -203,6 +191,9 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                               x={5}
                               fontSize={tooltipFontSize}
                               textAnchor="middle"
+                              onMouseEnter={(event) =>
+                                handleMouseEnter(event, geo?.properties?.name)
+                              }
                             >
                               {cur.id}
                             </text>
@@ -213,6 +204,9 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
                             dx={offsets[cur.id].offsets[0]}
                             dy={offsets[cur.id].offsets[1]}
                             style={labelStyle}
+                            onMouseEnter={(event) =>
+                              handleMouseEnter(event, geo?.properties?.name)
+                            }
                           >
                             <text
                               x={4}
@@ -231,9 +225,21 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
           }}
         </Geographies>
       </ComposableMap>
-      <ReactTooltip html={true} multiline={true}>
-        {tooltipContent}
-      </ReactTooltip>
+      <Box align="center">
+        {Object.keys(offsets)
+          .sort()
+          .map((key) => {
+            return (
+              <Button
+                key={key}
+                onClick={(e) => handleButtonClick(e, key)}
+                color="primary"
+              >
+                {key}
+              </Button>
+            );
+          })}
+      </Box>
     </>
   );
 };
