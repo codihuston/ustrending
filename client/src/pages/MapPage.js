@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function MapView(props) {
+function MapPage(props) {
   const classes = useStyles();
   const { dailyTrends, dailyTrendsByState } = props;
   const [open, setOpen] = useState(false);
@@ -121,4 +121,4 @@ function MapView(props) {
   );
 }
 
-export default memo(withRouter(MapView));
+export default memo(withRouter(MapPage));

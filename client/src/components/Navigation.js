@@ -22,10 +22,10 @@ import InfoIcon from "@material-ui/icons/Info";
 import TrendingUpIcon from "@material-ui/icons/TrendingUp";
 import SettingsIcon from "@material-ui/icons/Settings";
 
-import MapViewPage from "../pages/MapView";
-import TableViewPage from "../pages/TableView";
-import TrendingTodayPage from "../pages/TrendingToday";
-import SettingsPage from "../pages/Settings";
+import MapViewPage from "../pages/MapPage";
+import TableViewPage from "../pages/TablePage";
+import TrendingTodayPage from "../pages/TrendingTodayPage";
+import SettingsPage from "../pages/SettingsPage";
 import ListItemLink from "./ListItemLink";
 
 const drawerWidth = 240;
