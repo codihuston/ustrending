@@ -41,7 +41,7 @@ const TrendingTable = ({ dailyTrends, handleOpen }) => {
           return (
             <Grid
               container
-              className={classes.row}
+              className={`${classes.row} cursor-pointer`}
               key={topic?.title?.query}
               onClick={(e) => handleOpen(e, rank)}
             >
