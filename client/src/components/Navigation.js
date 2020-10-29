@@ -77,14 +77,6 @@ function ResponsiveDrawer(props) {
     <div>
       <div className={classes.toolbar} />
       <List>
-        <ListItemLink
-          icon={<InfoIcon />}
-          primary={"About This App"}
-          to={"/about"}
-        />
-      </List>
-      <Divider />
-      <List>
         <a
           href="https://trends.google.com/trends"
           className="text-decoration-none"
@@ -115,6 +107,13 @@ function ResponsiveDrawer(props) {
           icon={<SettingsIcon />}
           primary={"Settings"}
           to={"/settings"}
+        />
+      </List>
+      <List>
+        <ListItemLink
+          icon={<InfoIcon />}
+          primary={"About This App"}
+          to={"/about"}
         />
       </List>
     </div>
