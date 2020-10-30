@@ -32,8 +32,7 @@
     }
   ],
   "settings": {
-    "terminal.integrated.cwd": "${fileDirname}/skaffold",
-    // Set the default
+    // Set IDE defaults
     "eslint.enable": true,
     "eslint.alwaysShowStatus": true,
     "editor.formatOnSave": false,
