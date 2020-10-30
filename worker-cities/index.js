@@ -1,7 +1,7 @@
 /**
  * NOTE: dev environment builds a docker image and uses it with skaffold/k8s.
  * In production, this will likely be deployed in a separate cluster/standalone
- * instance (it doesn't need to be replciated).
+ * instance (it doesn't need to be replicated).
  *
  * 1. [] connect to redis
  * 2. [] create cronjob, runs every X minutes
