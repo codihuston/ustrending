@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: client
+  template:
+    metadata:
+      labels:
+        component: client
+    spec:
+      containers:
+        - name: client
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-client
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "0.2"
+            limits:
+              memory: "256Mi"
+              cpu: "0.2"
+          ports:
+            - containerPort: 3000
+          env:
+            # build config
+            - name: CI
+              value: "true"

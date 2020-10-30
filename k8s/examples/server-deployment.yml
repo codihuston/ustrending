@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: server
+  template:
+    metadata:
+      labels:
+        component: server
+    spec:
+      containers:
+        - name: server
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-server
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "0.2"
+            limits:
+              memory: "256Mi"
+              cpu: "0.2"
+          ports:
+            - containerPort: 3000
+          env:
+            # redis config
+            - name: REDIS_DAILY_TRENDS_KEY
+              value: "daily"
+            - name: REDIS_DAILY_TRENDS_BY_STATE_KEY
+              value: "daily-state"
+            - name: REDIS_REALTIME_TRENDS_BY_STATE_KEY
+              value: "realtime-state"
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_FAMILY
+              value: "4"
