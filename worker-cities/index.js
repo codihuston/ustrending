@@ -5,7 +5,7 @@
  *
  * 1. [x] connect to redis
  * 2. [] create cronjob, runs every X minutes
- *    2a. [] query census (cities by population) -> population data MAY be used
+ *    2a. [x] query census (cities by population) -> population data MAY be used
  *        to determine how to aggregate state-wide trending data on twitter
  *    2a. [] query yahoo (for WOEID, LONG/LAT)
  * 3. [] process city/state data into the following example:
@@ -23,6 +23,7 @@
  * 4. [] store to redis / persist elsewhere?
  */
 require("dotenv").config();
+const census = require("./lib/census");
 
 const Redis = require("ioredis");
 const client = new Redis({
@@ -39,6 +40,14 @@ client.on("connect", function (e) {
 
 client.on("ready", async function (e) {
   console.log("Connection ready", e);
+
+  // get the us cities population data (and cache it)
+  // this cache will prevent re-runs of this script from hitting the census
+  // severs too unnecessarily
+  const cities = await census.getUSCityPopulation(client);
+
+  // TODO: get the us cities yahoo weather data (woeid, long/lat)
+  console.log("Cities output", cities);
 });
 
 client.on("close", function (e) {
