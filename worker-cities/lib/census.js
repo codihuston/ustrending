@@ -23,7 +23,6 @@ const CENSUS_PLACE_KEY = "NAME";
 const PROCESSED_CENSUS_PLACE_KEY = "censusPlace";
 const PROCESSED_CENSUS_STATE_KEY = "censusState";
 // keys used for cache
-const CACHE_CENSUS_CITIES_PROCESSED = "census-cities-processed";
 const CACHE_CENSUS_CITIES_RAW = "census-cities-response";
 
 /**
@@ -51,7 +50,10 @@ function processResponse(response) {
       if (key === CENSUS_PLACE_KEY) {
         // separate them into separate properties
         const temp = row[j].split(",");
-        obj[PROCESSED_CENSUS_PLACE_KEY] = temp[0].trim();
+        // remove extra 'city' which is tacked onto their data for some reason
+        // as well as extra whitespace
+        // i.e.) "Oklahoma City city" => "Oklahoma City"
+        obj[PROCESSED_CENSUS_PLACE_KEY] = temp[0].replace(/city/, "").trim();
         obj[PROCESSED_CENSUS_STATE_KEY] = temp[1].trim();
       } else {
         key = ALIASES[key] ? ALIASES[key] : key;
@@ -65,7 +67,10 @@ function processResponse(response) {
   return jsonResults;
 }
 
-module.exports.getUSCityPopulation = async function (client) {
+module.exports.getUSCityPopulation = async function (
+  client,
+  CACHE_CENSUS_CITIES_PROCESSED
+) {
   try {
     const jsonResults = [];
     // replace url templated params
@@ -104,14 +109,6 @@ module.exports.getUSCityPopulation = async function (client) {
         // process it
         const processed = processResponse(rawCensusResponse);
 
-        // cache processed results
-        await client.set(
-          CACHE_CENSUS_CITIES_PROCESSED,
-          JSON.stringify(processed),
-          "ex",
-          process.env.REDIS_TTL
-        );
-
         return processed;
       }
       // otherwise, fetch it, then process it!
@@ -135,14 +132,6 @@ module.exports.getUSCityPopulation = async function (client) {
 
           // process it
           const processed = processResponse(results);
-
-          // cache processed results
-          await client.set(
-            CACHE_CENSUS_CITIES_PROCESSED,
-            JSON.stringify(processed),
-            "ex",
-            process.env.REDIS_TTL
-          );
 
           return processResponse(results);
         } else {

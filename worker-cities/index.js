@@ -8,7 +8,8 @@
  *    2a. [x] query census (cities by population) -> population data MAY be used
  *        to determine how to aggregate state-wide trending data on twitter
  *    2a. [] query yahoo (for WOEID, LONG/LAT)
- * 3. [] process city/state data into the following example:
+ * 3. [-] (partially complete) process city/state data into the following
+ *    example:
  *
  *      [{
  *        state_full_name: {
@@ -20,10 +21,14 @@
  *          lat
  *        }
  *      }]
- * 4. [] store to redis / persist elsewhere?
+ *
+ * 4. [-] (partially complete, each response from yahoo API is cached. but the
+ *    completed MAP data is not stored anywhere yet)
+ *    should store completed data responses to redis / persist elsewhere?
  */
 require("dotenv").config();
 const census = require("./lib/census");
+const yahoo = require("./lib/yahoo");
 
 const Redis = require("ioredis");
 const client = new Redis({
@@ -41,13 +46,61 @@ client.on("connect", function (e) {
 client.on("ready", async function (e) {
   console.log("Connection ready", e);
 
-  // get the us cities population data (and cache it)
-  // this cache will prevent re-runs of this script from hitting the census
-  // severs too unnecessarily
-  const cities = await census.getUSCityPopulation(client);
+  // TODO: wrap this stuff in a cronjob so that it will be re-attempted later if it fails
+  try {
+    // keys used for cache
+    const CACHE_CENSUS_CITIES_PROCESSED = "census-cities-processed";
+    const CACHE_YAHOO_RESPONSE_PREFIX = "yahoo";
+    const CACHE_COMPLETED_CITIES = "completed-cities";
 
-  // TODO: get the us cities yahoo weather data (woeid, long/lat)
-  console.log("Cities output", cities);
+    // get the us cities population data (and cache it)
+    // this cache will prevent re-runs of this script from hitting the census
+    // severs too unnecessarily
+    const censusCities = await census.getUSCityPopulation(client);
+    console.log(
+      "censusCities output",
+      censusCities,
+      CACHE_CENSUS_CITIES_PROCESSED
+    );
+
+    // cache processed results
+    await client.set(
+      CACHE_CENSUS_CITIES_PROCESSED,
+      JSON.stringify(censusCities),
+      "ex",
+      process.env.REDIS_TTL
+    );
+
+    // get the us cities yahoo weather data (woeid, long/lat)
+    const yahooCities = await yahoo.getUSCityInformation(
+      client,
+      censusCities,
+      CACHE_YAHOO_RESPONSE_PREFIX
+    );
+    console.log("yahooCities output", CACHE_YAHOO_RESPONSE_PREFIX);
+
+    // cache the map only after completion
+    client.set(
+      CACHE_COMPLETED_CITIES,
+      JSON.stringify([...yahooCities]),
+      "ex",
+      process.env.REDIS_TTL
+    );
+
+    // TODO: iterate over every state's cities and delete all of the cached
+    // yahoo responses at "${CACHE_YAHOO_RESPONSE_PREFIX}-${censusPlace}"
+    yahooCities.forEach((cities, state) => {
+      console.log(`Begin deleting caches for: ${state}`);
+      cities.forEach((city) => {
+        const cacheKey = `${CACHE_YAHOO_RESPONSE_PREFIX}-${city.censusPlaceId}`;
+        console.log(`Deleting cache key: ${cacheKey}`);
+        client.del(cacheKey);
+      });
+    });
+  } catch (e) {
+    // fatal error occured
+    console.error(e);
+  }
 });
 
 client.on("close", function (e) {
