@@ -5,13 +5,13 @@ build:
     push: false
   artifacts:
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-server
-      context: server
+      context: ../server
       docker:
         dockerfile: Dockerfile.dev
       sync:
         '***/*.js': .
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-client
-      context: client
+      context: ../client
       docker:
         dockerfile: Dockerfile.dev
       sync:
@@ -19,7 +19,13 @@ build:
         '***/*.css': .
         '***/*.scss': .
         '***/*.html': .
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-google
+      context: ../worker-google
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        '***/*.js': .
 deploy:
   kubectl:
     manifests:
-    - k8s-dev/*.yml
+    - ../k8s/dev/*.yml

@@ -1,7 +1,7 @@
 # Getting Started
 
-> NOTE: This file was ported over from another project, and is a work in
-progress!
+> NOTE: This file was ported over from another project, and documentation here
+is a work in progress!
 
 ## For Developers
 
@@ -45,10 +45,10 @@ Otherwise, use the provided `ingress-nginx-example.yml` file as such:
 
     ```cmd
     # to init / update
-    kubectl apply -f ingress-nginx-example.yml
+    kubectl apply -f ./k8s/ingress-nginx-example.yml
 
     # to delete (takes time)
-    kubectl delete -f ingress-nginx-example.yml
+    kubectl delete -f ./k8s/ingress-nginx-example.yml
     ```
 
     This will install the `ingress controller`, which we will later configure
@@ -58,7 +58,7 @@ Otherwise, use the provided `ingress-nginx-example.yml` file as such:
     > Note: Once you restart your computer, you may have to restart this
     controller in order to view your web app via your browser
 
-1. Copy the contents of the `k8s-examples` directory to the `k8s-development`
+1. Copy the contents of the `k8s/examples` directory to the `k8s/dev` directory
 
     > Note: If you want to configure environment variables or other default
     configurations, do so in the destination directory mentioned above.
@@ -70,7 +70,7 @@ Otherwise, use the provided `ingress-nginx-example.yml` file as such:
     your name (if you want to use your own dockerhub). Not a strict requirement
     if not
 
-1. Copy `skaffold-example.yml` to `skaffold.yml`; replace the
+1. Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`; replace the
 `REPLACE_ME_WITH_YOUR_DOCKER_ID` in this file as well
 
 1. Install dependencies for each project.
@@ -87,7 +87,8 @@ Otherwise, use the provided `ingress-nginx-example.yml` file as such:
     the docker image process via `.dockerignore`, so you shouldn't see any
     performance drops as as result of installing dependencies
 
-1. From the project root, run the `Skaffold` config file
+1. From the `skaffold` directory in the project root, run the `Skaffold` config
+file
 
     ```cmd
     skaffold dev

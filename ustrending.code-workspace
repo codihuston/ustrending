@@ -1,22 +1,35 @@
 {
 	"folders": [
 		{
-			"path": "client"
+			"path": "./client"
 		},
 		{
-			"path": "server"
+			"path": "./docs"
 		},
 		{
-			"path": "worker"
+			"path": "./k8s"
 		},
 		{
-			"path": "worker-cities"
+			"path": "./server"
 		},
 		{
-			"path": "worker-twitter"
+			"path": "./worker-cities"
+		},
+		{
+			"path": "./worker-twitter"
+		},
+		{
+			"path": "./worker-google"
+		},
+		{
+			"path": "./skaffold"
+		},
+		{
+			"path": "./temp"
 		},
   ],
   "settings": {
+    "terminal.integrated.cwd": "${fileDirname}/skaffold",
     // Set the default
     "eslint.enable": true,
     "eslint.alwaysShowStatus": true,
