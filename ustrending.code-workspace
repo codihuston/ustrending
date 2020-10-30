@@ -1,32 +1,35 @@
 {
 	"folders": [
-		{
-			"path": "./client"
-		},
-		{
-			"path": "./docs"
-		},
-		{
-			"path": "./k8s"
-		},
-		{
-			"path": "./server"
-		},
-		{
-			"path": "./worker-cities"
-		},
-		{
-			"path": "./worker-twitter"
-		},
-		{
-			"path": "./worker-google"
-		},
-		{
-			"path": "./skaffold"
-		},
-		{
-			"path": "./temp"
-		},
+    {
+      "path": "./client"
+    },
+    {
+      "path": "./docs"
+    },
+    {
+      "path": "./k8s"
+    },
+    {
+      "path": "./server"
+    },
+    {
+      "path": "./worker-cities"
+    },
+    {
+      "path": "./worker-twitter"
+    },
+    {
+      "path": "./worker-google"
+    },
+    {
+      "path": "./skaffold"
+    },
+    {
+      "path": "./temp"
+    },
+    {
+      "path": "redis"
+    }
   ],
   "settings": {
     "terminal.integrated.cwd": "${fileDirname}/skaffold",
