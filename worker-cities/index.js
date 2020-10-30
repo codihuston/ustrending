@@ -3,7 +3,7 @@
  * In production, this will likely be deployed in a separate cluster/standalone
  * instance (it doesn't need to be replicated).
  *
- * 1. [] connect to redis
+ * 1. [x] connect to redis
  * 2. [] create cronjob, runs every X minutes
  *    2a. [] query census (cities by population) -> population data MAY be used
  *        to determine how to aggregate state-wide trending data on twitter
