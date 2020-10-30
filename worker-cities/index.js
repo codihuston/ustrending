@@ -23,3 +23,33 @@
  * 4. [] store to redis / persist elsewhere?
  */
 require("dotenv").config();
+
+const Redis = require("ioredis");
+const client = new Redis({
+  port: process.env.REDIS_PORT, // Redis port
+  host: process.env.REDIS_HOST, // Redis host
+  family: process.env.REDIS_FAMILY, // 4 (IPv4) or 6 (IPv6)
+  password: process.env.REDIS_PASSWORD,
+  db: process.env.REDIS_DB,
+});
+
+client.on("connect", function (e) {
+  console.log("Connected to redis!", e);
+});
+
+client.on("ready", async function (e) {
+  console.log("Connection ready", e);
+});
+
+client.on("close", function (e) {
+  console.log("Closed connection to redis!", e);
+});
+
+client.on("reconnecting", function (e) {
+  console.log("Reconnecting to redis!", e);
+});
+
+client.on("error", function (error) {
+  console.error(error);
+  process.exit(error.errno);
+});
