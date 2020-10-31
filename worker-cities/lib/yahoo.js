@@ -13,6 +13,7 @@ const { Location } = require("../models/location");
  * a huge issue...
  *
  * @param {*} city
+ * @returns [YAHOO_API_RESPONSE, YAHOO_API_ENDPOINT]
  */
 async function getForecast(city) {
   const API_ENDPOINT = `https://weather-ydn-yql.media.yahoo.com/forecastrss?location=<CITY>,<STATE>&format=json`;
@@ -32,7 +33,7 @@ async function getForecast(city) {
   );
 
   if (!city) {
-    return null;
+    return [];
   }
 
   try {
@@ -69,7 +70,7 @@ async function getForecast(city) {
                   uri
                 );
                 // return nothing so that we don't save a bad location to the db
-                resolve([]);
+                resolve([null, uri]);
               }
 
               console.log("YAHOO DATA", data);
@@ -79,6 +80,7 @@ async function getForecast(city) {
               resolve([data, uri]);
             } else {
               console.warn("Bad response data from:", uri);
+              resolve([null, uri]);
             }
           }
         }
