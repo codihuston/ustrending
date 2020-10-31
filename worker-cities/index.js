@@ -4,8 +4,7 @@
  * instance (it doesn't need to be replicated).
  *
  * 1. [x] connect to redis
- * 2. [] create cronjob, runs every X minutes
- *    2a. [x] query census (cities by population) -> population data MAY be used
+ * 2. [x] query census (cities by population) -> population data MAY be used
  *        to determine how to aggregate state-wide trending data on twitter
  *    2a. [] query yahoo (for WOEID, LONG/LAT)
  * 3. [-] (partially complete) process city/state data into the following
@@ -98,7 +97,6 @@ client.on("ready", async function () {
 
   await database.connect();
 
-  // TODO: wrap this stuff in a cronjob so that it will be re-attempted later if it fails
   try {
     // keys used for cache
     const CACHE_CENSUS_CITIES_PROCESSED =
