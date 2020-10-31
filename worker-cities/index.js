@@ -37,8 +37,8 @@ const census = require("./lib/census");
 const yahoo = require("./lib/yahoo");
 const database = require("./db");
 
-const DUMP_FILE_NAME = "locations.json";
-const DUMP_FILE_PATH = resolve("./dump", DUMP_FILE_NAME);
+const DUMP_FILE_NAME = `locations-${Date.now()}.json`;
+const DUMP_FILE_PATH = resolve("../mongodb/dump", DUMP_FILE_NAME);
 
 const client = new Redis({
   port: process.env.REDIS_PORT, // Redis port
@@ -47,6 +47,47 @@ const client = new Redis({
   password: process.env.REDIS_PASSWORD,
   db: process.env.REDIS_DB,
 });
+
+/**
+ * Will dump locations from mongodb into a file on your system. It will
+ * NOT overwrite the pre-existing file.
+ * @param {*} locations
+ */
+async function dumpLocations(locations) {
+  return new Promise(async function (resolve, reject) {
+    await fs.stat(DUMP_FILE_PATH, async function (error, stats) {
+      // if file does not exist
+      if (error) {
+        console.log(`Dumping locations to: ${DUMP_FILE_PATH}`);
+
+        // create it
+        fs.writeFile(
+          DUMP_FILE_PATH,
+          JSON.stringify(locations, null, 4),
+          function (err) {
+            if (err) {
+              reject(err);
+            }
+
+            console.log(
+              `Finished dumping locations, you should replace the primary dump file with this one.`
+            );
+            resolve(true);
+          }
+        );
+      }
+      // it exists
+      else {
+        // don't write to it
+        reject(
+          new Error(
+            `ERROR: ${DUMP_FILE_PATH} already exists, will not overwrite. Either remove it, or rename it.`
+          )
+        );
+      }
+    }); // end fs.stat
+  }); // end promise
+}
 
 client.on("connect", function () {
   console.log("Redis: connected!");
@@ -66,43 +107,43 @@ client.on("ready", async function () {
     const CACHE_YAHOO_RESPONSE_PREFIX = "worker-cities:yahoo";
     const CACHE_COMPLETED_CITIES = "worker-cities:completed-cities";
 
-    /**
-     * get the us cities population data (and cache it)
-     * this cache will prevent re-runs of this script from hitting the census
-     * severs too unnecessarily
-     */
-    const censusCities = await census.getUSCityPopulation(client);
-    console.log(
-      "censusCities output",
-      censusCities,
-      CACHE_CENSUS_CITIES_PROCESSED
-    );
+    // /**
+    //  * get the us cities population data (and cache it)
+    //  * this cache will prevent re-runs of this script from hitting the census
+    //  * severs too unnecessarily
+    //  */
+    // const censusCities = await census.getUSCityPopulation(client);
+    // console.log(
+    //   "censusCities output",
+    //   censusCities,
+    //   CACHE_CENSUS_CITIES_PROCESSED
+    // );
 
-    // cache processed results
-    await client.set(
-      CACHE_CENSUS_CITIES_PROCESSED,
-      JSON.stringify(censusCities),
-      "ex",
-      process.env.REDIS_TTL
-    );
+    // // cache processed results
+    // await client.set(
+    //   CACHE_CENSUS_CITIES_PROCESSED,
+    //   JSON.stringify(censusCities),
+    //   "ex",
+    //   process.env.REDIS_TTL
+    // );
 
-    /**
-     * get the us cities yahoo weather data (woeid, long/lat)
-     */
-    const yahooCities = await yahoo.getUSCityInformation(
-      client,
-      censusCities,
-      CACHE_YAHOO_RESPONSE_PREFIX
-    );
-    console.log("yahooCities output", CACHE_YAHOO_RESPONSE_PREFIX);
+    // /**
+    //  * get the us cities yahoo weather data (woeid, long/lat)
+    //  */
+    // const yahooCities = await yahoo.getUSCityInformation(
+    //   client,
+    //   censusCities,
+    //   CACHE_YAHOO_RESPONSE_PREFIX
+    // );
+    // console.log("yahooCities output", CACHE_YAHOO_RESPONSE_PREFIX);
 
-    // cache the map only after completion
-    client.set(
-      CACHE_COMPLETED_CITIES,
-      JSON.stringify([...yahooCities]),
-      "ex",
-      process.env.REDIS_TTL
-    );
+    // // cache the map only after completion
+    // client.set(
+    //   CACHE_COMPLETED_CITIES,
+    //   JSON.stringify([...yahooCities]),
+    //   "ex",
+    //   process.env.REDIS_TTL
+    // );
 
     /**
      * Dump the mongodb collection locally
@@ -117,20 +158,7 @@ client.on("ready", async function () {
     const locations = await Location.find().lean();
 
     if (locations) {
-      await (async function () {
-        return new Promise((resolve, reject) => {
-          fs.writeFile(
-            DUMP_FILE_PATH,
-            JSON.stringify(locations, null, 4),
-            function (err) {
-              if (err) {
-                reject(err);
-              }
-              resolve();
-            }
-          );
-        });
-      })();
+      await dumpLocations(locations); // end anon function
     } else {
       console.warn("SKIPPING: Cannot dump locations, because none were found.");
     }
@@ -142,9 +170,8 @@ client.on("ready", async function () {
   } catch (e) {
     // fatal error occured
     console.error(e);
-    process.exit(error.errno);
+    process.exit(e.errno);
   }
-  return;
 });
 
 client.on("close", function (e) {
