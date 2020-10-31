@@ -80,7 +80,6 @@ async function getForecast(uri) {
               }
 
               console.log("YAHOO DATA", data);
-              console.log("YAHOO RESULT", result);
 
               // return response data and uri
               resolve(data);
@@ -114,7 +113,12 @@ async function processResponse(yahooResponse, censusCity) {
 
   try {
     // parse response data
-    const { censusPlaceId, population } = censusCity;
+    const {
+      censusPlaceId,
+      censusStateId,
+      population,
+      censusState,
+    } = censusCity;
     const {
       location: { city, region, country, timezone_id, long, lat, woeid },
       uri,
@@ -127,8 +131,10 @@ async function processResponse(yahooResponse, censusCity) {
     const update = {
       population,
       censusPlaceId,
+      censusStateId,
       city,
       region: region ? region.trim() : null,
+      regionFullName: censusState,
       country,
       timezone_id,
       coordinates: {
@@ -166,7 +172,7 @@ function sleep(ms) {
 }
 
 /**
- * This method will:
+ * This VOID method will:
  *
  * - iterate over all given pre-processed Census (cities from
  * the previous step)
@@ -174,9 +180,6 @@ function sleep(ms) {
  *    - process the city data from the Census and Yahoo API into 1 singular
  *    location record
  *    - store the record in MongoDB
- *    - serialize the record as plain JSON and insert into a js map
- *      [...EACH_STATE] => [...LOCATIONS_IN_STATE]
- *    - return said map
  *
  * WARNING: THIS ASSUMES THAT THE YAHOO API WILL UNDERSTAND THE GIVEN CITY. As
  * it stands, it appears to be able to understand 98% of the given city formats.
@@ -203,12 +206,6 @@ module.exports.getUSCityInformation = async function (
       let response = await client.get(cacheKey);
       const uri = getUri(censusCity.censusPlace, censusCity.censusState);
 
-      // init this key in the map
-      if (!result.get(censusCity.censusState)) {
-        // init a map key equal to the full name of the state as an array
-        result.set(censusCity.censusState, []);
-      }
-
       // if this response is in the cache, reuse it!
       if (response) {
         wasCacheHit = true;
@@ -229,14 +226,6 @@ module.exports.getUSCityInformation = async function (
 
         // process it
         const obj = await processResponse(yahooResponse, censusCity);
-
-        // store it in the map (cached after all cities are processed)
-        obj
-          ? result.set(
-              censusCity.censusState,
-              result.get(censusCity.censusState).concat(obj)
-            )
-          : "";
       } else {
         // otherwise, query the api
         let response = await getForecast(uri);
@@ -257,14 +246,6 @@ module.exports.getUSCityInformation = async function (
 
           // process the response
           const obj = await processResponse(yahooResponse, censusCity);
-
-          // store it in the map (cached after all cities are processed)
-          obj
-            ? result.set(
-                censusCity.censusState,
-                result.get(censusCity.censusState).concat(obj)
-              )
-            : "";
         } else {
           console.warn(
             `No response data for: ${censusCity.censusPlaceId} - ${censusCity.censusPlace}, ${censusCity.censusState}`
@@ -280,5 +261,4 @@ module.exports.getUSCityInformation = async function (
       "An array of processed cities from the Census API are required!"
     );
   }
-  return result;
 };

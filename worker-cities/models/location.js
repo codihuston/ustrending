@@ -6,8 +6,10 @@ const schema = new Schema(
   {
     population: Number, // String is shorthand for {type: String}
     censusPlaceId: Number,
+    censusStateId: Number,
     city: String,
     region: String,
+    regionFullName: String,
     country: String,
     timezone_id: String,
     coordinates: { type: Schema.Types.GeoJSON },

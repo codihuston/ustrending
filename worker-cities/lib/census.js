@@ -139,8 +139,6 @@ module.exports.getUSCityPopulation = async function (
           );
 
           // process it
-          const processed = processResponse(results);
-
           return processResponse(results);
         } else {
           console.warn("No results from census.");

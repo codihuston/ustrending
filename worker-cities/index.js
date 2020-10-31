@@ -96,7 +96,7 @@ client.on("connect", function () {
 client.on("ready", async function () {
   console.log("Redis: ready!");
 
-  const db = await database.connect();
+  await database.connect();
 
   // TODO: wrap this stuff in a cronjob so that it will be re-attempted later if it fails
   try {
@@ -130,17 +130,34 @@ client.on("ready", async function () {
     /**
      * get the us cities yahoo weather data (woeid, long/lat)
      */
-    const yahooCities = await yahoo.getUSCityInformation(
+    await yahoo.getUSCityInformation(
       client,
       censusCities,
       CACHE_YAHOO_RESPONSE_PREFIX
     );
-    console.log("yahooCities output", CACHE_YAHOO_RESPONSE_PREFIX);
+    console.log("locations output", locations, CACHE_YAHOO_RESPONSE_PREFIX);
 
-    // cache the map only after completion
+    // fetch sorted locations from db
+    const locations = await Location.find().sort({ population: 1 }).lean();
+
+    // process these locations into a map for worker-twitter to use efficiently
+    const map = new Map();
+
+    for (const location of locations) {
+      // init the map key: map[STATE]
+      if (!map.get(location.regionFullName)) {
+        map.set(location.regionFullName, []);
+      }
+
+      // append the cities in this state
+      const cities = map.get(location.regionFullName);
+      map.set(location.regionFullName, cities.concat(location));
+    }
+
+    // cache the map
     client.set(
       CACHE_COMPLETED_CITIES,
-      JSON.stringify([...yahooCities]),
+      JSON.stringify([...map]),
       "ex",
       process.env.REDIS_TTL
     );
@@ -155,8 +172,6 @@ client.on("ready", async function () {
      *    and configure it to serve + cache this file (so services like twitter
      *    bot can access it)
      */
-    const locations = await Location.find().sort({ population: 1 }).lean();
-
     if (locations) {
       await dumpLocations(locations); // end anon function
     } else {
