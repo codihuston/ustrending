@@ -2,6 +2,25 @@ const OAuth = require("oauth");
 const { Location } = require("../models/location");
 
 /**
+ * Generates a URI to use when querying the YAHOO WEATHER API.
+ *
+ * @param {*} city  : census place
+ * @param {*} state : census state
+ */
+function getUri(city, state) {
+  const API_ENDPOINT = `https://weather-ydn-yql.media.yahoo.com/forecastrss?location=<CITY>,<STATE>&format=json`;
+
+  const uri = API_ENDPOINT.replace("<CITY>", city).replace("<STATE>", state);
+
+  console.log("Sending response to: ", uri);
+
+  if (!city) {
+    return [];
+  }
+  return uri;
+}
+
+/**
  * Will query the Yahoo Weather API with a given city and state (as defined
  * by the Census API response for any given place).
  *
@@ -15,8 +34,7 @@ const { Location } = require("../models/location");
  * @param {*} city
  * @returns [YAHOO_API_RESPONSE, YAHOO_API_ENDPOINT]
  */
-async function getForecast(city) {
-  const API_ENDPOINT = `https://weather-ydn-yql.media.yahoo.com/forecastrss?location=<CITY>,<STATE>&format=json`;
+async function getForecast(uri) {
   const header = {
     "X-Yahoo-App-Id": process.env.YAHOO_APP_ID,
   };
@@ -32,19 +50,7 @@ async function getForecast(city) {
     header
   );
 
-  if (!city) {
-    return [];
-  }
-
   try {
-    const uri = API_ENDPOINT.replace("<CITY>", city.censusPlace).replace(
-      "<STATE>",
-      city.censusState
-    );
-    console.log("Replace with", city.censusPlace, city.censusState);
-
-    console.log("Sending response to: ", uri);
-
     // TODO: need to handle errors a little more gracefully
     // Also, it may be worth caching which queries/cities failed
     return await new Promise((resolve, reject) => {
@@ -70,17 +76,17 @@ async function getForecast(city) {
                   uri
                 );
                 // return nothing so that we don't save a bad location to the db
-                resolve([null, uri]);
+                resolve(null);
               }
 
               console.log("YAHOO DATA", data);
               console.log("YAHOO RESULT", result);
 
               // return response data and uri
-              resolve([data, uri]);
+              resolve(data);
             } else {
               console.warn("Bad response data from:", uri);
-              resolve([null, uri]);
+              resolve(null);
             }
           }
         }
@@ -89,7 +95,7 @@ async function getForecast(city) {
   } catch (e) {
     // continue processing the rest of the cities on error
     console.error(e);
-    return [];
+    return null;
   }
 }
 
@@ -101,7 +107,7 @@ async function getForecast(city) {
  * @param {*} yahooResponse
  * @param {*} censusCity
  */
-async function processResponse(yahooResponse, censusCity, yahooUri) {
+async function processResponse(yahooResponse, censusCity) {
   if (!yahooResponse || !Object.keys(yahooResponse.location).length === 0) {
     return null;
   }
@@ -111,6 +117,7 @@ async function processResponse(yahooResponse, censusCity, yahooUri) {
     const { censusPlaceId, population } = censusCity;
     const {
       location: { city, region, country, timezone_id, long, lat, woeid },
+      uri,
     } = yahooResponse;
 
     // build mongo queries
@@ -129,7 +136,7 @@ async function processResponse(yahooResponse, censusCity, yahooUri) {
         coordinates: [long, lat],
       },
       woeid,
-      yahooUri,
+      yahooUri: uri,
     };
     const options = { upsert: true, new: true, setDefaultsOnInsert: true };
 
@@ -190,15 +197,16 @@ module.exports.getUSCityInformation = async function (
   // if given cities
   if (cities.length) {
     // get yahoo info for each city
-    for (const city of cities) {
+    for (const censusCity of cities) {
       let wasCacheHit = false;
-      const cacheKey = `${CACHE_KEY_PREFIX}-${city.censusPlaceId}`;
+      const cacheKey = `${CACHE_KEY_PREFIX}-${censusCity.censusPlaceId}`;
       let response = await client.get(cacheKey);
+      const uri = getUri(censusCity.censusPlace, censusCity.censusState);
 
       // init this key in the map
-      if (!result.get(city.censusState)) {
+      if (!result.get(censusCity.censusState)) {
         // init a map key equal to the full name of the state as an array
-        result.set(city.censusState, []);
+        result.set(censusCity.censusState, []);
       }
 
       // if this response is in the cache, reuse it!
@@ -206,41 +214,60 @@ module.exports.getUSCityInformation = async function (
         wasCacheHit = true;
 
         console.log(
-          `CACHE HIT (${cacheKey}): reusing cache for ${city.censusPlaceId}, ${city.censusState}`
+          `CACHE HIT (${cacheKey}): reusing cache for ${censusCity.censusPlaceId}, ${censusCity.censusState}`
         );
 
+        // if the cache doesn't have a uri property, set it
+        const yahooResponse = JSON.parse(response);
+        if (!yahooResponse.uri) {
+          yahooResponse.uri = uri;
+          // update it in cache
+          client.set(cacheKey, JSON.stringify(yahooResponse));
+
+          console.log(`CACHE UPDATE ${cacheKey} with new uri`, uri);
+        }
+
         // process it
-        const obj = await processResponse(JSON.parse(response), city);
+        const obj = await processResponse(yahooResponse, censusCity);
 
         // store it in the map (cached after all cities are processed)
         obj
           ? result.set(
-              city.censusState,
-              result.get(city.censusState).concat(obj)
+              censusCity.censusState,
+              result.get(censusCity.censusState).concat(obj)
             )
           : "";
       } else {
         // otherwise, query the api
-        let [response, uri] = await getForecast(city);
+        let response = await getForecast(uri);
 
         if (response && response.length) {
+          // add uri to this object (so it's available in the cache)
+          const yahooResponse = JSON.parse(response);
+          yahooResponse.uri = uri;
+
           // cache weather response (NOTE: response is returned as string)
           // key: cacheKey-${censusPlaceID}
-          await client.set(cacheKey, response, "ex", process.env.REDIS_TTL);
+          await client.set(
+            cacheKey,
+            JSON.stringify(yahooResponse),
+            "ex",
+            process.env.REDIS_TTL
+          );
 
           // process the response
-          const obj = await processResponse(JSON.parse(response), city, uri);
+          const obj = await processResponse(yahooResponse, censusCity);
 
           // store it in the map (cached after all cities are processed)
           obj
             ? result.set(
-                city.censusState,
-                result.get(city.censusState).concat(obj)
+                censusCity.censusState,
+                result.get(censusCity.censusState).concat(obj)
               )
             : "";
         } else {
           console.warn(
-            `No response data for: ${city.censusPlaceId} - ${city.censusPlace}, ${city.censusState}`
+            `No response data for: ${censusCity.censusPlaceId} - ${censusCity.censusPlace}, ${censusCity.censusState}`
           );
         }
       }
