@@ -44,6 +44,8 @@ async function getForecast(city) {
 
     console.log("Sending response to: ", uri);
 
+    // TODO: need to handle errors a little more gracefully
+    // Also, it may be worth caching which queries/cities failed
     return await new Promise((resolve, reject) => {
       request.get(
         //"https://weather-ydn-yql.media.yahoo.com/forecastrss?location=los angeles,california&format=json",
@@ -60,8 +62,6 @@ async function getForecast(city) {
             if (data !== "" || typeof data === undefined) {
               const json = JSON.parse(data);
 
-              // TODO: need to handle these errors a little more gracefully
-              // Also, it may be worth caching which queries/cities failed
               // if no location data is given, then just return nothing
               if (Object.keys(json.location).length === 0) {
                 console.warn(
@@ -69,11 +69,14 @@ async function getForecast(city) {
                   uri
                 );
                 // return nothing so that we don't save a bad location to the db
-                resolve(null);
+                resolve([]);
               }
+
               console.log("YAHOO DATA", data);
               console.log("YAHOO RESULT", result);
-              resolve(data);
+
+              // return response data and uri
+              resolve([data, uri]);
             } else {
               console.warn("Bad response data from:", uri);
             }
@@ -84,7 +87,7 @@ async function getForecast(city) {
   } catch (e) {
     // continue processing the rest of the cities on error
     console.error(e);
-    return null;
+    return [];
   }
 }
 
@@ -96,7 +99,7 @@ async function getForecast(city) {
  * @param {*} yahooResponse
  * @param {*} censusCity
  */
-async function processResponse(yahooResponse, censusCity) {
+async function processResponse(yahooResponse, censusCity, yahooUri) {
   if (!yahooResponse || !Object.keys(yahooResponse.location).length === 0) {
     return null;
   }
@@ -124,6 +127,7 @@ async function processResponse(yahooResponse, censusCity) {
         coordinates: [long, lat],
       },
       woeid,
+      yahooUri,
     };
     const options = { upsert: true, new: true, setDefaultsOnInsert: true };
 
@@ -215,7 +219,7 @@ module.exports.getUSCityInformation = async function (
           : "";
       } else {
         // otherwise, query the api
-        let response = await getForecast(city);
+        let [response, uri] = await getForecast(city);
 
         if (response && response.length) {
           // cache weather response (NOTE: response is returned as string)
@@ -223,7 +227,7 @@ module.exports.getUSCityInformation = async function (
           await client.set(cacheKey, response, "ex", process.env.REDIS_TTL);
 
           // process the response
-          const obj = await processResponse(JSON.parse(response), city);
+          const obj = await processResponse(JSON.parse(response), city, uri);
 
           // store it in the map (cached after all cities are processed)
           obj

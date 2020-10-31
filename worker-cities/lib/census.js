@@ -51,9 +51,17 @@ function processResponse(response) {
         // separate them into separate properties
         const temp = row[j].split(",");
         // remove extra 'city' which is tacked onto their data for some reason
-        // as well as extra whitespace
+        // as well as extra whitespace. the blank space at the start of the
+        // regex is intentional, as in attempt to trim. I couldn't
+        // account for all of the "place" metadata that follows
+        // the city name :(
         // i.e.) "Oklahoma City city" => "Oklahoma City"
-        obj[PROCESSED_CENSUS_PLACE_KEY] = temp[0].replace(/city/, "").trim();
+        obj[PROCESSED_CENSUS_PLACE_KEY] = temp[0]
+          .replace(/ village/, "")
+          .replace(/ town/, "")
+          .replace(/ city/, "")
+          .replace(/ CDP/, "")
+          .trim();
         obj[PROCESSED_CENSUS_STATE_KEY] = temp[1].trim();
       } else {
         key = ALIASES[key] ? ALIASES[key] : key;
