@@ -107,43 +107,43 @@ client.on("ready", async function () {
     const CACHE_YAHOO_RESPONSE_PREFIX = "worker-cities:yahoo";
     const CACHE_COMPLETED_CITIES = "worker-cities:completed-cities";
 
-    // /**
-    //  * get the us cities population data (and cache it)
-    //  * this cache will prevent re-runs of this script from hitting the census
-    //  * severs too unnecessarily
-    //  */
-    // const censusCities = await census.getUSCityPopulation(client);
-    // console.log(
-    //   "censusCities output",
-    //   censusCities,
-    //   CACHE_CENSUS_CITIES_PROCESSED
-    // );
+    /**
+     * get the us cities population data (and cache it)
+     * this cache will prevent re-runs of this script from hitting the census
+     * severs too unnecessarily
+     */
+    const censusCities = await census.getUSCityPopulation(client);
+    console.log(
+      "censusCities output",
+      censusCities,
+      CACHE_CENSUS_CITIES_PROCESSED
+    );
 
-    // // cache processed results
-    // await client.set(
-    //   CACHE_CENSUS_CITIES_PROCESSED,
-    //   JSON.stringify(censusCities),
-    //   "ex",
-    //   process.env.REDIS_TTL
-    // );
+    // cache processed results
+    await client.set(
+      CACHE_CENSUS_CITIES_PROCESSED,
+      JSON.stringify(censusCities),
+      "ex",
+      process.env.REDIS_TTL
+    );
 
-    // /**
-    //  * get the us cities yahoo weather data (woeid, long/lat)
-    //  */
-    // const yahooCities = await yahoo.getUSCityInformation(
-    //   client,
-    //   censusCities,
-    //   CACHE_YAHOO_RESPONSE_PREFIX
-    // );
-    // console.log("yahooCities output", CACHE_YAHOO_RESPONSE_PREFIX);
+    /**
+     * get the us cities yahoo weather data (woeid, long/lat)
+     */
+    const yahooCities = await yahoo.getUSCityInformation(
+      client,
+      censusCities,
+      CACHE_YAHOO_RESPONSE_PREFIX
+    );
+    console.log("yahooCities output", CACHE_YAHOO_RESPONSE_PREFIX);
 
-    // // cache the map only after completion
-    // client.set(
-    //   CACHE_COMPLETED_CITIES,
-    //   JSON.stringify([...yahooCities]),
-    //   "ex",
-    //   process.env.REDIS_TTL
-    // );
+    // cache the map only after completion
+    client.set(
+      CACHE_COMPLETED_CITIES,
+      JSON.stringify([...yahooCities]),
+      "ex",
+      process.env.REDIS_TTL
+    );
 
     /**
      * Dump the mongodb collection locally
@@ -155,7 +155,7 @@ client.on("ready", async function () {
      *    and configure it to serve + cache this file (so services like twitter
      *    bot can access it)
      */
-    const locations = await Location.find().lean();
+    const locations = await Location.find().sort({ population: 1 }).lean();
 
     if (locations) {
       await dumpLocations(locations); // end anon function
