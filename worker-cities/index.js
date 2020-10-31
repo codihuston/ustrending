@@ -27,12 +27,19 @@
  *    should store completed data responses to redis / persist elsewhere?
  */
 require("dotenv").config();
+const fs = require("fs");
+const { resolve } = require("path");
+const Redis = require("ioredis");
+const mongoose = require("mongoose");
 
+const { Location } = require("./models/location");
 const census = require("./lib/census");
 const yahoo = require("./lib/yahoo");
 const database = require("./db");
 
-const Redis = require("ioredis");
+const DUMP_FILE_NAME = "locations.json";
+const DUMP_FILE_PATH = resolve("./dump", DUMP_FILE_NAME);
+
 const client = new Redis({
   port: process.env.REDIS_PORT, // Redis port
   host: process.env.REDIS_HOST, // Redis host
@@ -48,7 +55,7 @@ client.on("connect", function () {
 client.on("ready", async function () {
   console.log("Redis: ready!");
 
-  await database.connect();
+  const db = await database.connect();
 
   // TODO: wrap this stuff in a cronjob so that it will be re-attempted later if it fails
   try {
@@ -59,9 +66,11 @@ client.on("ready", async function () {
     const CACHE_YAHOO_RESPONSE_PREFIX = "worker-cities:yahoo";
     const CACHE_COMPLETED_CITIES = "worker-cities:completed-cities";
 
-    // get the us cities population data (and cache it)
-    // this cache will prevent re-runs of this script from hitting the census
-    // severs too unnecessarily
+    /**
+     * get the us cities population data (and cache it)
+     * this cache will prevent re-runs of this script from hitting the census
+     * severs too unnecessarily
+     */
     const censusCities = await census.getUSCityPopulation(client);
     console.log(
       "censusCities output",
@@ -77,7 +86,9 @@ client.on("ready", async function () {
       process.env.REDIS_TTL
     );
 
-    // get the us cities yahoo weather data (woeid, long/lat)
+    /**
+     * get the us cities yahoo weather data (woeid, long/lat)
+     */
     const yahooCities = await yahoo.getUSCityInformation(
       client,
       censusCities,
@@ -93,12 +104,47 @@ client.on("ready", async function () {
       process.env.REDIS_TTL
     );
 
+    /**
+     * Dump the mongodb collection locally
+     *
+     * FOR DEVELOPMENT: deployment will import this into the mongodb container
+     * FOR PRODUCTION:
+     *  - option 1: if using cloud db, manually import this there
+     *  - option 2: if not, manually copy this into the `server` service,
+     *    and configure it to serve + cache this file (so services like twitter
+     *    bot can access it)
+     */
+    const locations = await Location.find().lean();
+
+    if (locations) {
+      await (async function () {
+        return new Promise((resolve, reject) => {
+          fs.writeFile(
+            DUMP_FILE_PATH,
+            JSON.stringify(locations, null, 4),
+            function (err) {
+              if (err) {
+                reject(err);
+              }
+              resolve();
+            }
+          );
+        });
+      })();
+    } else {
+      console.warn("SKIPPING: Cannot dump locations, because none were found.");
+    }
+
     // from here, expect the twitter worker to read this data from the cache or
     // the database ...
+    console.log("DONE.");
+    process.exit(0);
   } catch (e) {
     // fatal error occured
     console.error(e);
+    process.exit(error.errno);
   }
+  return;
 });
 
 client.on("close", function (e) {
