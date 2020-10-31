@@ -121,12 +121,14 @@ file
     1. Builds a docker image locally from each of the `Dockerfile.dev` files (if any) for the services being developed on in this project
     1. Skaffold will listen for file changes and attempt to apply them to the containers without having to re-build them (if possible) and automatically rollout the changes to each of the deployments. These live updates might take a little more time than developing without `Skaffold`
 
-    The applications in this project are served on `localhost` as follows:
+    The applications in this project are served on `localhost:8080` as follows:
 
-    1. Client / front-end app: `localhost`
-    1. API Server: `localhost/api`
-    1. Redis Server: for now, you'll have to `ssh` into the container itself
-       to access this server.
+    1. Client / front-end app: `localhost:8080`
+    1. API Server: `localhost:8080/api`
+    1. Redis Server: you can access it on `localhost:6379` out-of-box, or
+    via the k8s pod itself. You can change this in your k8s deployment file
+    1. MongoDB Server: you can access it on `localhost:27017` out-of-box, or
+    via the k8s pod itself. You can change this in your k8s deployment file
 
 ### Testing the Project
 
