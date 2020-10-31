@@ -1,19 +1,19 @@
-/**
- * TODO:
- * - for each US state in ./debug/usa-cities.json
- *  - send a request to yahoo
- *  - using its response, save the:
- *    - city name (full)
- *    - city long
- *    - city lat
- *    - city timezone_id
- *    - state full name
- *    - state abbreviation
- *    - woeid
- */
 const OAuth = require("oauth");
 const { Location } = require("../models/location");
 
+/**
+ * Will query the Yahoo Weather API with a given city and state (as defined
+ * by the Census API response for any given place).
+ *
+ * If an error occurs in this query, it will not halt the processing of cities
+ * following this one, but an error will be logged.
+ *
+ * TODO: account for all of the cities that had erroneous responses? Since
+ * I expect to have ~2500k+ cities, missing a few here and there shouldn't be
+ * a huge issue...
+ *
+ * @param {*} city
+ */
 async function getForecast(city) {
   const API_ENDPOINT = `https://weather-ydn-yql.media.yahoo.com/forecastrss?location=<CITY>,<STATE>&format=json`;
   const header = {
@@ -53,7 +53,8 @@ async function getForecast(city) {
         null,
         function (err, data, result) {
           if (err) {
-            console.log(err);
+            // continue processing the rest of the cities on error
+            console.error(err);
             reject(err);
           } else {
             if (data !== "" || typeof data === undefined) {
@@ -63,8 +64,12 @@ async function getForecast(city) {
               // Also, it may be worth caching which queries/cities failed
               // if no location data is given, then just return nothing
               if (Object.keys(json.location).length === 0) {
-                console.warn("Bad respone data from:", uri);
-                return null;
+                console.warn(
+                  "SKIPPING: No location data returned from yahoo:",
+                  uri
+                );
+                // return nothing so that we don't save a bad location to the db
+                resolve(null);
               }
               console.log("YAHOO DATA", data);
               console.log("YAHOO RESULT", result);
@@ -77,19 +82,28 @@ async function getForecast(city) {
       );
     });
   } catch (e) {
-    // continue processing the rest of the cities
+    // continue processing the rest of the cities on error
     console.error(e);
+    return null;
   }
 }
 
-async function processResponse(yahooResponse, cityCensus) {
+/**
+ * Uses the response data from the US Census and the Yahoo Weather API to
+ * build a location record containing the information we will need for the
+ * Twitter bot.
+ *
+ * @param {*} yahooResponse
+ * @param {*} censusCity
+ */
+async function processResponse(yahooResponse, censusCity) {
   if (!yahooResponse || !Object.keys(yahooResponse.location).length === 0) {
     return null;
   }
 
   try {
     // parse response data
-    const { censusPlaceId, population } = cityCensus;
+    const { censusPlaceId, population } = censusCity;
     const {
       location: { city, region, country, timezone_id, long, lat, woeid },
     } = yahooResponse;
@@ -102,7 +116,7 @@ async function processResponse(yahooResponse, cityCensus) {
       population,
       censusPlaceId,
       city,
-      region: region.trim(),
+      region: region ? region.trim() : null,
       country,
       timezone_id,
       coordinates: {
@@ -120,19 +134,46 @@ async function processResponse(yahooResponse, cityCensus) {
   } catch (e) {
     console.warn(
       `Failed to process response for census city:`,
-      JSON.stringify(city, null, 4),
+      JSON.stringify(censusCity, null, 4),
       ` and yahoo city: `,
-      JSON.stringify(response, null, 4)
+      JSON.stringify(yahooResponse, null, 4)
     );
     console.error(e);
   }
   return null;
 }
 
+/**
+ * Returns a promise designed to space out outgoing requests to the Yahoo API.
+ *
+ * @param {*} ms
+ */
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * This method will:
+ *
+ * - iterate over all given pre-processed Census (cities from
+ * the previous step)
+ *    - query the Yahoo API with their city/state.
+ *    - process the city data from the Census and Yahoo API into 1 singular
+ *    location record
+ *    - store the record in MongoDB
+ *    - serialize the record as plain JSON and insert into a js map
+ *      [...EACH_STATE] => [...LOCATIONS_IN_STATE]
+ *    - return said map
+ *
+ * WARNING: THIS ASSUMES THAT THE YAHOO API WILL UNDERSTAND THE GIVEN CITY. As
+ * it stands, it appears to be able to understand 98% of the given city formats.
+ * This is a bit of a saving grace, IMO.
+ *
+ * @param {*} client : redis client
+ * @param {*} cities : processed census cities
+ * @param {*} CACHE_KEY_PREFIX  : a prefix for where Yahoo API responses are
+ *  cached
+ */
 module.exports.getUSCityInformation = async function (
   client,
   cities,
@@ -144,6 +185,7 @@ module.exports.getUSCityInformation = async function (
   if (cities.length) {
     // get yahoo info for each city
     for (const city of cities) {
+      let wasCacheHit = false;
       const cacheKey = `${CACHE_KEY_PREFIX}-${city.censusPlaceId}`;
       let response = await client.get(cacheKey);
 
@@ -155,6 +197,8 @@ module.exports.getUSCityInformation = async function (
 
       // if this response is in the cache, reuse it!
       if (response) {
+        wasCacheHit = true;
+
         console.log(
           `CACHE HIT (${cacheKey}): reusing cache for ${city.censusPlaceId}, ${city.censusState}`
         );
@@ -173,7 +217,7 @@ module.exports.getUSCityInformation = async function (
         // otherwise, query the api
         let response = await getForecast(city);
 
-        if (response.length) {
+        if (response && response.length) {
           // cache weather response (NOTE: response is returned as string)
           // key: cacheKey-${censusPlaceID}
           await client.set(cacheKey, response, "ex", process.env.REDIS_TTL);
@@ -190,12 +234,13 @@ module.exports.getUSCityInformation = async function (
             : "";
         } else {
           console.warn(
-            `No response data for: ${city.censusPlaceId}, ${city.censusState}`
+            `No response data for: ${city.censusPlaceId} - ${city.censusPlace}, ${city.censusState}`
           );
         }
       }
-      break;
-      await sleep(1000);
+
+      // sleep only if there is not a cache hit (and we need to query the api)
+      wasCacheHit ? null : await sleep(1000);
     } // end for
   } else {
     throw new Error(
