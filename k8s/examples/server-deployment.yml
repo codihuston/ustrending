@@ -38,9 +38,5 @@ spec:
               value: "6379"
             - name: REDIS_DB
               value: "0"
-            - name: REDIS_PASSWORD
-              value: ""
-            - name: REDIS_DB
-              value: "0"
-            - name: REDIS_FAMILY
-              value: "4"
+            - name: REDIS_RECONNECT_ATTEMPTS
+              value: "10"

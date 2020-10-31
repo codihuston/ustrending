@@ -27,8 +27,10 @@
  *    should store completed data responses to redis / persist elsewhere?
  */
 require("dotenv").config();
+
 const census = require("./lib/census");
 const yahoo = require("./lib/yahoo");
+const database = require("./db");
 
 const Redis = require("ioredis");
 const client = new Redis({
@@ -39,19 +41,23 @@ const client = new Redis({
   db: process.env.REDIS_DB,
 });
 
-client.on("connect", function (e) {
-  console.log("Connected to redis!", e);
+client.on("connect", function () {
+  console.log("Redis: connected!");
 });
 
-client.on("ready", async function (e) {
-  console.log("Connection ready", e);
+client.on("ready", async function () {
+  console.log("Redis: ready!");
+
+  await database.connect();
 
   // TODO: wrap this stuff in a cronjob so that it will be re-attempted later if it fails
   try {
     // keys used for cache
-    const CACHE_CENSUS_CITIES_PROCESSED = "census-cities-processed";
-    const CACHE_YAHOO_RESPONSE_PREFIX = "yahoo";
-    const CACHE_COMPLETED_CITIES = "completed-cities";
+    const CACHE_CENSUS_CITIES_PROCESSED =
+      "worker-cities:census-cities-processed";
+    // key will be: ${CACHE_YAHOO_RESPONSE_PREFIX}-${cenusPlaceId}
+    const CACHE_YAHOO_RESPONSE_PREFIX = "worker-cities:yahoo";
+    const CACHE_COMPLETED_CITIES = "worker-cities:completed-cities";
 
     // get the us cities population data (and cache it)
     // this cache will prevent re-runs of this script from hitting the census
@@ -87,16 +93,8 @@ client.on("ready", async function (e) {
       process.env.REDIS_TTL
     );
 
-    // TODO: iterate over every state's cities and delete all of the cached
-    // yahoo responses at "${CACHE_YAHOO_RESPONSE_PREFIX}-${censusPlace}"
-    yahooCities.forEach((cities, state) => {
-      console.log(`Begin deleting caches for: ${state}`);
-      cities.forEach((city) => {
-        const cacheKey = `${CACHE_YAHOO_RESPONSE_PREFIX}-${city.censusPlaceId}`;
-        console.log(`Deleting cache key: ${cacheKey}`);
-        client.del(cacheKey);
-      });
-    });
+    // from here, expect the twitter worker to read this data from the cache or
+    // the database ...
   } catch (e) {
     // fatal error occured
     console.error(e);

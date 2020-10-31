@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: mongo-deployment
+  template:
+    metadata:
+      labels:
+        component: mongo-deployment
+    spec:
+      containers:
+        - name: mongo
+          image: mongo
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.1"
+            limits:
+              memory: "512Mi"
+              cpu: "0.1"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-volume
+              mountPath: /data/db
+              # subpath (on docker host) fixes some issues w/ DBMS (postgres)
+              subPath: mongo
+          env:
+            # redis config
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: ""
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: ""
+      volumes:
+        - name: mongo-volume
+          # Change this path if you want to mount the db elsewhere in Windows!
+          #   - The `/run/desktop` token is used to access the docker desktop 
+          #   mount # path.
+          #   - The `/mnt/host` token is defined in `wsl.conf` in Windows wsl
+          #   (and is the default value). If you have multiple developers on
+          #   one machine, change this path to keep separate instances!
+          #   - NOTE: to find these paths on your host / subsystems, just
+          #   drop the two aforementioned tokens from the path
+          #   - IMPORTANT: This will keep your db persistent across reboots,
+          #   ***even when running `skaffold delete`***!
+          hostPath:
+            # for wsl2 w/ docker-desktop on Win10 
+            #   (explorable @ wsl2: /mnt/wsl)
+            path: /run/desktop/mnt/host/wsl/ustrending-k8s
+            # for windows host (explorable in file explorer)
+            #   (explorable @ c/programdata)
+            #path: /run/desktop/mnt/host/c/programdata/ustrending-k8s
+            # for mac/linux (untested)
+            #   (explorable @ /tmp)
+            #path: /tmp/ustrending-k8s
+            type: DirectoryOrCreate
+            

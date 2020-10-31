@@ -12,6 +12,7 @@
  *    - woeid
  */
 const OAuth = require("oauth");
+const { Location } = require("../models/location");
 
 async function getForecast(city) {
   const API_ENDPOINT = `https://weather-ydn-yql.media.yahoo.com/forecastrss?location=<CITY>,<STATE>&format=json`;
@@ -81,27 +82,41 @@ async function getForecast(city) {
   }
 }
 
-function processResponse(response, city) {
-  const obj = {};
-
-  if (!response || !Object.keys(response.location).length === 0) {
+async function processResponse(yahooResponse, cityCensus) {
+  if (!yahooResponse || !Object.keys(yahooResponse.location).length === 0) {
     return null;
   }
 
   try {
-    // append census results to it
-    obj.population = city.population;
-    obj.censusPlaceId = city.censusPlaceId;
-    // append yahoo results to it
-    obj.city = response.location.city;
-    obj.region = response.location.city.trim();
-    obj.country = response.location.country;
-    obj.timezone_id = response.location.timezone_id;
-    obj.long = response.location.long;
-    obj.lat = response.location.lat;
-    obj.woeid = response.location.woeid;
+    // parse response data
+    const { censusPlaceId, population } = cityCensus;
+    const {
+      location: { city, region, country, timezone_id, long, lat, woeid },
+    } = yahooResponse;
 
-    return obj;
+    // build mongo queries
+    const query = {
+      censusPlaceId: censusPlaceId,
+    };
+    const update = {
+      population,
+      censusPlaceId,
+      city,
+      region: region.trim(),
+      country,
+      timezone_id,
+      coordinates: {
+        type: "Point",
+        coordinates: [long, lat],
+      },
+      woeid,
+    };
+    const options = { upsert: true, new: true, setDefaultsOnInsert: true };
+
+    console.log(query, update, options);
+
+    // upsert location in mongodb, return as plain JSON
+    return await Location.findOneAndUpdate(query, update, options).lean();
   } catch (e) {
     console.warn(
       `Failed to process response for census city:`,
@@ -145,9 +160,9 @@ module.exports.getUSCityInformation = async function (
         );
 
         // process it
-        const obj = processResponse(JSON.parse(response), city);
+        const obj = await processResponse(JSON.parse(response), city);
 
-        // store it in the map
+        // store it in the map (cached after all cities are processed)
         obj
           ? result.set(
               city.censusState,
@@ -164,9 +179,9 @@ module.exports.getUSCityInformation = async function (
           await client.set(cacheKey, response, "ex", process.env.REDIS_TTL);
 
           // process the response
-          const obj = processResponse(JSON.parse(response), city);
+          const obj = await processResponse(JSON.parse(response), city);
 
-          // store it in the map
+          // store it in the map (cached after all cities are processed)
           obj
             ? result.set(
                 city.censusState,
@@ -179,7 +194,7 @@ module.exports.getUSCityInformation = async function (
           );
         }
       }
-
+      break;
       await sleep(1000);
     } // end for
   } else {

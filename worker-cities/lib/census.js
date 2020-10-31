@@ -23,7 +23,7 @@ const CENSUS_PLACE_KEY = "NAME";
 const PROCESSED_CENSUS_PLACE_KEY = "censusPlace";
 const PROCESSED_CENSUS_STATE_KEY = "censusState";
 // keys used for cache
-const CACHE_CENSUS_CITIES_RAW = "census-cities-response";
+const CACHE_CENSUS_CITIES_RAW = "worker-cities:census-cities-response";
 
 /**
  * Takes the JSON response from the Census API and processes it into

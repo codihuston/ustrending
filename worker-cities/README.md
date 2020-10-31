@@ -27,6 +27,9 @@ For now, this container should:
 
 ## Production
 
+This container will not be deployed to production, as the data that it fetches
+should be mostly static, and only needs to be updated yearly (census data).
+
 In effort to reduce the need for a cloud-based managed DBMS, I will initially
 forego that service in favor of deploying a JSON file containg the completed
 city data alongside the containers that need it. Right now,

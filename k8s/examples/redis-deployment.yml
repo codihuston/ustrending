@@ -6,15 +6,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      component: redis
+      component: redis-deployment
   template:
     metadata:
       labels:
-        component: redis
+        component: redis-deployment
     spec:
       containers:
         - name: redis
-          image: redis
+          image: codihuston/ustrending-redis
           resources:
             requests:
               memory: "24Mi"
@@ -24,17 +24,3 @@ spec:
               cpu: "0.1"
           ports:
             - containerPort: 6379
-          env:
-            # redis config
-            - name: REDIS_HOST
-              value: redis-cluster-ip-service
-            - name: REDIS_PORT
-              value: "6379"
-            - name: REDIS_DB
-              value: "0"
-            - name: REDIS_PASSWORD
-              value: ""
-            - name: REDIS_DB
-              value: "0"
-            - name: REDIS_FAMILY
-              value: "4"
