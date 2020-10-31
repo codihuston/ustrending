@@ -126,7 +126,7 @@ function ResponsiveDrawer(props) {
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" noWrap>
-              United States Trends
+              United States Trending
             </Typography>
           </Toolbar>
         </AppBar>
