@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: mongo
-          image: mongo
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-mongodb
           resources:
             requests:
               memory: "128Mi"
@@ -37,7 +37,7 @@ spec:
               value: ""
       volumes:
         - name: mongo-volume
-          # Change this path if you want to mount the db elsewhere in Windows!
+          # Change this path if you want to mount elsewhere in your host OS!
           #   - The `/run/desktop` token is used to access the docker desktop 
           #   mount # path.
           #   - The `/mnt/host` token is defined in `wsl.conf` in Windows wsl

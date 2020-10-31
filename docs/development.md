@@ -63,8 +63,13 @@ Otherwise, use the provided `ingress-nginx-example.yml` file as such:
     > Note: If you want to configure environment variables or other default
     configurations, do so in the destination directory mentioned above.
     The defaults work out-of-box for `Windows w/ Docker Desktop Kubernetes`.
-    See `k8s-dev/README.md` if you are operating in a different environment
+    If you are operating in a different environment, you will need to make
+    changes to the `hostPath` key in the `mongodb-deployment.yml`. See that file
     for additional instructions
+
+    1. Change the resource allocation in the deployment files to your liking.
+    The out-of-box configuration might be very slow, especially for the
+    client and server services
 
     1. Replace the `REPLACE_ME_WITH_YOUR_DOCKER_ID` token in that file with
     your name (if you want to use your own dockerhub). Not a strict requirement

@@ -1,17 +1,25 @@
-# WARNING: USE FOR DEVELOPMENT PURPOSES ONLY
+# USE FOR DEVELOPMENT PURPOSES ONLY
 
-AGAIN, DO NOT USE IN PRODUCTION!!!
+This service exists solely so that I can persist the location data that
+the `worker-cities` service has processed. This container will copy in the
+data dump from the `worker-cities` service (stored in `./dump` in this
+directory) into the container at build time.
 
-This redis config file will configure the redis pod to:
+In order to seed `mongodb` with this location dumpfile, you must
+run one of the provided `import` scripts, whichever suites your platform.
 
-1. Listen on ALL NETWORK INTERFACES
+> NOTE: Since these scripts need run from your host machine, the `mongodb` container
+will need to expose its ports to your host machine.
 
-2. DISABLE protected mode
+These scripts assume that you are using the out-of-box k8s configuration
+alongside docker-desktop's provided `kubectl` service; this out-of-box
+configuration already includes a load balancer that will expose the
+`mongodb` container to your host computer.
+See `k8s/examples/mongodb-ip-cluster.yml`
 
-Since this container will listen to any network interfaces, you will be
-able to connect to it from the docker host (your computer) via `localhost:6379`.
-That is the only purpose of this configuration. This will allow you to work
-on worker scripts from outside of the k8s / skaffold environment,
-should you choose. Exposing this redis server to your host machine is helpful
-for when you are working on a service that has not yet been integrated into the
-k8s environment, but needs access to the redis server.
+You only need to run this script once. The out-of-box configuration for
+the `mongodb` service will create a persistent data volume on your host
+machine See `k8s/examples/mongodb-deployment.yml`.
+
+> NOTE: If you are using a linux-based OS, you will want to change the
+value of the `hostPath` key in the aforementioned file accordingly.

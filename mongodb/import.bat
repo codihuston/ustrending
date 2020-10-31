@@ -1,0 +1,1 @@
+powershell -f ./import.ps1

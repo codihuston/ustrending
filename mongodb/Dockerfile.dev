@@ -1,4 +1,2 @@
 FROM mongo
-COPY locations.json locations.json
-#RUN "mongoimport --db=ustrending --collection=locations --file=locations.json  --jsonArray"
-CMD ["mongoimport", "--db=ustrending", "--collection=locations", "--file=locations.json", "--jsonArray"]
+COPY ./dump/locations.json /locations.json

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: codihuston/ustrending-redis
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-redis
           resources:
             requests:
               memory: "24Mi"
