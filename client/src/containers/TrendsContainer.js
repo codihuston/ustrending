@@ -22,7 +22,7 @@ function TrendsContainer({ children }) {
       .then((result) => {
         const processed = new Map();
 
-        if (!result.error) {
+        if (result && !result.error) {
           result.map((x) => {
             processed.set(x[0], x[1]);
           });
@@ -39,7 +39,7 @@ function TrendsContainer({ children }) {
       .then((result) => {
         const trendColorMap = new Map();
 
-        if (!result.error) {
+        if (result && !result.error) {
           result.map((x, i) => {
             if (x?.title?.query) {
               trendColorMap.set(x.title.query, colors[i]);
