@@ -3,10 +3,16 @@ const debug = require("debug")("private-api:twitter-ctrl");
 const { initCache } = require("../db");
 const TwitterAPI = require("../api/twitter");
 const YahooAPI = require("../api/yahoo");
-// TODO: test error handling for places
 const { Place } = require("../models/place");
 const { secondsAs, sleep } = require("../lib/utils");
 
+/**
+ * Will fetch places from twitter at /trends/available. These are not
+ * stored/used as-is (aside from caching); they are ultimately processed
+ * in a manner in which I append some geospatial data (and more) to it
+ * from the Yahoo API. This geospatial data is crucial in some of the features
+ * that this app will offer. (i.e. finding trends near a given location)
+ */
 module.exports.getPlaces = async function () {
   try {
     const CACHE_KEY = "twitter:places";
@@ -32,11 +38,24 @@ module.exports.getPlaces = async function () {
   }
 };
 
+/**
+ * Given a list of "twitter places", query yahoo for useful information,
+ * attach it to the twitter place object, and store it. The geospatial
+ * data is needed for some features of this service.
+ *
+ * (i.e. finding trends near a given location)
+ *
+ * @param {*} places
+ */
 module.exports.createPlaces = async function (places) {
   const results = [];
 
-  try {
-    await places.reduce(async (p, place) => {
+  await places.reduce(async (p, place) => {
+    try {
+      // make sure previous promise is done; this check also handles
+      // the throwing of errors up the promise chain
+      await p;
+
       return await (async () => {
         console.log(`LOOP! ${new Date()}`, place.name);
 
@@ -106,12 +125,13 @@ module.exports.createPlaces = async function (places) {
             place.country
           );
         }
+
         return await sleep(1000);
       })();
-    }, Promise.resolve());
+    } catch (e) {
+      throw e;
+    }
+  }, Promise.resolve());
 
-    return results;
-  } catch (e) {
-    throw e;
-  }
+  return results;
 };
