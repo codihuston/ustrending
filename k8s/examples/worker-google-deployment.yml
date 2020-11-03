@@ -35,11 +35,6 @@ spec:
               value: "US"
             - name: MAX_TREND_LIMIT
               value: "10"
-            # twitter api config
-            - name: TWITTER_API_KEY
-              value: ""
-            - name: TWITTER_API_SECRET_KEY
-              value: ""
             # redis config
             - name: REDIS_DAILY_TRENDS_KEY
               value: "daily"
