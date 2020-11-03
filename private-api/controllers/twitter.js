@@ -32,12 +32,12 @@ module.exports.getPlaces = async function () {
   }
 };
 
-module.exports.createPlaces = function (places) {
+module.exports.createPlaces = async function (places) {
   const results = [];
 
   try {
-    const result = places.reduce((p, place) => {
-      return p.then(async () => {
+    await places.reduce(async (p, place) => {
+      return await (async () => {
         console.log(`LOOP! ${new Date()}`, place.name);
 
         const uri = YahooAPI.getUriByWoeid(place.woeid);
@@ -107,12 +107,10 @@ module.exports.createPlaces = function (places) {
           );
         }
         return await sleep(1000);
-      });
+      })();
     }, Promise.resolve());
 
-    return result.then(() => {
-      return results;
-    });
+    return results;
   } catch (e) {
     throw e;
   }
