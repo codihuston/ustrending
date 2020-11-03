@@ -40,3 +40,15 @@ spec:
               value: "0"
             - name: REDIS_RECONNECT_ATTEMPTS
               value: "10"
+            # mongo db config
+            - name: MONGO_HOST
+              value: mongo-cluster-ip-ervice
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_USERNAME
+              value: ""
+            - name: MONGO_PASSWORD
+              value: ""
+            - name: MONGO_DB
+              value: ustrending
+
