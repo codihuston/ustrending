@@ -30,6 +30,7 @@ const fs = require("fs");
 const { resolve } = require("path");
 const Redis = require("ioredis");
 const mongoose = require("mongoose");
+const debug = require("debug")("worker-cities:index");
 
 const { Location } = require("./models/location");
 const census = require("./lib/census");
@@ -110,30 +111,37 @@ client.on("ready", async function () {
      * this cache will prevent re-runs of this script from hitting the census
      * severs too unnecessarily
      */
+    console.log("Fetching cities from the US Census...");
     const censusCities = await census.getUSCityPopulation(client);
-    console.log(
-      "censusCities output",
-      censusCities,
-      CACHE_CENSUS_CITIES_PROCESSED
-    );
+    console.log("\tDONE.");
+    debug("censusCities output", censusCities, CACHE_CENSUS_CITIES_PROCESSED);
 
     // cache processed results
+    console.log("Caching...");
     await client.set(
       CACHE_CENSUS_CITIES_PROCESSED,
       JSON.stringify(censusCities),
       "ex",
       process.env.REDIS_TTL
     );
+    console.log("\tDONE.");
 
     /**
      * get the us cities yahoo weather data (woeid, long/lat)
      */
+    console.log(
+      "Initializing cities from Yahoo API using city/state data from Census..."
+    );
+    console.log(
+      "Between each fetch, the record is persisted in the databases."
+    );
     await yahoo.getUSCityInformation(
       client,
       censusCities,
       CACHE_YAHOO_RESPONSE_PREFIX
     );
-    console.log("locations output", locations, CACHE_YAHOO_RESPONSE_PREFIX);
+    console.log("\tDONE.");
+    debug("locations output", locations, CACHE_YAHOO_RESPONSE_PREFIX);
 
     // fetch sorted locations from db
     const locations = await Location.find().sort({ population: 1 }).lean();
@@ -141,6 +149,7 @@ client.on("ready", async function () {
     // process these locations into a map for worker-twitter to use efficiently
     const map = new Map();
 
+    console.log("Processing cities into a JS map (in prep for client use)...");
     for (const location of locations) {
       // init the map key: map[STATE]
       if (!map.get(location.regionFullName)) {
@@ -151,14 +160,17 @@ client.on("ready", async function () {
       const cities = map.get(location.regionFullName);
       map.set(location.regionFullName, cities.concat(location));
     }
+    console.log("\tDONE.");
 
     // cache the map
+    console.log("Caching the JS Map...");
     client.set(
       CACHE_COMPLETED_CITIES,
       JSON.stringify([...map]),
       "ex",
       process.env.REDIS_TTL
     );
+    console.log("\tDONE.");
 
     /**
      * Dump the mongodb collection locally

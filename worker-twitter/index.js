@@ -108,7 +108,6 @@ client.on("ready", async function () {
       });
     }
 
-    console.log("tesT");
     // TODO: if is Q1 of the hour, get the max population
     if (true) {
       // get the cities with the highest population from each city

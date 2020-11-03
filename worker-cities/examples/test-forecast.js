@@ -24,9 +24,9 @@ async function getForecast() {
     //   "<STATE>",
     //   city.censusState
     // );
-    // console.log("Replace with", city.censusPlace, city.censusState);
+    // debug("Replace with", city.censusPlace, city.censusState);
 
-    console.log("Sending response to: ", uri);
+    debug("Sending response to: ", uri);
 
     return await new Promise((resolve, reject) => {
       request.get(
@@ -37,11 +37,11 @@ async function getForecast() {
         null,
         function (err, data, result) {
           if (err) {
-            console.log(err);
+            debug(err);
             reject(err);
           } else {
-            console.log("YAHOO DATA", data);
-            // console.log("YAHOO RESULT", result);
+            debug("YAHOO DATA", data);
+            // debug("YAHOO RESULT", result);
             resolve(data);
           }
         }

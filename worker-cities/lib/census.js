@@ -6,6 +6,7 @@
  * - us state / city pop 25000+: https://api.census.gov/data/2019/acs/acsse?get=NAME,K200101_001E&for=place:*&in=state:*&key=<API_KEY>
  */
 const fetch = require("node-fetch");
+const debug = require("debug")("worker-cities:index");
 
 const CENSUS_YEAR = "2019";
 // 25k+ endpoint
@@ -93,14 +94,14 @@ module.exports.getUSCityPopulation = async function (
 
     // if we already have processed results, use it
     if (processedCensusResponse) {
-      console.log(
+      debug(
         `CACHE HIT (${CACHE_CENSUS_CITIES_PROCESSED}): Previously processed census data found, returning it!`
       );
       return processedCensusResponse;
     }
     // if we do not, see if we at least have the raw census response data
     else {
-      console.log(
+      debug(
         `CACHE MISS (${CACHE_CENSUS_CITIES_PROCESSED}): No census data processed and cached yet, continuing...`
       );
 
@@ -110,7 +111,7 @@ module.exports.getUSCityPopulation = async function (
 
       // if we do, process it!
       if (rawCensusResponse) {
-        console.log(
+        debug(
           `CACHE HIT (${CACHE_CENSUS_CITIES_RAW}): We already got the results! Now process it!`
         );
 
@@ -121,7 +122,7 @@ module.exports.getUSCityPopulation = async function (
       }
       // otherwise, fetch it, then process it!
       else {
-        console.log(
+        debug(
           `CACHE MISS (${CACHE_CENSUS_CITIES_RAW}): No raw census response data is cached, fetching from: `,
           CENSUS_ACS_URI
         );

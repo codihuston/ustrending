@@ -1,7 +1,8 @@
 // getting-started.js
 require("dotenv").config("../.env");
+const debug = require("debug")("worker-cities:db");
+
 const mongoose = require("mongoose");
-const { Location } = require("../models/location");
 
 mongoose.set("useFindAndModify", false);
 
@@ -31,7 +32,7 @@ function connect() {
     try {
       const [uri, safeUri] = getConnectionString();
 
-      console.log("MongoDB: Attempting to connect to: ", safeUri);
+      debug("MongoDB: Attempting to connect to: ", safeUri);
 
       mongoose.connect(uri, {
         useNewUrlParser: true,
@@ -45,7 +46,7 @@ function connect() {
       });
 
       db.on("connected", function () {
-        console.log("MongoDB: Connected to mongo!");
+        debug("MongoDB: Connected to mongo!");
         resolve(db);
       });
 

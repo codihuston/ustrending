@@ -8,13 +8,16 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cross-env DEBUG=worker-cities:* node index.js",
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cron": "^1.8.2",
     "cron-parser": "^2.16.3",
+    "cross-env": "^7.0.2",
     "debug": "^4.2.0",
     "dotenv": "^8.2.0",
     "ioredis": "^4.19.1",
