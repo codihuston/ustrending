@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-twitter-trends-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: worker-twitter-trends
+  template:
+    metadata:
+      labels:
+        component: worker-twitter-trends
+    spec:
+      containers:
+        - name: worker-twitter-trends
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-twitter-trends
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "0.1"
+            limits:
+              memory: "128Mi"
+              cpu: "0.1"
+          env:
+            # private api config
+            - name: PRIVATE_API_HOST
+              value: private-api-cluster-ip-service.default.svc.cluster.local
+            - name: PRIVATE_API_PORT
+              value: "3000"
+            # twitter config
+            - name: TWITTER_API_KEY
+              value: ""
+            - name: TWITTER_API_SECRET_KEY
+              value: ""
+            - name: TWITTER_API_BEARER_TOKEN
+              value: ""
+            - name: TWITTER_API_ACCESS_TOKEN
+              value: ""
+            - name: TWITTER_API_ACCESS_TOKEN_SECRET
+              value: ""
+            # redis config
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: REDIS_FAMILY
+              value: "4"
+            # crontab config
+            - name: CRON_EXPRESSION_DAILY_TRENDS
+              value: "5 * * * *"
+            - name: CRON_EXPRESSION_REALTIME_TRENDS
+              value: "5 * * * *"
+            - name: CRON_TIMEZONE
+              value: "America/Chicago"
