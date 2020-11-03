@@ -3,6 +3,7 @@ const axios = require("axios");
 const debug = require("debug")("public-api:index");
 const router = express.Router();
 
+const { PRIVATE_API_URL } = require("../lib/utils");
 const client = require("../db").client;
 
 /* GET home page. */
@@ -13,19 +14,23 @@ router.get("/", function (req, res, next) {
 /**
  * TODO: implement me
  */
-router.get("/daily-trends", async function (req, res, next) {
-  const dailyTrendsByState =
-    (await client.get(process.env.REDIS_DAILY_TRENDS_KEY)) || null;
+router.get("/google/trends/daily", async function (req, res, next) {
+  try {
+    const dailyTrendsByState =
+      (await client.get(process.env.REDIS_DAILY_TRENDS_KEY)) || null;
 
-  console.log(dailyTrendsByState);
+    console.log(dailyTrendsByState);
 
-  return res.json(JSON.parse(dailyTrendsByState));
+    return res.json(JSON.parse(dailyTrendsByState));
+  } catch (e) {
+    next(e);
+  }
 });
 
 /**
  * TODO: implement me
  */
-router.get("/daily-trends-by-state", async function (req, res, next) {
+router.get("/google/trends/states", async function (req, res, next) {
   const dailyTrendsByState =
     (await client.get(process.env.REDIS_DAILY_TRENDS_BY_STATE_KEY)) || null;
 

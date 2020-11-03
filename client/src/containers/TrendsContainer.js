@@ -17,7 +17,7 @@ function TrendsContainer({ children }) {
   const [colorsByTopic, setColorsByTopic] = useState(new Map());
 
   useEffect(() => {
-    fetch("/api/daily-trends-by-state")
+    fetch("/api/google/trends/states")
       .then((res) => res.json())
       .then((result) => {
         const processed = new Map();
@@ -34,7 +34,7 @@ function TrendsContainer({ children }) {
         }
       });
 
-    fetch("/api/daily-trends")
+    fetch("/api/google/trends/daily")
       .then((res) => res.json())
       .then((result) => {
         const trendColorMap = new Map();
