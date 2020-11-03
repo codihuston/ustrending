@@ -19,10 +19,16 @@
       "path": "./worker-cities"
     },
     {
-      "path": "./worker-twitter"
+      "path": "./worker-google-trends"
     },
     {
-      "path": "./worker-google"
+      "path": "./worker-twitter-trends"
+    },
+    {
+      "path": "./worker-twitter-stream"
+    },
+    {
+      "path": "./worker-twitter-stream-processor"
     },
     {
       "path": "./skaffold"

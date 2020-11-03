@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: worker-google-deployment
+  name: worker-google-trends-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: worker-google
+      component: worker-google-trends
   template:
     metadata:
       labels:
-        component: worker-google
+        component: worker-google-trends
     spec:
       containers:
         - name: worker
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-google-trends
           resources:
             requests:
               memory: "128Mi"

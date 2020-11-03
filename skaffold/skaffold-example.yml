@@ -25,8 +25,14 @@ build:
         '***/*.css': .
         '***/*.scss': .
         '***/*.html': .
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-google
-      context: ../worker-google
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-google-trends
+      context: ../worker-google-trends
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        '***/*.js': .
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-twitter-trends
+      context: ../worker-twitter-trends
       docker:
         dockerfile: Dockerfile.dev
       sync:
