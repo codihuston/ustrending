@@ -2,6 +2,7 @@ const OAuth = require("oauth");
 const fetch = require("node-fetch");
 
 const utils = require("./utils");
+const worldwide_trends = require("../debug/twitter-trends-us.json");
 
 async function authenticate() {
   var OAuth2 = OAuth.OAuth2;
@@ -39,82 +40,54 @@ module.exports.getTrendsByPlace = async function (twitterMap) {
   const CACHE_KEY_PREFIX = "worker-twitter:"; // - woeid
   const API_ENDPOINT =
     "https://api.twitter.com/1.1/trends/place.json?id=<WOEID>";
-
+  const MAX_TRENDS = 10;
   const access_token = await authenticate();
 
   console.log(access_token);
-  // console.log(JSON.stringify([...twitterMap, null, 4]));
-
-  // for (const [state, city] of twitterMap.entries()) {
-  //   const uri = API_ENDPOINT.replace("<WOEID>", city.woeid);
-
-  //   console.log("Get trends for:", city);
-
-  //   const result = await fetch(uri, {
-  //     method: "get",
-  //     headers: {
-  //       Authorization: `Bearer ${access_token}`,
-  //     },
-  //   });
-
-  //   console.log(result, result.status);
-  // }
-  // const woeid = 2383660; //
-  const woeid = 2484654; // rosedale, MD
-  const wstream = new utils.WriteableMemoryStream(woeid);
-  const uri = API_ENDPOINT.replace("<WOEID>", woeid);
-  let promises = [];
 
   /**
-   * TODO: write a rate-limit aware twitter-crawler bot. This
-   * needs to do the following:
-   *
-   * see: https://twittercommunity.com/t/why-does-the-trends-place-json-return-404-sometimes-for-valid-woeids/22068
-   *
-   * - slowly crawl over all cities
-   * - for each city
-   *    - check current rate limit headers
-   *    - if x-rate-remaining > 0
-   *      - query the next city
-   *      - if 404, mark it so we never query it again (in mongodb?)
-   *      - else if 200, mark it so we DO query it again
-   *        - NOTE: IDK if SOME locations WILL get twitter volume, or if they'll
-   *          sometimes fall off/come back up, so idk if flagging this is
-   *          useful...
-   *    - else, sleep for x-rate-reset duration before continuing!
+   * STEP 1: top trends in the US on a delta (woeid: 23424977)
    */
-  for (const city of twitterMap) {
-    console.log(city);
-    const p = new Promise(async (resolve, reject) => {
-      wstream.on("finish", async function () {
-        try {
-          // get the response we just wrote to the memory store
-          const response = utils.getMemoryStoreKeyAsObject(woeid);
+  console.log("Begin looking at us trends");
 
-          console.log(response);
+  /**
+   * STEP 2: create rules
+   * - get tweets from all states
+   *
+   * https://developer.twitter.com/en/docs/twitter-api/rate-limits
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/integrate/build-a-rule
+   *
+   * "Note that beyond these limits on the number of requests, the Standard
+   * Basic level of access provides up to 500,000 Tweets per month from the
+   * recent search and filtered stream endpoints. If you have exceeded the
+   * monthly  limit on the number of Tweets, then it makes more sense for your
+   * app to raise a notification and know its enrollment day of the month and
+   * hold off requests until that day."
+   */
+  // let ruleset = [];
+  // for (let i = 0; i < MAX_TRENDS; i++) {
+  //   const rule = "";
+  //   console.log(`Examining trend #${i + 1}`, worldwide_trends[0].trends[i]);
+  // }
 
-          resolve(response);
-        } catch (e) {
-          // console.error(e);
-          reject(e);
-        }
-      }); // end write stream
+  /**
+   * STEP 3: set rules in twitter API
+   * - get tweets from all states
+   */
 
-      const res = await fetch(uri, {
-        method: "get",
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      });
-      res.body.pipe(wstream);
-      console.log(res.body, res.status, res.headers);
-      // res.headers.x-rate-limit
-      // res.headers.x-rate-remaining
-      // res.headers.x-rate-reset
-    }); // end promise
-    await sleep(1000);
-    promises.push(p);
-  }
+  /**
+   * STEP 4: read from stream / store in memory
+   * - get tweets from all states
+   */
+  fetch("https://stream.twitter.com/1.1/statuses/filter.json");
 
-  console.log(Promise.all(promises));
+  /**
+   * STEP 5: in another multi-threaded process, unbox, increment tweet count
+   * by state, store result in memory. Publish, clients update map accordingly.
+   *
+   * TODO: figure out how to safely queue/process/write all of this data
+   * - https://redis.io/topics/distlock
+   * - https://github.com/go-redsync/redsync
+   * - https://github.com/mike-marcacci/node-redlock
+   */
 };
