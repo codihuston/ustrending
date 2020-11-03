@@ -1,6 +1,6 @@
 /**
  * TODO:
- * 1. [] connect to redis
+ * 1. [x] connect to redis
  * 2. [] create route to fetch current trends (used by clients for initial
  * page load)
  * 3. [] implement socket.io / subscribe to redis / publish to clients
@@ -26,8 +26,8 @@ app.use(cookieParser());
 
 app.use("/", indexRouter);
 app.use("/google", googleRouter);
+app.use("/twitter", twitterRouter);
 app.use("/yahoo", yahooRouter);
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

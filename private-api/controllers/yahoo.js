@@ -1,7 +1,7 @@
 const debug = require("debug")("private-api:yahoo-ctrl");
 
 const { initCache } = require("../db");
-const YahooAPI = require("../lib/yahoo");
+const YahooAPI = require("../api/yahoo");
 
 module.exports.getWeather = async function (woeid) {
   try {
