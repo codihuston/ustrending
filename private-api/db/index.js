@@ -1,17 +1,54 @@
 // getting-started.js
 const Redis = require("ioredis");
 const mongoose = require("mongoose");
+
+let cacheClient = null;
 const { Location } = require("../models/location");
 
-const cacheClient = new Redis({
-  port: process.env.REDIS_PORT, // Redis port
-  host: process.env.REDIS_HOST, // Redis host
-  family: process.env.REDIS_FAMILY, // 4 (IPv4) or 6 (IPv6)
-  password: process.env.REDIS_PASSWORD,
-  db: process.env.REDIS_DB,
-});
+/**
+ * Handles the connection to redis and mongodb.
+ */
+module.exports.initCache = function (app) {
+  if (cacheClient) {
+    return cacheClient;
+  }
+  console.log(
+    "Redis: initializing connection... (server will not start until this is completed!)"
+  );
 
-module.exports.cacheClient = cacheClient;
+  const client = new Redis({
+    port: process.env.REDIS_PORT, // Redis port
+    host: process.env.REDIS_HOST, // Redis host
+    family: process.env.REDIS_FAMILY, // 4 (IPv4) or 6 (IPv6)
+    password: process.env.REDIS_PASSWORD, // Redis password
+    db: process.env.REDIS_DB, // Redis DB
+  });
+
+  client.on("connect", function () {
+    console.log("CACHE: connected!");
+  });
+
+  client.on("ready", async function () {
+    console.log("CACHE: ready!");
+
+    app.emit("cache-connected");
+    cacheClient = client;
+    return true;
+  });
+
+  client.on("close", function () {
+    console.warn("CACHE: connection closed!");
+  });
+
+  client.on("reconnecting", function () {
+    console.warn("CACHE: reconnecting...");
+  });
+
+  client.on("error", function (error) {
+    console.error(error);
+    // process.exit(error.errno);
+  });
+};
 
 mongoose.set("useFindAndModify", false);
 
