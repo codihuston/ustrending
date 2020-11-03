@@ -166,7 +166,7 @@ client.on("ready", async function () {
      * FOR DEVELOPMENT: deployment will import this into the mongodb container
      * FOR PRODUCTION:
      *  - option 1: if using cloud db, manually import this there
-     *  - option 2: if not, manually copy this into the `server` service,
+     *  - option 2: if not, manually copy this into the `public-api` service,
      *    and configure it to serve + cache this file (so services like twitter
      *    bot can access it)
      */

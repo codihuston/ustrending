@@ -10,7 +10,10 @@
       "path": "./k8s"
     },
     {
-      "path": "./server"
+      "path": "private-api"
+    },
+    {
+      "path": "./public-api"
     },
     {
       "path": "./worker-cities"

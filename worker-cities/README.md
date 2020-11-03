@@ -69,6 +69,6 @@ static and can only change when the US Census updates their data, there is no
 point in deploying this application.
 
 Ideally, the dumped data from this script would be imported manually into a
-production database or served via a flat JSON file from the `server`
+production database or served via a flat JSON file from the `public-api`
 *if needed*. The place in which this data is stored in production depends
 largely upon whether or not I want to invest in a cloud-based DBMS.

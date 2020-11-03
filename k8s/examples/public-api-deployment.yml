@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server-deployment
+  name: public-api-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: server
+      component: public-api
   template:
     metadata:
       labels:
-        component: server
+        component: public-api
     spec:
       containers:
-        - name: server
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-server
+        - name: public-api
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "0.2"
+              memory: "1Gi"
+              cpu: "1"
             limits:
-              memory: "256Mi"
-              cpu: "0.2"
+              memory: "1Gi"
+              cpu: "1"
           ports:
             - containerPort: 3000
           env:
