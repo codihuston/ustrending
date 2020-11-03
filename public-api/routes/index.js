@@ -1,4 +1,6 @@
 const express = require("express");
+const axios = require("axios");
+const debug = require("debug")("public-api:index");
 const router = express.Router();
 
 const client = require("../db").client;
@@ -37,6 +39,24 @@ router.get("/daily-trends-by-state", async function (req, res, next) {
  */
 router.get("/realtime-trends", function (req, res, next) {
   return res.json({ title: "return realtime trends from redis" });
+});
+
+/**
+ * TODO: implement me
+ */
+router.get("/test", async function (req, res, next) {
+  const uri =
+    "http://" +
+    process.env.PRIVATE_API_HOST +
+    ":" +
+    process.env.PRIVATE_API_PORT;
+  debug("PRIVATE API URI", uri);
+  try {
+    const response = await axios.get(uri);
+    res.send(response.data);
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = router;
