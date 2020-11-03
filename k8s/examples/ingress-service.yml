@@ -9,11 +9,18 @@ spec:
   rules:
     - http:
         paths:
-          - path: /?(.*)
-            backend:
-              serviceName: client-cluster-ip-service
-              servicePort: 3000
           - path: /api/?(.*)
             backend:
               serviceName: public-api-cluster-ip-service
+              servicePort: 3000
+          # DEVELOPMENT PURPOSES ONLY, WILL NOT BE PUBLIC-FACING IN PRODUCITON!
+          # DO NOT USE THIS HANDLE IN ANY CODEBASE, THIS IS SO YOU CAN TEST
+          # IN THE BROWSER IF NEEDED! IT WILL NOT BE AVAILABLE IN PRODUCITON!!!
+          - path: /private-api/?(.*)
+            backend:
+              serviceName: private-api-cluster-ip-service
+              servicePort: 3000
+          - path: /?(.*)
+            backend:
+              serviceName: client-cluster-ip-service
               servicePort: 3000
