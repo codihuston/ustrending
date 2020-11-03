@@ -1,14 +1,10 @@
 // C:\Users\Codi\git\ustrending\worker-twitter-trends\debug\trends-available-response.json
 const express = require("express");
-const debug = require("debug")("private-api:index");
+const debug = require("debug")("private-api:twitter-route");
 const router = express.Router();
 
 const twitterPlaces = require("../temp/trends-available-response.json");
-const { Place } = require("../models/place");
-const { initCache } = require("../db");
 const TwitterController = require("../controllers/twitter");
-const YahooAPI = require("../api/yahoo");
-const { sleep } = require("../lib/utils");
 
 function methodThatReturnsAPromise(nextID) {
   return new Promise((resolve, reject) => {
