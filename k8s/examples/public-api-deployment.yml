@@ -26,12 +26,6 @@ spec:
             - containerPort: 3000
           env:
             # redis config
-            - name: REDIS_DAILY_TRENDS_KEY
-              value: "daily"
-            - name: REDIS_DAILY_TRENDS_BY_STATE_KEY
-              value: "daily-state"
-            - name: REDIS_REALTIME_TRENDS_BY_STATE_KEY
-              value: "realtime-state"
             - name: REDIS_HOST
               value: redis-cluster-ip-service
             - name: REDIS_PORT

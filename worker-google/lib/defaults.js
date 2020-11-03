@@ -11,7 +11,3 @@ module.exports.CRON_EXPRESSION_DAILY_TRENDS = "0 * * * *";
 module.exports.CRON_EXPRESSION_REALTIME_TRENDS = "0 * * * *";
 // IANA time zone identifier
 module.exports.CRON_TIMEZONE = "America/Chicago";
-// keys for redis
-module.exports.REDIS_DAILY_TRENDS_KEY = "daily";
-module.exports.REDIS_DAILY_TRENDS_BY_STATE_KEY = "daily-state";
-module.exports.REDIS_REALTIME_TRENDS_BY_STATE_KEY = "realtime-state";

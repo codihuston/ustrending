@@ -45,8 +45,6 @@ const client = new Redis({
 async function runDailyTrends(cronjobName) {
   const { PRIVATE_API_URL } = utils;
 
-  console.log("QQQ", PRIVATE_API_URL, utils.PRIVATE_API_URL);
-
   // TODO: implement cache check
   // this way we don't spam google when the dev env resets...
   try {

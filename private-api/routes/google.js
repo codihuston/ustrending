@@ -1,7 +1,7 @@
 const express = require("express");
-const debug = require("debug")("private-api:index");
+const debug = require("debug")("private-api:google");
 const router = express.Router();
-const { Location } = require("../models/location");
+
 const { initCache } = require("../db");
 const CACHE_DAILY_TRENDS_KEY = "daily-trends";
 const CACHE_DAILY_TRENDS_BY_STATE_KEY = "daily-trends-by-state";
