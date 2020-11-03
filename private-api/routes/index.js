@@ -1,7 +1,7 @@
 const express = require("express");
 const debug = require("debug")("private-api:index");
 const router = express.Router();
-
+const { Location } = require("../models/location");
 const { initCache } = require("../db");
 
 /* GET home page. */
@@ -9,7 +9,9 @@ router.get("/", async function (req, res, next) {
   try {
     const cacheClient = await initCache();
     cacheClient.set("TEST", "TEST");
-    return res.json({ title: "Called Private API!" });
+    const locations = await Location.find();
+
+    return res.json({ title: "Called Private API!", locations });
   } catch (e) {
     next(e);
   }

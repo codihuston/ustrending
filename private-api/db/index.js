@@ -12,9 +12,7 @@ module.exports.initCache = function (app) {
   if (cacheClient) {
     return cacheClient;
   }
-  console.log(
-    "Redis: initializing connection... (server will not start until this is completed!)"
-  );
+  console.log("CACHE: initializing connection...");
 
   const client = new Redis({
     port: process.env.REDIS_PORT, // Redis port
@@ -50,8 +48,6 @@ module.exports.initCache = function (app) {
   });
 };
 
-mongoose.set("useFindAndModify", false);
-
 function getConnectionString() {
   let credentialString = "";
   const {
@@ -73,36 +69,38 @@ function getConnectionString() {
   return [str, safeStr];
 }
 
-function dbConnect() {
-  return new Promise((resolve, reject) => {
-    try {
-      const [uri, safeUri] = getConnectionString();
+/**
+ * Emits a "db-connected" event when a connection is established.
+ * Does not return a handle to the database instance; simply
+ * import mongoose or its models wherever it is needed, and it
+ * should just work.
+ *
+ * @param {*} app : express app
+ */
+module.exports.initDb = function (app) {
+  mongoose.set("useFindAndModify", false);
 
-      console.log("MongoDB: Attempting to connect to: ", safeUri);
+  const [uri, safeUri] = getConnectionString();
 
-      mongoose.connect(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+  console.log("DATABASE: initializing connection...", safeUri);
 
-      const db = mongoose.connection;
-
-      db.on("error", function (error) {
-        reject(error);
-      });
-
-      db.on("connected", function () {
-        console.log("MongoDB: Connected to mongo!");
-        resolve(db);
-      });
-
-      db.on("disconnected", function () {
-        console.warn("MongoDB: Disconnected from mongo!");
-      });
-    } catch (e) {
-      reject(e);
-    }
+  mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   });
-}
 
-module.exports.dbConnect = dbConnect;
+  const db = mongoose.connection;
+
+  db.on("connected", function () {
+    console.log("DATABASE: Connected!");
+    app.emit("db-connected");
+  });
+
+  db.on("error", function (error) {
+    console.error(error);
+  });
+
+  db.on("disconnected", function () {
+    console.warn("DATABASE: Disconnected!!");
+  });
+};
