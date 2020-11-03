@@ -17,6 +17,7 @@ const debug = require("debug")("worker:index");
 const Redis = require("ioredis");
 const CronJob = require("cron").CronJob;
 const parser = require("cron-parser");
+const axios = require("axios");
 
 const trends = require("./lib/trends");
 const explorer = require("./lib/explorer");
@@ -25,14 +26,6 @@ const processor = require("./lib/processor");
 const defaults = require("./lib/defaults");
 const utils = require("./lib/utils");
 
-const REDIS_DAILY_TRENDS_KEY =
-  process.env.REDIS_DAILY_TRENDS_KEY || defaults.REDIS_DAILY_TRENDS_KEY;
-const REDIS_DAILY_TRENDS_BY_STATE_KEY =
-  process.env.REDIS_DAILY_TRENDS_BY_STATE_KEY ||
-  defaults.REDIS_DAILY_TRENDS_BY_STATE_KEY;
-const REDIS_REALTIME_TRENDS_BY_STATE_KEY =
-  process.env.REDIS_REALTIME_TRENDS_BY_STATE_KEY ||
-  defaults.REDIS_REALTIME_TRENDS_BY_STATE_KEY;
 const CRON_EXPRESSION_DAILY_TRENDS =
   process.env.CRON_EXPRESSION_DAILY_TRENDS ||
   defaults.CRON_EXPRESSION_DAILY_TRENDS;
@@ -50,7 +43,18 @@ const client = new Redis({
 });
 
 async function runDailyTrends(cronjobName) {
+  const { PRIVATE_API_URL } = utils;
+
+  console.log("QQQ", PRIVATE_API_URL, utils.PRIVATE_API_URL);
+
+  // TODO: implement cache check
+  // this way we don't spam google when the dev env resets...
   try {
+    if (!PRIVATE_API_URL) {
+      throw new Error(
+        "Private API URI is unset, this is required! Skipping..."
+      );
+    }
     // Step 1/5: Get all daily trends
     const dailyTrendsByState = await trends.getDailyTrends();
     debug("daily trends", dailyTrendsByState);
@@ -72,13 +76,19 @@ async function runDailyTrends(cronjobName) {
     debug("geographical data for trends", results);
 
     // Step 5/5: store in redis
-    client.set(
-      REDIS_DAILY_TRENDS_KEY,
-      JSON.stringify(
+    debug("Persisting google trends (daily)...");
+    await axios.post(`${PRIVATE_API_URL}/google/trends/daily`, {
+      value: JSON.stringify(
         dailyTrendsByState.default?.trendingSearchesDays?.[0]?.trendingSearches
-      )
-    );
-    client.set(REDIS_DAILY_TRENDS_BY_STATE_KEY, JSON.stringify([...results]));
+      ),
+    });
+    debug("\tDONE.");
+
+    debug("Persisting google trends (daily by state)...");
+    await axios.post(`${PRIVATE_API_URL}/google/trends/daily/states`, {
+      value: JSON.stringify([...results]),
+    });
+    debug("\tDONE.");
   } catch (e) {
     // TODO: notify admins?
     console.error(e);
@@ -108,14 +118,18 @@ client.on("ready", async function () {
   const cronRunDailyTrends = new CronJob(
     CRON_EXPRESSION_DAILY_TRENDS,
     async function () {
-      const interval = parser.parseExpression(CRON_EXPRESSION_DAILY_TRENDS);
+      try {
+        const interval = parser.parseExpression(CRON_EXPRESSION_DAILY_TRENDS);
 
-      console.log(
-        `Executing [${CRONJOB_DAILY_TRENDS}] cronjob. Next execution scheduled for `,
-        interval.next().toISOString()
-      );
+        console.log(
+          `Executing [${CRONJOB_DAILY_TRENDS}] cronjob. Next execution scheduled for `,
+          interval.next().toISOString()
+        );
 
-      await runDailyTrends(CRONJOB_DAILY_TRENDS);
+        await runDailyTrends(CRONJOB_DAILY_TRENDS);
+      } catch (e) {
+        console.error(e);
+      }
     },
     null,
     true,

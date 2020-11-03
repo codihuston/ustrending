@@ -17,12 +17,12 @@ function TrendsContainer({ children }) {
   const [colorsByTopic, setColorsByTopic] = useState(new Map());
 
   useEffect(() => {
-    fetch("/api/google/trends/states")
+    fetch("/api/google/trends/daily/states")
       .then((res) => res.json())
       .then((result) => {
         const processed = new Map();
 
-        if (result) {
+        if (!result.error) {
           result.map((x) => {
             processed.set(x[0], x[1]);
           });
@@ -39,7 +39,7 @@ function TrendsContainer({ children }) {
       .then((result) => {
         const trendColorMap = new Map();
 
-        if (result) {
+        if (!result.error) {
           result.map((x, i) => {
             if (x?.title?.query) {
               trendColorMap.set(x.title.query, colors[i]);
