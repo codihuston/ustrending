@@ -14,6 +14,7 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "ioredis": "^4.17.3",
+    "joi": "^17.3.0",
     "mongoose": "^5.10.11",
     "mongoose-geojson-schema": "^2.1.5",
     "morgan": "~1.9.1",
