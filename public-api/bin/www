@@ -5,8 +5,16 @@
  */
 
 var app = require("../app");
-var debug = require("debug")("public-api:server");
+var debug = require("debug")("private-api:server");
 var http = require("http");
+const { initCache, initDb } = require("../db");
+
+console.log(
+  "Initializing dependent services.",
+  "The HTTP server will not start until the CACHE and DATABASE",
+  "Services are initialized!"
+);
+initCache(app);
 
 /**
  * Get port from environment and store in Express.
@@ -25,9 +33,15 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on("error", onError);
-server.on("listening", onListening);
+app.on("cache-connected", () => {
+  initDb(app);
+  app.on("db-connected", () => {
+    console.log("HTTP: starting...");
+    server.listen(port);
+    server.on("error", onError);
+    server.on("listening", onListening);
+  });
+});
 
 /**
  * Normalize a port into a number, string, or false.

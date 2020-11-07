@@ -3,7 +3,6 @@ const Redis = require("ioredis");
 const mongoose = require("mongoose");
 
 let cacheClient = null;
-const { Location } = require("../models/location");
 
 /**
  * Handles the connection to redis and mongodb.
