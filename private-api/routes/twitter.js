@@ -3,6 +3,8 @@ const express = require("express");
 const debug = require("debug")("private-api:twitter-route");
 const router = express.Router();
 const TwitterController = require("../controllers/twitter");
+const validator = require("../middleware/validator");
+const validatorSchemas = require("../validators");
 
 /**
  * Fetch available twitter places, from the Twitter API
@@ -32,5 +34,21 @@ router.post("/places", async function (req, res, next) {
     next(e);
   }
 });
+
+/**
+ * Fetch twitter trends for a given WOEID
+ */
+router.get(
+  "/trends/:woeid",
+  validator("params", validatorSchemas.woeid),
+  async function (req, res, next) {
+    try {
+      const { woeid } = req.params;
+      res.json(await TwitterController.getTrends(woeid));
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 
 module.exports = router;

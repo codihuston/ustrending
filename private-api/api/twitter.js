@@ -54,6 +54,9 @@ function authenticate() {
 module.exports.authenticate = authenticate();
 module.exports.authenticateV2 = authenticateV2();
 
+/**
+ * Fetches Twitter's Places
+ */
 module.exports.getPlaces = async function () {
   try {
     const client = authenticate();
@@ -62,6 +65,27 @@ module.exports.getPlaces = async function () {
       client.get(
         // "https://api.twitter.com/1.1/trends/place.json?id=23424977",
         "https://api.twitter.com/1.1/trends/available.json",
+        TWITTER_API_ACCESS_TOKEN, //test user token
+        TWITTER_API_ACCESS_TOKEN_SECRET, //test user secret
+        function (e, data, res) {
+          if (e) reject(e);
+          return resolve(data);
+        }
+      );
+    });
+  } catch (e) {
+    throw e;
+  }
+};
+
+module.exports.getTrendsNearLocation = async function (woeid) {
+  try {
+    const client = authenticate();
+
+    return new Promise((resolve, reject) => {
+      client.get(
+        // "https://api.twitter.com/1.1/trends/place.json?id=23424977",
+        `https://api.twitter.com/1.1/trends/place.json?id=${woeid}`,
         TWITTER_API_ACCESS_TOKEN, //test user token
         TWITTER_API_ACCESS_TOKEN_SECRET, //test user secret
         function (e, data, res) {

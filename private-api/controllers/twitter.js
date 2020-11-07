@@ -135,3 +135,31 @@ module.exports.createPlaces = async function (places) {
 
   return results;
 };
+
+/**
+ * Will fetch trends from twitter
+ */
+module.exports.getTrends = async function (woeid) {
+  try {
+    const CACHE_KEY = `twitter:trends:${woeid}`;
+    const client = initCache();
+
+    const cache = await client.get(CACHE_KEY);
+
+    if (cache) {
+      debug("CACHE HIT");
+      return JSON.parse(cache);
+    } else {
+      // this is returned as a string
+      const places = await TwitterAPI.getTrendsNearLocation(woeid);
+      if (places) {
+        client.set(CACHE_KEY, places, "ex", secondsAs("MINUTE", 30));
+
+        return JSON.parse(places);
+      }
+      return [];
+    }
+  } catch (e) {
+    throw e;
+  }
+};
