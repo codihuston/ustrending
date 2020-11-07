@@ -1,6 +1,7 @@
 const express = require("express");
 const debug = require("debug")("private-api:google");
 const router = express.Router();
+const googleTrends = require("google-trends-api");
 
 const { initCache } = require("../db");
 const CACHE_DAILY_TRENDS_KEY = "daily-trends";
@@ -74,6 +75,24 @@ router.post("/trends/daily/states", async function (req, res, next) {
     await cache.set(CACHE_DAILY_TRENDS_BY_STATE_KEY, req.body.value);
 
     return res.send();
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.get("/trends/realtime", async function (req, res, next) {
+  const GOOGLE_GEO_COUNTRY_CODE = "US";
+
+  try {
+    googleTrends.realTimeTrends({ geo: GOOGLE_GEO_COUNTRY_CODE }, function (
+      err,
+      results
+    ) {
+      if (err) {
+        next(err);
+      }
+      return res.json(JSON.parse(results));
+    });
   } catch (e) {
     next(e);
   }

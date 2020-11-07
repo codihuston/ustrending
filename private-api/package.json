@@ -12,6 +12,7 @@
     "cross-env": "^7.0.2",
     "debug": "^2.6.9",
     "express": "~4.16.1",
+    "google-trends-api": "^4.9.0",
     "http-errors": "~1.6.3",
     "ioredis": "^4.17.3",
     "joi": "^17.3.0",

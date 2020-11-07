@@ -1,10 +1,12 @@
+/**
+ * This route is designed to fetch data from our datastore (redis or mongodb).
+ */
 const express = require("express");
 const router = express.Router();
 const debug = require("debug")("public-api:index-route");
 
-const { Place } = require("../models/place");
-const { initCache } = require("../db");
-const { secondsAs } = require("../lib/utils");
+const PlaceController = require("../controllers/place");
+const ZipcodeController = require("../controllers/zipcode");
 const validator = require("../middleware/validator");
 const validatorSchemas = require("../validators/index");
 
@@ -24,48 +26,50 @@ router.get(
   validator("query", validatorSchemas.point),
   async function (req, res, next) {
     try {
-      const cacheClient = await initCache();
-      let place = null;
-
       const { long, lat } = req.query;
+      const obj = await PlaceController.getClosest(long, lat);
+      return res.json(obj);
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 
-      const CACHE_KEY = `${long},${lat}`;
+/**
+ * Given the zipcode of a place, fetch the closest Twitter Place (that
+ * we've processed into our database)
+ *
+ * 1. get the nearest zip code (and its coordinates)
+ * 2. get the nearest twitter place as per those coordinates
+ *
+ * This method will be used by clients who decide not to share their
+ * browser location, and instead offer a zipcode
+ *
+ * example: /private-api/places/nearest/12345
+ */
+router.get(
+  "/places/nearest/:zip",
+  validator("params", validatorSchemas.zip),
+  async function (req, res, next) {
+    try {
+      let place = null;
+      const { zip } = req.params;
+      const zipcode = await ZipcodeController.get(zip);
 
-      // fetch from cache (if applicable)
-      place = await cacheClient.get(CACHE_KEY);
+      // if we got a zipcode, we need to use its coordinates to fetch
+      // a twitter place closest to this zipcode
+      if (zipcode) {
+        const [long, lat] = zipcode.geometry.coordinates;
 
-      if (!place) {
-        // find nearest town to the given long,lat
-        place = await Place.findOne({
-          geo: {
-            $near: {
-              $geometry: {
-                type: "Point",
-                coordinates: [long, lat],
-              },
-            },
-          },
-          placeType: {
-            code: 7,
-            name: "Town",
-          },
-        }).lean();
+        place = await PlaceController.getClosest(long, lat);
 
-        // cache it
-        if (place) {
-          await cacheClient.set(
-            CACHE_KEY,
-            JSON.stringify(place),
-            "ex",
-            secondsAs("HOUR", 3)
-          );
+        if (!place) {
+          return res.status(404).send();
         }
+        return res.json(place);
       } else {
-        place = JSON.parse(place);
-        debug("CACHE HIT!");
+        return res.status(404).send();
       }
-
-      return res.json(place);
     } catch (e) {
       next(e);
     }
