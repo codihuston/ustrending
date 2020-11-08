@@ -8,7 +8,7 @@ const debug = require("debug")("public-api:index-route");
 const PlaceController = require("../controllers/place");
 const ZipcodeController = require("../controllers/zipcode");
 const validator = require("../middleware/validator");
-const validatorSchemas = require("../validators/index");
+const validatorSchemas = require("../validators");
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
