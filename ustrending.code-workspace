@@ -41,6 +41,9 @@
     },
     {
       "path": "mongodb"
+    },
+    {
+      "path": "public-api-go"
     }
   ],
   "settings": {
@@ -54,6 +57,7 @@
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "workbench.editor.labelFormat": "short",
-    "emmet.includeLanguages": { "javascript": "html" }
+    "emmet.includeLanguages": { "javascript": "html" },
+    "go.formatTool": "gofmt"
   }
 }
