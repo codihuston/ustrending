@@ -1,7 +1,5 @@
 package main
 
-import "os"
-
 /*
 TODO: implement dependency injection for:
 - databases
@@ -18,11 +16,7 @@ See:
 func main() {
 	a := App{}
 
-	a.Initialize(
-		os.Getenv("GMH_DB_USERNAME"),
-		os.Getenv("GMH_DB_PASSWORD"),
-		os.Getenv("GMH_DB_NAME"),
-	)
+	a.Initialize()
 
 	a.Run(":3000")
 }

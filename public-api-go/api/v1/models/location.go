@@ -3,7 +3,9 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/codihuston/gorilla-mux-http/database"
+	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -62,28 +64,54 @@ type Location struct {
 // }
 
 func GetLocations(start, count int) ([]Location, error) {
+	var cacheKey = "locations"
+	locations := []Location{}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	collection := database.DB.Collection("locations")
-
-	cur, err := collection.Find(ctx, bson.D{})
+	// check cache
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
+		if err == redis.Nil {
+			glog.Info("key does not exists")
 
-	locations := []Location{}
+			// otherwise fetch from database
+			collection := database.DB.Collection("locations")
+			cur, err := collection.Find(ctx, bson.D{})
+			if err != nil {
+				return nil, err
+			}
+			defer cur.Close(ctx)
 
-	for cur.Next(ctx) {
-		// var result bson.M
-		var result = Location{}
-		err := cur.Decode(&result)
-		if err != nil {
-			glog.Fatal(err)
+			for cur.Next(ctx) {
+				// var result bson.M
+				var result = Location{}
+				err := cur.Decode(&result)
+				if err != nil {
+					glog.Fatal(err)
+				}
+				// do something with result....
+				locations = append(locations, result)
+			}
+
+			// cache it
+			if len(locations) > 0 {
+				response, _ := json.Marshal(locations)
+				err := database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+				if err != nil {
+					panic(err)
+				}
+			}
+			// end if key !exists
+		} else {
+			panic(err)
 		}
-		// do something with result....
-		locations = append(locations, result)
+	} else {
+		glog.Info("CACHE HIT!")
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &locations)
 	}
 
 	return locations, nil

@@ -17,10 +17,11 @@ type App struct {
 }
 
 // Initialize inits connections to dependant services
-func (a *App) Initialize(user, password, dbname string) {
+func (a *App) Initialize() {
 
 	glog.Info("Connecting to services...")
-	database.Initialize(user, password, dbname)
+	database.InitializeDatabase()
+	database.InitializeCache()
 
 	a.Router = mux.NewRouter()
 
