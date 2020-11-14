@@ -82,7 +82,6 @@ func GetLocations(start, count int) ([]Location, error) {
 		if err != nil {
 			glog.Fatal(err)
 		}
-		glog.Info(result)
 		// do something with result....
 		locations = append(locations, result)
 	}
