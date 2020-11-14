@@ -26,11 +26,13 @@ func init() {
 	mongoDB = os.Getenv("MONGO_DB")
 	mongoUsername = os.Getenv("MONGO_USERNAME")
 	mongoPassword = os.Getenv("MONGO_PASSWORD")
-	mongoPort, err := strconv.Atoi(os.Getenv("MONGO_PORT"))
+	port, err := strconv.Atoi(os.Getenv("MONGO_PORT"))
 
 	if err != nil {
-		glog.Fatal("Cound not convert MONGO_PORT to integer from string", MONGO_PORT)
+		glog.Fatal("Cound not convert MONGO_PORT to integer from string", mongoPort)
 	}
+
+	mongoPort = port
 }
 
 func getConnectionString() (string, string) {
@@ -42,17 +44,14 @@ func getConnectionString() (string, string) {
 		safeCredentialString = fmt.Sprintf("%s:%s@", "REDACTED", "REDACTED")
 	}
 
-	connectionString := fmt.Sprintf("mongodb://%s%s:%d/%s", credentialString, mongHost, mongoPort, mongoDB)
-	safeString := fmt.Sprintf("mongodb://%s%s:%d/%s", safeCredentialString, mongHost, mongoPort, mongoDB)
+	connectionString := fmt.Sprintf("mongodb://%s%s:%d/%s", credentialString, mongoHost, mongoPort, mongoDB)
+	safeString := fmt.Sprintf("mongodb://%s%s:%d/%s", safeCredentialString, mongoHost, mongoPort, mongoDB)
 	return connectionString, safeString
 }
 
 func Initialize(user, password, dbname string) *mongo.Database {
 
 	if Client == nil {
-		// connectionString :=
-		// 	fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
-
 		connectionString, safeString := getConnectionString()
 
 		glog.Info("Connecting to", safeString)
@@ -61,13 +60,6 @@ func Initialize(user, password, dbname string) *mongo.Database {
 		defer cancel()
 		client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionString))
 
-		// TODO: defer connection cleanup
-		// defer func() {
-		// 	if err = client.Disconnect(ctx); err != nil {
-		// 		panic(err)
-		// 	}
-		// }()
-
 		if err != nil {
 			glog.Fatal(err)
 		}
@@ -75,4 +67,14 @@ func Initialize(user, password, dbname string) *mongo.Database {
 		DB = client.Database(mongoDB)
 	}
 	return DB
+}
+
+func Close() {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// disconnect from database
+	if err := Client.Disconnect(ctx); err != nil {
+		panic(err)
+	}
 }
