@@ -1,5 +1,5 @@
 const OAuth = require("oauth");
-const fetch = require("node-fetch");
+const axios = require("axios");
 
 const utils = require("./utils");
 const worldwide_trends = require("../debug/twitter-trends-us.json");
@@ -79,7 +79,10 @@ module.exports.getTrendsByPlace = async function (twitterMap) {
    * STEP 4: read from stream / store in memory
    * - get tweets from all states
    */
-  fetch("https://stream.twitter.com/1.1/statuses/filter.json");
+  const response = await axios(
+    "https://stream.twitter.com/1.1/statuses/filter.json"
+  );
+  console.log("RESPONSE", response.data);
 
   /**
    * STEP 5: in another multi-threaded process, unbox, increment tweet count
