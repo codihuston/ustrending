@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 
 const schema = new Schema(
   {
+    _id: Schema.Types.ObjectId,
     population: Number, // String is shorthand for {type: String}
     censusPlaceId: Number,
     censusStateId: Number,
