@@ -16,6 +16,7 @@ if [[ POD && $STATUS == "Running" ]]
 then
   echo "Running `mongoimport` command..."
   kubectl exec -it $POD -- mongoimport --db=ustrending --collection=locations --file=locations.json  --jsonArray
+  kubectl exec -it $POD -- mongoimport --db=ustrending --collection=places --file=places.json  --jsonArray
   kubectl exec -it $POD -- mongoimport --db=ustrending --collection=zipcodes --file=zipcodes.json  --jsonArray
 else
   echo "MongoDB pod is not found or running. Please ensure it is running, and try again..."

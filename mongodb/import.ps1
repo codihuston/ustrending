@@ -18,6 +18,7 @@ $statusHasError = !$STATUS -or $STATUS.contains("error")
 if((!$podHasError -and !$statusHasError ) -and ($STATUS -eq "Running")){
   Write-Host "Running `mongoimport` command..."
   kubectl exec -it $POD -- mongoimport --db=ustrending --collection=locations --file=locations.json  --jsonArray
+  kubectl exec -it $POD -- mongoimport --db=ustrending --collection=places --file=places.json  --jsonArray
   kubectl exec -it $POD -- mongoimport --db=ustrending --collection=zipcodes --file=zipcodes.json  --jsonArray
 }
 else{
