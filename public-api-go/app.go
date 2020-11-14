@@ -16,12 +16,10 @@ type App struct {
 	Router *mux.Router
 }
 
+// Initialize inits connections to dependant services
 func (a *App) Initialize(user, password, dbname string) {
 
-	glog.Info("Initializing service connections...")
-	glog.Info("TEST!!!")
-	glog.Info("TEST!!!")
-	glog.Info("TEST!!!")
+	glog.Info("Connecting to services...")
 	database.Initialize(user, password, dbname)
 
 	a.Router = mux.NewRouter()
@@ -29,8 +27,12 @@ func (a *App) Initialize(user, password, dbname string) {
 	a.initializeRoutes()
 }
 
+// Run starts the http server
 func (a *App) Run(addr string) {
+	// add http logger to router handler
 	loggedRouter := handlers.LoggingHandler(os.Stdout, a.Router)
+
+	// init the http server
 	glog.Fatal(http.ListenAndServe(":3000", loggedRouter))
 }
 
