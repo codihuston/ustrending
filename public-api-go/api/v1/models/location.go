@@ -32,37 +32,6 @@ type Location struct {
 	YahooURI       string    `json:"yahooUri" bson:"yahooUri"`
 }
 
-// func (p *Product) GetProduct() error {
-// 	return db.Connection.QueryRow("SELECT name, price FROM products WHERE id=$1",
-// 		p.ID).Scan(&p.Name, &p.Price)
-// }
-
-// func (p *Product) UpdateProduct() error {
-// 	_, err :=
-// 		db.Connection.Exec("UPDATE products SET name=$1, price=$2 WHERE id=$3",
-// 			p.Name, p.Price, p.ID)
-
-// 	return err
-// }
-
-// func (p *Product) DeleteProduct() error {
-// 	_, err := db.Connection.Exec("DELETE FROM products WHERE id=$1", p.ID)
-
-// 	return err
-// }
-
-// func (p *Product) CreateProduct() error {
-// 	err := db.Connection.QueryRow(
-// 		"INSERT INTO products(name, price) VALUES($1, $2) RETURNING id",
-// 		p.Name, p.Price).Scan(&p.ID)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
 func GetLocations(start, count int) ([]Location, error) {
 	var cacheKey = "locations"
 	locations := []Location{}

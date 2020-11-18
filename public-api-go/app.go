@@ -43,6 +43,8 @@ func (a *App) initializeRoutes() {
 	})
 	a.Router.HandleFunc("/products", controllers.GetProducts).Methods("GET")
 	a.Router.HandleFunc("/locations", controllers.GetLocations).Methods("GET")
+	a.Router.HandleFunc("/places/nearest/point", controllers.GetNearestPlaceByPoint).Methods("GET")
+	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]+}", controllers.GetNearestPlaceByZipcode).Methods("GET")
 	// a.Router.HandleFunc("/product", controllers.CreateProduct).Methods("POST")
 	// a.Router.HandleFunc("/product/{id:[0-9]+}", controllers.GetProduct).Methods("GET")
 	// a.Router.HandleFunc("/product/{id:[0-9]+}", controllers.UpdateProduct).Methods("PUT")
