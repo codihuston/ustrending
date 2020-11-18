@@ -8,30 +8,32 @@ import (
 )
 
 func GetNearestPlaceByPoint(w http.ResponseWriter, r *http.Request) {
-	// TODO: validate these incoming variables
 	long, err := strconv.ParseFloat(r.URL.Query().Get("long"), 64)
+	errorMessage := "A valid float must be given for long/lat."
 
 	if err != nil {
-		glog.Error("Failed to convert given longitude into integer")
+		glog.Error(errorMessage, "Given:", long)
+		respondWithJSON(w, http.StatusUnprocessableEntity, &ErrorResponse{errorMessage})
 		return
 	}
 
 	lat, err := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
 
 	if err != nil {
-		glog.Error("Failed to convert given latitude into integer")
+		glog.Error(errorMessage, "Given:", lat)
+		respondWithJSON(w, http.StatusUnprocessableEntity, &ErrorResponse{errorMessage})
 		return
 	}
 
 	glog.Info("Long/lat", long, lat)
 
-	objects, err := models.GetNearestPlaceByPoint(long, lat)
+	object, err := models.GetNearestPlaceByPoint(long, lat)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, objects)
+	respondWithJSON(w, http.StatusOK, object)
 }
 
 func GetNearestPlaceByZipcode(w http.ResponseWriter, r *http.Request) {
@@ -52,5 +54,4 @@ func GetNearestPlaceByZipcode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, products)
-
 }

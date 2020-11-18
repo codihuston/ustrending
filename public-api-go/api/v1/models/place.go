@@ -15,25 +15,6 @@ import (
 
 var collectionName = "places"
 
-// type PlaceFields struct {
-// 	City      string `json:"city" bson:"city"`
-// 	Zip       int    `json:"zip" bson:"zip"`
-// 	Dst       int    `json:"dst" bson:"dst"`
-// 	Longitude uint   `json:"longitude" bson:"longitude"`
-// 	Latitude  uint   `json:"latitude" bson:"latitude"`
-// }
-
-// type Place struct {
-// 	ID     primitive.ObjectID `json:"_id" bson:"_id"`
-// 	Fields struct {
-// 		City      string `json:"city" bson:"city"`
-// 		Zip       int    `json:"zip" bson:"zip"`
-// 		Dst       int    `json:"dst" bson:"dst"`
-// 		Longitude uint   `json:"longitude" bson:"longitude"`
-// 		Latitude  uint   `json:"latitude" bson:"latitude"`
-// 	} `json:"fields" bson:"fields"`
-// }
-
 type Place struct {
 	ID          primitive.ObjectID `json:"_id" bson:"_id"`
 	Country     string             `json:"country" bson:"country"`
