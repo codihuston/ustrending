@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/codihuston/gorilla-mux-http/api/v1/models"
-	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"

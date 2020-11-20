@@ -46,7 +46,6 @@ func (z *ZipCode) GetPlaceByZipCode(zipcode string) error {
 			glog.Info("No cache for:", cacheKey)
 
 			// otherwise fetch from database
-			// TODO: encapsulate controller methods???
 			collection := database.DB.Collection("zipcodes")
 			err := collection.FindOne(ctx, bson.M{
 				"fields.zip": zipcode,
