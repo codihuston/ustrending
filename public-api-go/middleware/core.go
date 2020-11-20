@@ -43,7 +43,8 @@ func getValidationErrorMessages(err validator.ValidationErrors, lc bool) []types
 		} else {
 			f = err.StructField()
 		}
-		validationError := &types.ValidationErrorType{Field: f, Rule: r}
+
+		validationError := &types.ValidationErrorType{Field: f, Rule: r, Message: err.Error(), Parameter: err.Param()}
 		errors = append(errors, *validationError)
 	}
 

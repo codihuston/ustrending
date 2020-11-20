@@ -18,6 +18,8 @@ type ErrorResponseType struct {
 }
 
 type ValidationErrorType struct {
-	Field string `json:"field"`
-	Rule  string `json:"rule"`
+	Field     string `json:"field"`
+	Rule      string `json:"rule"`
+	Message   string `json:"message"`
+	Parameter string `json:"parameter"`
 }
