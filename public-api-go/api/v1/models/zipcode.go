@@ -1,0 +1,79 @@
+// model.go
+package models
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/codihuston/gorilla-mux-http/database"
+	"github.com/codihuston/gorilla-mux-http/types"
+	"github.com/go-redis/redis/v8"
+	"github.com/golang/glog"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
+
+type ZipCodeFields struct {
+	City     string `json:"city" bson:"city"`
+	Zip      string `json:"zip" bson:"zip"`
+	Dst      int    `json:"dst" bson:"dst"`
+	State    string `json:"state" bson:"state"`
+	Timezone int    `json:"timezone" bson:"timezone"`
+}
+
+type ZipCode struct {
+	ID       primitive.ObjectID `json:"_id" bson:"_id"`
+	Fields   ZipCodeFields
+	Geometry types.GeometryPoint `json:"geometry" bson:"geometry"`
+}
+
+func (z ZipCode) IsEmpty() bool {
+	return z.ID == primitive.NilObjectID
+}
+
+func GetPlaceByZipCode(zipcode string) (ZipCode, error) {
+	var cacheKey = fmt.Sprintf("zipcode:%s", zipcode)
+	var result = ZipCode{}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// check cache
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			glog.Info("No cache for:", cacheKey)
+
+			// otherwise fetch from database
+			// TODO: encapsulate controller methods???
+			collection := database.DB.Collection("zipcodes")
+			err := collection.FindOne(ctx, bson.M{
+				"fields.zip": zipcode,
+			}).Decode(&result)
+
+			if err == database.ErrNoDocuments {
+				return result, nil
+			} else if err != nil {
+				return result, err
+			}
+
+			// cache it
+			response, _ := json.Marshal(result)
+			err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+			if err != nil {
+				panic(err)
+			}
+			// end if key !exists
+		} else {
+			panic(err)
+		}
+	} else {
+		glog.Info("CACHE HIT!")
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &result)
+	}
+
+	return result, nil
+}

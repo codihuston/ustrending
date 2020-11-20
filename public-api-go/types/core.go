@@ -17,6 +17,11 @@ type ErrorResponseType struct {
 	Error ErrorResponseBodyType `json:"error"`
 }
 
+type GeometryPoint struct {
+	Type        string    `json:"type" bson:"type"`
+	Coordinates []float64 `json:"coordinates" bson:"coordinates"`
+}
+
 type ValidationErrorType struct {
 	Field     string `json:"field"`
 	Rule      string `json:"rule"`

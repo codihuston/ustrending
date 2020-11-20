@@ -17,6 +17,9 @@ var DBClient *mongo.Client
 // DB is a reference to the mongo database that this app uses
 var DB *mongo.Database
 
+// ErrNoDocuments is a ref to mongo error thrown when no documents are found
+var ErrNoDocuments = mongo.ErrNoDocuments
+
 var mongoHost string
 var mongoDB string
 var mongoUsername string
