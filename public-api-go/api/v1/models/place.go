@@ -37,7 +37,7 @@ type Place struct {
 	Woeid      int       `json:"woeid" bson:"woeid"`
 }
 
-func GetPlaces() ([]Place, error) {
+func (p *Place) GetPlaces() ([]Place, error) {
 	var cacheKey = "places"
 	results := []Place{}
 
@@ -91,9 +91,9 @@ func GetPlaces() ([]Place, error) {
 	return results, nil
 }
 
-func GetNearestPlaceByPoint(long, lat float64) (Place, error) {
+func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 	var cacheKey = fmt.Sprintf("place:%f,%f", long, lat)
-	var result = Place{}
+	var result = p
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -122,7 +122,7 @@ func GetNearestPlaceByPoint(long, lat float64) (Place, error) {
 			}).Decode(&result)
 
 			if err != nil {
-				return result, err
+				return err
 			}
 
 			// cache it
@@ -142,5 +142,5 @@ func GetNearestPlaceByPoint(long, lat float64) (Place, error) {
 		json.Unmarshal([]byte(val), &result)
 	}
 
-	return result, nil
+	return nil
 }

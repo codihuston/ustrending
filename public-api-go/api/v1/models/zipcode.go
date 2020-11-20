@@ -32,9 +32,9 @@ func (z ZipCode) IsEmpty() bool {
 	return z.ID == primitive.NilObjectID
 }
 
-func (z ZipCode) GetPlaceByZipCode(zipcode string) (ZipCode, error) {
+func (z *ZipCode) GetPlaceByZipCode(zipcode string) error {
 	var cacheKey = fmt.Sprintf("zipcode:%s", zipcode)
-	var result = ZipCode{}
+	var result = z
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -53,9 +53,9 @@ func (z ZipCode) GetPlaceByZipCode(zipcode string) (ZipCode, error) {
 			}).Decode(&result)
 
 			if err == database.ErrNoDocuments {
-				return result, nil
+				return nil
 			} else if err != nil {
-				return result, err
+				return err
 			}
 
 			// cache it
@@ -75,5 +75,5 @@ func (z ZipCode) GetPlaceByZipCode(zipcode string) (ZipCode, error) {
 		json.Unmarshal([]byte(val), &result)
 	}
 
-	return result, nil
+	return nil
 }
