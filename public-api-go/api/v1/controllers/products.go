@@ -41,11 +41,11 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	products, err := models.GetProducts(start, count)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, products)
+	RespondWithJSON(w, http.StatusOK, products)
 }
 
 // func CreateProduct(w http.ResponseWriter, r *http.Request) {

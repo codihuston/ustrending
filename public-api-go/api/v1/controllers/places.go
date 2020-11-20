@@ -9,31 +9,16 @@ import (
 
 func GetNearestPlaceByPoint(w http.ResponseWriter, r *http.Request) {
 	long, err := strconv.ParseFloat(r.URL.Query().Get("long"), 64)
-	errorMessage := "A valid float must be given for long/lat."
-
-	if err != nil {
-		glog.Error(errorMessage, "Given:", long)
-		respondWithJSON(w, http.StatusUnprocessableEntity, &ErrorResponse{errorMessage})
-		return
-	}
-
 	lat, err := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
-
-	if err != nil {
-		glog.Error(errorMessage, "Given:", lat)
-		respondWithJSON(w, http.StatusUnprocessableEntity, &ErrorResponse{errorMessage})
-		return
-	}
-
 	glog.Info("Long/lat", long, lat)
 
 	object, err := models.GetNearestPlaceByPoint(long, lat)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, object)
+	RespondWithJSON(w, http.StatusOK, object)
 }
 
 func GetNearestPlaceByZipcode(w http.ResponseWriter, r *http.Request) {
@@ -49,9 +34,9 @@ func GetNearestPlaceByZipcode(w http.ResponseWriter, r *http.Request) {
 
 	products, err := models.GetProducts(start, count)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
+		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, products)
+	RespondWithJSON(w, http.StatusOK, products)
 }

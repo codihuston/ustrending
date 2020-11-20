@@ -3,6 +3,7 @@ module github.com/codihuston/gorilla-mux-http
 go 1.15
 
 require (
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/go-redis/redis/v8 v8.3.3
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/wire v0.4.0 // indirect

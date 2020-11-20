@@ -45,6 +45,6 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/products", c.GetProducts).Methods("GET")
 	a.Router.HandleFunc("/locations", c.GetLocations).Methods("GET")
 	// Note: this works, but I cannot pass in a specific
-	a.Router.HandleFunc("/places/nearest/point", mw.Adapter(c.GetNearestPlaceByPoint, mw.ValidateRequestParams)).Methods("GET")
+	a.Router.HandleFunc("/places/nearest/point", mw.Adapter(c.GetNearestPlaceByPoint, mw.ValidatePoint)).Methods("GET")
 	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]+}", c.GetNearestPlaceByZipcode).Methods("GET")
 }
