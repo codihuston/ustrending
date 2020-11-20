@@ -37,7 +37,7 @@ type Place struct {
 	Woeid      int       `json:"woeid" bson:"woeid"`
 }
 
-func (p *Place) GetPlaces() ([]Place, error) {
+func (p *Place) GetPlaces() error {
 	var cacheKey = "places"
 	results := []Place{}
 
@@ -53,9 +53,13 @@ func (p *Place) GetPlaces() ([]Place, error) {
 			// otherwise fetch from database
 			collection := database.DB.Collection(collectionName)
 			cur, err := collection.Find(ctx, bson.D{})
-			if err != nil {
-				return nil, err
+
+			if err == database.ErrNoDocuments {
+				return nil
+			} else if err != nil {
+				return err
 			}
+
 			defer cur.Close(ctx)
 
 			for cur.Next(ctx) {
@@ -88,7 +92,7 @@ func (p *Place) GetPlaces() ([]Place, error) {
 		json.Unmarshal([]byte(val), &results)
 	}
 
-	return results, nil
+	return nil
 }
 
 func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
@@ -121,7 +125,9 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 				},
 			}).Decode(&result)
 
-			if err != nil {
+			if err == database.ErrNoDocuments {
+				return nil
+			} else if err != nil {
 				return err
 			}
 
