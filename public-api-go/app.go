@@ -3,8 +3,9 @@
 package main
 
 import (
-	"github.com/codihuston/gorilla-mux-http/api/v1/controllers"
+	c "github.com/codihuston/gorilla-mux-http/api/v1/controllers"
 	"github.com/codihuston/gorilla-mux-http/database"
+	mw "github.com/codihuston/gorilla-mux-http/middleware"
 	"github.com/golang/glog"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -41,12 +42,9 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("This is a catch-all route"))
 	})
-	a.Router.HandleFunc("/products", controllers.GetProducts).Methods("GET")
-	a.Router.HandleFunc("/locations", controllers.GetLocations).Methods("GET")
-	a.Router.HandleFunc("/places/nearest/point", controllers.GetNearestPlaceByPoint).Methods("GET")
-	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]+}", controllers.GetNearestPlaceByZipcode).Methods("GET")
-	// a.Router.HandleFunc("/product", controllers.CreateProduct).Methods("POST")
-	// a.Router.HandleFunc("/product/{id:[0-9]+}", controllers.GetProduct).Methods("GET")
-	// a.Router.HandleFunc("/product/{id:[0-9]+}", controllers.UpdateProduct).Methods("PUT")
-	// a.Router.HandleFunc("/product/{id:[0-9]+}", controllers.DeleteProduct).Methods("DELETE")
+	a.Router.HandleFunc("/products", c.GetProducts).Methods("GET")
+	a.Router.HandleFunc("/locations", c.GetLocations).Methods("GET")
+	// Note: this works, but I cannot pass in a specific
+	a.Router.HandleFunc("/places/nearest/point", mw.Adapter(c.GetNearestPlaceByPoint, mw.ValidateRequestParams)).Methods("GET")
+	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]+}", c.GetNearestPlaceByZipcode).Methods("GET")
 }
