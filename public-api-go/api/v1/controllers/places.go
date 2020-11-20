@@ -26,7 +26,7 @@ func GetNearestPlaceByPoint(w http.ResponseWriter, r *http.Request) {
 // GetNearestPlaceByZipcode returns a twitter place closest to a given zipcode
 func GetNearestPlaceByZipcode(w http.ResponseWriter, r *http.Request) {
 	// get the zipcode
-	zipcode, err := models.GetPlaceByZipCode(mux.Vars(r)["zipcode"])
+	zipcode, err := (&models.ZipCode{}).GetPlaceByZipCode(mux.Vars(r)["zipcode"])
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return

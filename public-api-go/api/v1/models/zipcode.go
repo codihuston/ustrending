@@ -32,7 +32,7 @@ func (z ZipCode) IsEmpty() bool {
 	return z.ID == primitive.NilObjectID
 }
 
-func GetPlaceByZipCode(zipcode string) (ZipCode, error) {
+func (z ZipCode) GetPlaceByZipCode(zipcode string) (ZipCode, error) {
 	var cacheKey = fmt.Sprintf("zipcode:%s", zipcode)
 	var result = ZipCode{}
 
