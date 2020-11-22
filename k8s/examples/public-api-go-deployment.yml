@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: public-api-deployment
+  name: public-api-go-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: public-api
+      component: public-api-go
   template:
     metadata:
       labels:
-        component: public-api
+        component: public-api-go
     spec:
       containers:
-        - name: public-api
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api
+        - name: public-api-go
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api-go
           resources:
             requests:
               memory: "1Gi"

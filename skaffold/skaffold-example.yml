@@ -3,6 +3,9 @@ kind: Config
 build:
   local:
     push: false
+  # tell skaffold to overwrite previously built images (should save disk space)
+  tagPolicy:
+    gitCommit: {}
   artifacts:
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api
       context: ../public-api
@@ -10,12 +13,20 @@ build:
         dockerfile: Dockerfile.dev
       sync:
         '***/*.js': .
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api-go
+      context: ../public-api-go
+      docker:
+        dockerfile: Dockerfile.dev
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-private-api
       context: ../private-api
       docker:
         dockerfile: Dockerfile.dev
       sync:
         '***/*.js': .
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-trends-api
+      context: ../trends-api
+      docker:
+        dockerfile: Dockerfile.dev
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-client
       context: ../client
       docker:
@@ -31,12 +42,20 @@ build:
         dockerfile: Dockerfile.dev
       sync:
         '***/*.js': .
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-twitter-trends
-      context: ../worker-twitter-trends
+    # - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-twitter-trends
+    #   context: ../worker-twitter-trends
+    #   docker:
+    #     dockerfile: Dockerfile.dev
+    #   sync:
+    #     '***/*.js': .
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-redis
+      context: ../redis
       docker:
         dockerfile: Dockerfile.dev
-      sync:
-        '***/*.js': .
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-mongodb
+      context: ../mongodb
+      docker:
+        dockerfile: Dockerfile.dev
 deploy:
   kubectl:
     manifests:

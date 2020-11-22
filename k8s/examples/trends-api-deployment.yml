@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: public-api-deployment
+  name: trends-api-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: public-api
+      component: trends-api
   template:
     metadata:
       labels:
-        component: public-api
+        component: trends-api
     spec:
       containers:
-        - name: public-api
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api
+        - name: trends-api
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-trends-api
           resources:
             requests:
               memory: "1Gi"
@@ -25,11 +25,6 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            # private api config
-            - name: PRIVATE_API_HOST
-              value: private-api-cluster-ip-service.default.svc.cluster.local
-            - name: PRIVATE_API_PORT
-              value: "3000"
             # redis config
             - name: REDIS_HOST
               value: redis-cluster-ip-service
