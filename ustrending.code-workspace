@@ -44,6 +44,9 @@
     },
     {
       "path": "public-api-go"
+    },
+    {
+      "path": "trends-api"
     }
   ],
   "settings": {
