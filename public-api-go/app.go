@@ -45,4 +45,5 @@ func (a *App) initializeRoutes() {
 	// Note: this works, but I cannot pass in a specific
 	a.Router.HandleFunc("/places/nearest/point", mw.Adapter(c.GetNearestPlaceByPoint, mw.ValidatePoint)).Methods("GET")
 	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]{5}}", c.GetNearestPlaceByZipcode).Methods("GET")
+	a.Router.HandleFunc("/google/trends/daily", c.GetDailyTrends).Methods("GET")
 }

@@ -37,6 +37,10 @@ type Place struct {
 	Woeid      int       `json:"woeid" bson:"woeid"`
 }
 
+func (p Place) IsEmpty() bool {
+	return p.ID == primitive.NilObjectID
+}
+
 func (p *Place) GetPlaces() error {
 	var cacheKey = "places"
 	results := []Place{}
@@ -51,7 +55,8 @@ func (p *Place) GetPlaces() error {
 			glog.Info("key does not exists")
 
 			// otherwise fetch from database
-			collection := database.DB.Collection(collectionName)
+			dbClient := database.GetDatabaseConnection()
+			collection := dbClient.Collection(collectionName)
 			cur, err := collection.Find(ctx, bson.D{})
 
 			if err == database.ErrNoDocuments {
@@ -106,10 +111,13 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			glog.Info("No cache for:", cacheKey)
+
+			glog.Info("CACHE MISS:", cacheKey)
 
 			// otherwise fetch from database
-			collection := database.DB.Collection(collectionName)
+			dbClient := database.GetDatabaseConnection()
+			collection := dbClient.Collection(collectionName)
+
 			err := collection.FindOne(ctx, bson.M{
 				"geo": bson.M{
 					"$near": bson.M{
@@ -143,7 +151,6 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 		}
 	} else {
 		glog.Info("CACHE HIT!")
-
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &result)
 	}

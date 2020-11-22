@@ -131,9 +131,11 @@ const MapChart = ({ handleClick, dailyTrendsByState, colorsByTopic }) => {
       `Trending for ${name}<br><br>` +
         dailyTrend
           .map((trend, i) => {
-            const style = `background-color: ${colorsByTopic.get(trend.topic)}; 
+            const color = colorsByTopic.get(trend.topic);
+
+            const style = `background-color: ${color}; 
           padding: 1px 3px;
-          color: ${invert(colorsByTopic.get(trend.topic), true)};
+          color: ${color ? invert(color, true) : "white"};
           font-weight: 900;`;
 
             const content = `<span style="${style}">${i + 1}</span><span> – ${

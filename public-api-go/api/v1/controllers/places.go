@@ -18,6 +18,11 @@ func GetNearestPlaceByPoint(w http.ResponseWriter, r *http.Request) {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	// handle not found
+	if object.IsEmpty() {
+		RespondWithError(w, http.StatusNotFound, "Not found")
+		return
+	}
 
 	RespondWithJSON(w, http.StatusOK, object)
 }

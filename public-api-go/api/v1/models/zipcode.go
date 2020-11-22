@@ -43,10 +43,11 @@ func (z *ZipCode) GetPlaceByZipCode(zipcode string) error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			glog.Info("No cache for:", cacheKey)
+			glog.Info("CACHE MISS:", cacheKey)
 
 			// otherwise fetch from database
-			collection := database.DB.Collection("zipcodes")
+			dbClient := database.GetDatabaseConnection()
+			collection := dbClient.Collection("zipcodes")
 			err := collection.FindOne(ctx, bson.M{
 				"fields.zip": zipcode,
 			}).Decode(&result)

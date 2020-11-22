@@ -53,24 +53,29 @@ func getConnectionString() (string, string) {
 	return connectionString, safeString
 }
 
+// GetDatabaseConnection returns a database connection (or initializes)
+func GetDatabaseConnection() *mongo.Database {
+	if DBClient != nil && DB != nil {
+		return DB
+	}
+	return InitializeDatabase()
+}
+
 // InitializeDatabase creates a database connection
 func InitializeDatabase() *mongo.Database {
+	connectionString, safeString := getConnectionString()
+	glog.Info("Connecting to", safeString)
 
-	if DBClient == nil {
-		connectionString, safeString := getConnectionString()
-		glog.Info("Connecting to", safeString)
+	// connect to mongodb
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionString))
 
-		// connect to mongodb
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionString))
-
-		if err != nil {
-			glog.Fatal(err)
-		}
-		DBClient = client
-		DB = client.Database(mongoDB)
+	if err != nil {
+		glog.Fatal(err)
 	}
+	DBClient = client
+	DB = client.Database(mongoDB)
 	return DB
 }
 
@@ -82,5 +87,8 @@ func CloseDatabaseConnection() {
 	// disconnect from database
 	if err := DBClient.Disconnect(ctx); err != nil {
 		panic(err)
+	} else {
+		DBClient = nil
+		DB = nil
 	}
 }
