@@ -19,7 +19,7 @@ function TrendsContainer({ children }) {
   useEffect(() => {
     async function asyncFunction() {
       try {
-        let res = await fetch("/api/google/trends/daily/states");
+        let res = await fetch("/api-go/google/trends/daily/states");
         if (res.ok) {
           const result = await res.json();
           const processed = new Map();

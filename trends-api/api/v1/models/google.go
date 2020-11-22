@@ -162,10 +162,11 @@ func (g GoogleTrend) GetGeoWidgetsOrig(ctx context.Context, today string, dt []*
 		// get the current trend
 		// trend := dt[i]
 		cmp := make([]*gogtrends.ComparisonItem, 0, numToCompare)
-		log.Infof("@ i:%d", i)
+		log.Infof("@ i:%d len:%d", i, len(dt))
 
 		// build array
-		for j := i; j < i+numToCompare; j++ {
+		// TODO: check for off-by-one errors!
+		for j := i; j < i+numToCompare-2; j++ {
 
 			log.Infof("PUSH CMP i:%d j:%d", i, j)
 			curr := dt[j]
@@ -265,6 +266,7 @@ func (g GoogleTrend) GetGeoMaps(ctx context.Context, geoWidgets []*gogtrends.Exp
 
 // GetDailyTrendsByState returns an array of ...
 func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
+	var cacheKey = "daily-trends-by-state-go"
 	var dt []*gogtrends.TrendingSearch
 	var geoWidgets []*gogtrends.ExploreWidget
 	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
@@ -308,7 +310,7 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	geoWidgets, err = g.GetGeoWidgetsOrig(ctx, "today 12-m", dt)
 	log.Info("done geoWidgets:")
 	// log.Info("print geoWidgets:")
-	PrintGogTrends(geoWidgets)
+	// PrintGogTrends(geoWidgets)
 
 	// get interest by location (TODO: make concurrent)
 	// each trend has a []geoWidget
@@ -359,6 +361,21 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	log.Infof("DONE. %.4f elapsed", secs)
 	// log.Info(stateTrends)
 
+	// TODO: check cache
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			// cache miss
+			log.Info(val)
+		}
+	} else {
+		// cache it
+		response, _ := json.Marshal(stateTrends)
+		err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+		if err != nil {
+			panic(err)
+		}
+	}
 	// TODO: cache this end result
 	return stateTrends, nil
 }
