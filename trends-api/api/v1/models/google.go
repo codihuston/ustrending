@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"reflect"
+	"sort"
 )
 
 const (
@@ -20,6 +21,12 @@ const (
 )
 
 type GoogleTrend struct{}
+
+type StateTrend struct {
+	Topic   string `json:"topic" bson:"topic"`
+	Value   int    `json:"value" bson:"value"`
+	GeoCode string `json:"geoCode" bson:"geo_code"`
+}
 
 // LogGogTrendsError will log a gogtrends error
 func LogGogTrendsError(err error, errMsg string) {
@@ -64,7 +71,7 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 
 			results, err := gogtrends.Daily(ctx, langEn, locUS)
 
-			LogGogTrendsError(err, "Failed to get daily searches")
+			LogGogTrendsError(err, "Failed to get daily google trends")
 
 			if err != nil {
 				return results, err
@@ -87,4 +94,117 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 		json.Unmarshal([]byte(val), &results)
 	}
 	return results, nil
+}
+
+// GetDailyTrendsByState returns an array of ...
+func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
+	// get today's trends
+	const today = "today 12-m"
+	var dt []*gogtrends.TrendingSearch
+	var exploreResults []*gogtrends.ExploreWidget
+	var geoWidgets []*gogtrends.ExploreWidget
+	var geoMaps = make([][]*gogtrends.GeoMap, 0)
+	var stateTrends = make(map[string][]StateTrend)
+
+	ctx := context.Background()
+
+	dt, err := g.GetDailyTrends()
+
+	LogGogTrendsError(err, "Error getting google trends")
+	if err != nil {
+		return stateTrends, err
+	}
+
+	// explore each trend (TODO: make concurrent...)
+	for i := 0; i < len(dt); i++ {
+		// get the current trend
+		trend := dt[i]
+
+		// fetch widgets for exploring this topic
+		exploreResults, err = gogtrends.Explore(ctx, &gogtrends.ExploreRequest{
+			ComparisonItems: []*gogtrends.ComparisonItem{
+				{
+					Keyword: trend.Title.Query,
+					Geo:     locUS,
+					Time:    today,
+				},
+			},
+			Category: 0, // all programming categories?
+			Property: "",
+		}, langEn)
+
+		// PrintGogTrends(exploreResults)
+
+		// get the widget that we want?
+		// neededWidget = "fe_geo_chart_explore"
+		for j := 0; j < len(exploreResults); j++ {
+			curr := exploreResults[j]
+			if curr.Type == "fe_geo_chart_explore" {
+				// log.Info("FOUND fe_geo_chart_explore")
+				// PrintGogTrends(make([]*gogtrends.ExploreWidget, 1))
+				geoWidgets = append(geoWidgets, curr)
+				break
+			}
+		}
+
+		// TODO: determine how to handle errors...
+		LogGogTrendsError(err, "Error exploring google trends")
+		if err != nil {
+			return stateTrends, err
+		}
+	}
+
+	// log.Info("print geoWidgets:")
+	// PrintGogTrends(geoWidgets)
+
+	// get interest by location (TODO: make concurrent)
+	// each trend has a []geoWidget
+	for i := 0; i < len(geoWidgets); i++ {
+		geoWidget := geoWidgets[i]
+		geoMap, err := gogtrends.InterestByLocation(ctx, geoWidget, langEn)
+
+		// TODO: determine how to handle errors...
+		LogGogTrendsError(err, "Error getting region data for google trends")
+		if err != nil {
+			return stateTrends, err
+		}
+		geoMaps = append(geoMaps, geoMap)
+	}
+
+	// log.Info("print geoMap:")
+	// PrintGogTrends(geoMaps)
+
+	/*
+		now process this into:
+		stateFullName => [
+			{
+				topic: "Kelly Loffler"
+				value: 100
+				geoCode: "US-GA"
+			},
+			...
+		]
+	*/
+	for i := 0; i < len(dt); i++ {
+		// assuming there is exactly the same # of geoMaps as dts
+		trend := dt[i]
+		geoMap := geoMaps[i]
+		for j := 0; j < len(geoMap); j++ {
+			location := geoMap[j]
+			st := StateTrend{
+				GeoCode: location.GeoCode,
+				Topic:   trend.Title.Query,
+				Value:   location.Value[0],
+			}
+			stateTrends[location.GeoName] = append(stateTrends[location.GeoName], st)
+			// now sort that array of slices by .Value, asc
+			sort.Slice(stateTrends[location.GeoName], func(i, j int) bool {
+				return stateTrends[location.GeoName][i].Value > stateTrends[location.GeoName][j].Value
+			})
+		}
+	}
+
+	// log.Info(stateTrends)
+
+	return stateTrends, nil
 }
