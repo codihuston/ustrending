@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
+const { initCache } = require("../db");
 
 const { PRIVATE_API_URL } = require("../lib/utils");
 /**
@@ -13,10 +14,16 @@ const { PRIVATE_API_URL } = require("../lib/utils");
  */
 router.get("/trends/daily", async function (req, res, next) {
   try {
-    const result =
-      (await axios.get(`${PRIVATE_API_URL}/google/trends/daily`)) || null;
+    let data = null;
+    const CACHE_KEY = `daily-trends`;
+    const cacheClient = await initCache();
 
-    return res.json(result.data);
+    // fetch from cache
+    data = await cacheClient.get(CACHE_KEY);
+
+    if (data) {
+      return res.json(JSON.parse(data));
+    }
   } catch (e) {
     next(e);
   }
