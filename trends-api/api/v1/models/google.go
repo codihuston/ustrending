@@ -96,26 +96,11 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	return results, nil
 }
 
-// GetDailyTrendsByState returns an array of ...
-func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
-	// get today's trends
-	const today = "today 12-m"
-	var dt []*gogtrends.TrendingSearch
+func (g GoogleTrend) GetGeoWidgets(ctx context.Context, today string, dt []*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
 	var exploreResults []*gogtrends.ExploreWidget
 	var geoWidgets []*gogtrends.ExploreWidget
-	var geoMaps = make([][]*gogtrends.GeoMap, 0)
-	var stateTrends = make(map[string][]StateTrend)
+	var err error
 
-	ctx := context.Background()
-
-	dt, err := g.GetDailyTrends()
-
-	LogGogTrendsError(err, "Error getting google trends")
-	if err != nil {
-		return stateTrends, err
-	}
-
-	// explore each trend (TODO: make concurrent...)
 	for i := 0; i < len(dt); i++ {
 		// get the current trend
 		trend := dt[i]
@@ -150,8 +135,32 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 		// TODO: determine how to handle errors...
 		LogGogTrendsError(err, "Error exploring google trends")
 		if err != nil {
-			return stateTrends, err
+			return geoWidgets, err
 		}
+	}
+	return geoWidgets, nil
+}
+
+// GetDailyTrendsByState returns an array of ...
+func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
+	var dt []*gogtrends.TrendingSearch
+	var geoWidgets []*gogtrends.ExploreWidget
+	var geoMaps = make([][]*gogtrends.GeoMap, 0)
+	var stateTrends = make(map[string][]StateTrend)
+
+	ctx := context.Background()
+
+	dt, err := g.GetDailyTrends()
+
+	LogGogTrendsError(err, "Error getting google trends")
+	if err != nil {
+		return stateTrends, err
+	}
+
+	// explore each trend (TODO: make concurrent...)
+	geoWidgets, err = g.GetGeoWidgets(ctx, "today 12-m", dt)
+	if err != nil {
+		return stateTrends, err
 	}
 
 	// log.Info("print geoWidgets:")
@@ -188,6 +197,8 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	for i := 0; i < len(dt); i++ {
 		// assuming there is exactly the same # of geoMaps as dts
 		trend := dt[i]
+		// IMPORTANT: if concurrency is introduced, dt[i] and geoMap[i] may not
+		// match 1-to-1!!!
 		geoMap := geoMaps[i]
 		for j := 0; j < len(geoMap); j++ {
 			location := geoMap[j]
