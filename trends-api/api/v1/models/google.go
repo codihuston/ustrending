@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"reflect"
 	"sort"
+	"time"
 )
 
 const (
@@ -96,7 +97,7 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	return results, nil
 }
 
-func (g GoogleTrend) GetGeoWidgets(ctx context.Context, today string, dt []*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
+func (g GoogleTrend) GetGeoWidgets(ctx context.Context, today string, dt []*gogtrends.TrendingSearch, ch chan<- []*gogtrends.ExploreWidget) {
 	var exploreResults []*gogtrends.ExploreWidget
 	var geoWidgets []*gogtrends.ExploreWidget
 	var err error
@@ -135,10 +136,89 @@ func (g GoogleTrend) GetGeoWidgets(ctx context.Context, today string, dt []*gogt
 		// TODO: determine how to handle errors...
 		LogGogTrendsError(err, "Error exploring google trends")
 		if err != nil {
-			return geoWidgets, err
+			panic(err)
+		}
+	}
+	ch <- geoWidgets
+	close(ch)
+	// return geoWidgets, nil
+}
+
+func (g GoogleTrend) GetGeoWidgetsOrig(ctx context.Context, today string, dt []*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
+	var exploreResults []*gogtrends.ExploreWidget
+	var geoWidgets []*gogtrends.ExploreWidget
+	var err error
+
+	for i := 0; i < len(dt); i++ {
+		// get the current trend
+		trend := dt[i]
+
+		// fetch widgets for exploring this topic
+		exploreResults, err = gogtrends.Explore(ctx, &gogtrends.ExploreRequest{
+			ComparisonItems: []*gogtrends.ComparisonItem{
+				{
+					Keyword: trend.Title.Query,
+					Geo:     locUS,
+					Time:    today,
+				},
+			},
+			Category: 0, // all programming categories?
+			Property: "",
+		}, langEn)
+
+		// PrintGogTrends(exploreResults)
+
+		// get the widget that we want?
+		// neededWidget = "fe_geo_chart_explore"
+		for j := 0; j < len(exploreResults); j++ {
+			curr := exploreResults[j]
+			if curr.Type == "fe_geo_chart_explore" {
+				// log.Info("FOUND fe_geo_chart_explore")
+				// PrintGogTrends(make([]*gogtrends.ExploreWidget, 1))
+				geoWidgets = append(geoWidgets, curr)
+				break
+			}
+		}
+
+		// TODO: determine how to handle errors...
+		LogGogTrendsError(err, "Error exploring google trends")
+		if err != nil {
+			panic(err)
 		}
 	}
 	return geoWidgets, nil
+}
+
+func (g GoogleTrend) GetGeoMapsAsync(ctx context.Context, geoWidget *gogtrends.ExploreWidget, ch chan<- []*gogtrends.GeoMap, i int) {
+	log.Infof("Start GetGeoMap %d", i)
+	geoMap, err := gogtrends.InterestByLocation(ctx, geoWidget, langEn)
+	log.Infof("End GetGeoMap %d", i)
+	// TODO: determine how to handle errors...
+	LogGogTrendsError(err, "Error getting region data for google trends")
+	if err != nil {
+		panic(err)
+	}
+	// geoMaps = append(geoMaps, geoMap)
+	ch <- geoMap
+}
+
+func (g GoogleTrend) GetGeoMaps(ctx context.Context, geoWidgets []*gogtrends.ExploreWidget) [][]*gogtrends.GeoMap {
+	ch := make(chan []*gogtrends.GeoMap)
+	var geoMaps = make([][]*gogtrends.GeoMap, 0)
+
+	for i := 0; i < len(geoWidgets); i++ {
+		geoWidget := geoWidgets[i]
+		// geoMap, err := gogtrends.InterestByLocation(ctx, geoWidget, langEn)
+		go g.GetGeoMapsAsync(ctx, geoWidget, ch, i)
+		// TODO: determine how to handle errors...
+		// geoMaps = append(geoMaps, geoMap)
+	}
+
+	for i := 0; i < len(geoWidgets); i++ {
+		geoMaps = append(geoMaps, <-ch)
+	}
+
+	return geoMaps
 }
 
 // GetDailyTrendsByState returns an array of ...
@@ -148,8 +228,12 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	var geoMaps = make([][]*gogtrends.GeoMap, 0)
 	var stateTrends = make(map[string][]StateTrend)
 
-	ctx := context.Background()
+	start := time.Now()
 
+	ctx := context.Background()
+	// init channel of widget type
+	ch1 := make(chan []*gogtrends.ExploreWidget)
+	ch2 := make(chan []*gogtrends.GeoMap)
 	dt, err := g.GetDailyTrends()
 
 	LogGogTrendsError(err, "Error getting google trends")
@@ -158,28 +242,23 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	}
 
 	// explore each trend (TODO: make concurrent...)
-	geoWidgets, err = g.GetGeoWidgets(ctx, "today 12-m", dt)
-	if err != nil {
-		return stateTrends, err
-	}
-
+	// TODO: handle panic??
+	log.Info("get geoWidgets:", ch1)
+	// go g.GetGeoWidgets(ctx, "today 12-m", dt, ch1)
+	// geoWidgets = <-ch
+	geoWidgets, err = g.GetGeoWidgetsOrig(ctx, "today 12-m", dt)
+	log.Info("done geoWidgets:")
 	// log.Info("print geoWidgets:")
 	// PrintGogTrends(geoWidgets)
 
 	// get interest by location (TODO: make concurrent)
 	// each trend has a []geoWidget
-	for i := 0; i < len(geoWidgets); i++ {
-		geoWidget := geoWidgets[i]
-		geoMap, err := gogtrends.InterestByLocation(ctx, geoWidget, langEn)
-
-		// TODO: determine how to handle errors...
-		LogGogTrendsError(err, "Error getting region data for google trends")
-		if err != nil {
-			return stateTrends, err
-		}
-		geoMaps = append(geoMaps, geoMap)
-	}
-
+	log.Info("get geoMaps:", ch2)
+	geoMaps = g.GetGeoMaps(ctx, geoWidgets)
+	// for n := range ch2 {
+	// 	geoMaps = append(geoMaps, n)
+	// }
+	log.Info("done geoMaps:")
 	// log.Info("print geoMap:")
 	// PrintGogTrends(geoMaps)
 
@@ -194,6 +273,7 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 			...
 		]
 	*/
+	log.Info("process trends/geoMaps:")
 	for i := 0; i < len(dt); i++ {
 		// assuming there is exactly the same # of geoMaps as dts
 		trend := dt[i]
@@ -215,6 +295,8 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 		}
 	}
 
+	secs := time.Since(start).Seconds()
+	log.Infof("DONE. %.4f elapsed", secs)
 	// log.Info(stateTrends)
 
 	return stateTrends, nil
