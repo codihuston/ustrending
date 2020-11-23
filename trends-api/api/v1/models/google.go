@@ -353,7 +353,7 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 	// PrintGogTrends(geoMaps)
 
 	log.Info("Start processing all trends/geoMaps:")
-	stateTrends = processStateTrends(ctx, shouldUpdateCache, &dt, &geoMaps)
+	stateTrends = g.getProcessedStateTrends(ctx, shouldUpdateCache, &dt, &geoMaps)
 
 	secs := time.Since(start).Seconds()
 
@@ -376,7 +376,7 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 		...
 	]
 */
-func processStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) map[string][]StateTrend {
+func (g GoogleTrend) getProcessedStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) map[string][]StateTrend {
 	var cacheKey = "daily-trends-by-state-go"
 	var results = make(map[string][]StateTrend)
 
@@ -390,49 +390,7 @@ func processStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogt
 				log.Info("CACHE MISS: ", cacheKey)
 			}
 
-			// safely iterate over the smallest list (they should be same length)
-			for i := 0; i < min(len(*dt), len(*geoMaps)); i++ {
-				// assuming there is exactly the same # of geoMaps as dts
-				trend := (*dt)[i]
-				// geo maps are mapped to the trend query, each trend should have a map
-				val, ok := (*geoMaps)[trend.Title.Query]
-				var geoMap []*gogtrends.GeoMap
-
-				// confirm that there exists a geomap
-				if !ok {
-					log.Warnf("A geomap does not exist for query: %s", trend.Title.Query)
-					continue
-				}
-
-				// if there is a geomap, use it
-				if len(val) > 0 {
-					geoMap = val[0]
-				} else {
-					log.Warnf("A geomap exists for query: %s, but does not have a length (len=%d)", trend.Title.Query, len(geoMap))
-					PrintGogTrends(val)
-					continue
-				}
-
-				log.Infof("Processing geomap for '%s' (len=%d)", trend.Title.Query, len(geoMap))
-
-				// map the geo map for each topic into a list
-				for j := 0; j < len(geoMap); j++ {
-					// get geo data
-					location := *geoMap[j]
-					// build output object
-					st := StateTrend{
-						GeoCode: location.GeoCode,
-						Topic:   trend.Title.Query,
-						Value:   location.Value[0],
-					}
-					// add output object to this state
-					results[location.GeoName] = append(results[location.GeoName], st)
-					// sorted by value (rank), ascending
-					sort.Slice(results[location.GeoName], func(i, j int) bool {
-						return results[location.GeoName][i].Value > results[location.GeoName][j].Value
-					})
-				}
-			} // end for
+			g.processStateTrends(&results, dt, geoMaps)
 
 			// cache it
 			response, _ := json.Marshal(results)
@@ -450,4 +408,50 @@ func processStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogt
 		json.Unmarshal([]byte(val), &results)
 	}
 	return results
+}
+
+func (g GoogleTrend) processStateTrends(results *map[string][]StateTrend, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) {
+	// safely iterate over the smallest list (they should be same length)
+	for i := 0; i < min(len(*dt), len(*geoMaps)); i++ {
+		// assuming there is exactly the same # of geoMaps as dts
+		trend := (*dt)[i]
+		// geo maps are mapped to the trend query, each trend should have a map
+		val, ok := (*geoMaps)[trend.Title.Query]
+		var geoMap []*gogtrends.GeoMap
+
+		// confirm that there exists a geomap
+		if !ok {
+			log.Warnf("A geomap does not exist for query: %s", trend.Title.Query)
+			continue
+		}
+
+		// if there is a geomap, use it
+		if len(val) > 0 {
+			geoMap = val[0]
+		} else {
+			log.Warnf("A geomap exists for query: %s, but does not have a length (len=%d)", trend.Title.Query, len(geoMap))
+			PrintGogTrends(val)
+			continue
+		}
+
+		log.Infof("Processing geomap for '%s' (len=%d)", trend.Title.Query, len(geoMap))
+
+		// map the geo map for each topic into a list
+		for j := 0; j < len(geoMap); j++ {
+			// get geo data
+			location := *geoMap[j]
+			// build output object
+			st := StateTrend{
+				GeoCode: location.GeoCode,
+				Topic:   trend.Title.Query,
+				Value:   location.Value[0],
+			}
+			// add output object to this state
+			(*results)[location.GeoName] = append((*results)[location.GeoName], st)
+			// sorted by value (rank), ascending
+			sort.Slice((*results)[location.GeoName], func(i, j int) bool {
+				return (*results)[location.GeoName][i].Value > (*results)[location.GeoName][j].Value
+			})
+		}
+	} // end for
 }
