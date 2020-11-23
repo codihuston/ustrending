@@ -13,7 +13,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
-var googleRouter = require("./routes/google");
 var twitterRouter = require("./routes/twitter");
 var yahooRouter = require("./routes/yahoo");
 
@@ -25,7 +24,6 @@ app.use(express.urlencoded({ limit: "10mb", extended: false }));
 app.use(cookieParser());
 
 app.use("/", indexRouter);
-app.use("/google", googleRouter);
 app.use("/twitter", twitterRouter);
 app.use("/yahoo", yahooRouter);
 // catch 404 and forward to error handler
