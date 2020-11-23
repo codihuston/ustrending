@@ -146,7 +146,7 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	if err != nil {
 		// cache miss, proxy key is unset
 		if err == redis.Nil {
-			log.Info("CACHE MISS: ", cacheKey, "will update cache...")
+			log.Info("CACHE MISS: ", cacheKey, " will update cache...")
 
 			// rehydrate the cache
 			stateTrends, err = g.getDailyTrendsByStateHelper(ctx, true)
@@ -162,7 +162,7 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 		}
 	} else {
 		// cache hit, proxy key is set, read the end-result from cache
-		log.Info("CACHE HIT: ", cacheKey, "attempting to return from cache (will use preserved caches, if any)...")
+		log.Info("CACHE HIT: ", cacheKey, " attempting to return from cache (will use preserved caches, if any)...")
 		stateTrends, err = g.getDailyTrendsByStateHelper(ctx, false)
 	}
 	return stateTrends, nil
@@ -318,8 +318,43 @@ func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, today string, 
 // Each has a []ExploreWidget of type "fe_geo_chart_explore".
 // This method will get its geoMap (interest by region) using said widget.
 func (g GoogleTrend) getGeoMaps(ctx context.Context, shouldUpdateCache bool, geoWidgets *[]*gogtrends.ExploreWidget) map[string][][]*gogtrends.GeoMap {
+	var results = make(map[string][][]*gogtrends.GeoMap, 0)
+	var cacheKey = "daily-trends-by-state-geomaps-go"
+
+	// check cache
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil || shouldUpdateCache {
+		if err == redis.Nil || shouldUpdateCache {
+			if shouldUpdateCache {
+				log.Info("SHOULD UPDATE CACHE: ", cacheKey)
+			} else {
+				log.Info("CACHE MISS: ", cacheKey)
+			}
+
+			results = g.fetchGeoMaps(ctx, geoWidgets)
+
+			// cache it
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			panic(err)
+		}
+	} else {
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
+	}
+
+	return results
+}
+
+func (g GoogleTrend) fetchGeoMaps(ctx context.Context, geoWidgets *[]*gogtrends.ExploreWidget) map[string][][]*gogtrends.GeoMap {
+	var results = make(map[string][][]*gogtrends.GeoMap, 0)
 	ch := make(chan GeoMapResponse)
-	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
 
 	for i := 0; i < len(*geoWidgets); i++ {
 		geoWidget := (*geoWidgets)[i]
@@ -330,10 +365,9 @@ func (g GoogleTrend) getGeoMaps(ctx context.Context, shouldUpdateCache bool, geo
 	for i := 0; i < len(*geoWidgets); i++ {
 		// map geoMaps[topic name] => GeoMap
 		res := <-ch
-		geoMaps[res.Topic] = append(geoMaps[res.Topic], res.GeoMap)
+		results[res.Topic] = append(results[res.Topic], res.GeoMap)
 	}
-
-	return geoMaps
+	return results
 }
 
 // getGeoMapsConcurrent will query the google api concurrently,
