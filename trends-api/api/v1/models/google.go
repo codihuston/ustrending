@@ -115,122 +115,6 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	return results, nil
 }
 
-// getGeoWidgetsConcurrent actually queries the google trends api.
-// returns a single ExploreWidget thru a channel.
-func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, today string, query string, ch chan<- *gogtrends.ExploreWidget) {
-	var exploreResults []*gogtrends.ExploreWidget
-	const neededWidget = "fe_geo_chart_explore"
-
-	// fetch widgets for exploring this query
-	exploreResults, err := gogtrends.Explore(ctx, &gogtrends.ExploreRequest{
-		ComparisonItems: []*gogtrends.ComparisonItem{
-			{
-				Keyword: query,
-				Geo:     locUS,
-				Time:    today,
-			},
-		},
-		Category: 0, // all programming categories?
-		Property: "",
-	}, langEn)
-
-	// PrintGogTrends(exploreResults)
-
-	// TODO: determine how to handle errors...
-	LogGogTrendsError(err, "Error exploring google trends")
-	if err != nil {
-		panic(err)
-	}
-
-	// get the widget that we want
-	for j := 0; j < len(exploreResults); j++ {
-		curr := exploreResults[j]
-		// and return it
-		if curr.Type == neededWidget {
-			// log.Info("FOUND fe_geo_chart_explore")
-			// PrintGogTrends(make([]*gogtrends.ExploreWidget, 1))
-			ch <- curr
-			break
-		}
-	}
-}
-
-// getGeoWidgets fetches a list of GeoWidgets (of type ExploreWidget) from
-// the google api concurrently.
-func (g GoogleTrend) getGeoWidgets(ctx context.Context, today string, dt *[]*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
-	var geoWidgets []*gogtrends.ExploreWidget
-	var err error
-
-	ch := make(chan *gogtrends.ExploreWidget, len(*dt))
-
-	for i := 0; i < len(*dt); i++ {
-		// get the current trend
-		trend := (*dt)[i]
-
-		go g.getGeoWidgetsConcurrent(ctx, today, trend.Title.Query, ch)
-
-		// TODO: determine how to handle errors...
-		LogGogTrendsError(err, "Error exploring google trends")
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	for i := 0; i < len(*dt); i++ {
-		// map geoMaps[topic name] => GeoMap
-		geoWidget := <-ch
-		// geoMaps[res.Topic] = append(geoMaps[res.Topic], res.GeoMap)
-		geoWidgets = append(geoWidgets, geoWidget)
-	}
-
-	close(ch)
-	return geoWidgets, nil
-}
-
-// getGeoMapsConcurrent will query the google api concurrently,
-// returning a GeoMap through a channel.
-func (g GoogleTrend) getGeoMapsConcurrent(ctx context.Context, geoWidget *gogtrends.ExploreWidget, ch chan<- GeoMapResponse, i int) {
-	// get the interests of this topic by location (from a given geoWidget)
-	log.Infof("Start GetGeoMap %d", i)
-	geoMap, err := gogtrends.InterestByLocation(ctx, geoWidget, langEn)
-	log.Infof("End GetGeoMap %d", i)
-
-	// TODO: determine how to handle errors...
-	LogGogTrendsError(err, "Error getting region data for google trends")
-	if err != nil {
-		panic(err)
-	}
-	// geoMaps = append(geoMaps, geoMap)
-	res := GeoMapResponse{
-		// TODO: add error checking here?
-		Topic:  geoWidget.Request.CompItem[0].ComplexKeywordsRestriction.Keyword[0].Value,
-		GeoMap: geoMap,
-	}
-	ch <- res
-}
-
-// getGeoMaps gets a list of GeoMaps for a given trend.
-// Each has a []ExploreWidget of type "fe_geo_chart_explore".
-// This method will get its geoMap (interest by region) using said widget.
-func (g GoogleTrend) getGeoMaps(ctx context.Context, geoWidgets []*gogtrends.ExploreWidget) map[string][][]*gogtrends.GeoMap {
-	ch := make(chan GeoMapResponse)
-	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
-
-	for i := 0; i < len(geoWidgets); i++ {
-		geoWidget := geoWidgets[i]
-		// TODO: determine how to handle errors...
-		go g.getGeoMapsConcurrent(ctx, geoWidget, ch, i)
-	}
-
-	for i := 0; i < len(geoWidgets); i++ {
-		// map geoMaps[topic name] => GeoMap
-		res := <-ch
-		geoMaps[res.Topic] = append(geoMaps[res.Topic], res.GeoMap)
-	}
-
-	return geoMaps
-}
-
 // GetDailyTrendsByState returns an array of ...
 func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	// ensures outgoing requests go out only once in a specific time window
@@ -325,19 +209,124 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 	return stateTrends, nil
 }
 
-/*
-	processStateTrends processes  daily trends and their corresponding geo maps
-	into:
+// getGeoWidgets fetches a list of GeoWidgets (of type ExploreWidget) from
+// the google api concurrently.
+func (g GoogleTrend) getGeoWidgets(ctx context.Context, today string, dt *[]*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
+	var geoWidgets []*gogtrends.ExploreWidget
+	var err error
 
-	stateFullName => [
-		{
-			topic: "Kelly Loffler"
-			value: 100
-			geoCode: "US-GA"
+	ch := make(chan *gogtrends.ExploreWidget, len(*dt))
+
+	for i := 0; i < len(*dt); i++ {
+		// get the current trend
+		trend := (*dt)[i]
+
+		go g.getGeoWidgetsConcurrent(ctx, today, trend.Title.Query, ch)
+
+		// TODO: determine how to handle errors...
+		LogGogTrendsError(err, "Error exploring google trends")
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	for i := 0; i < len(*dt); i++ {
+		// map geoMaps[topic name] => GeoMap
+		geoWidget := <-ch
+		// geoMaps[res.Topic] = append(geoMaps[res.Topic], res.GeoMap)
+		geoWidgets = append(geoWidgets, geoWidget)
+	}
+
+	close(ch)
+	return geoWidgets, nil
+}
+
+// getGeoWidgetsConcurrent actually queries the google trends api.
+// returns a single ExploreWidget thru a channel.
+func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, today string, query string, ch chan<- *gogtrends.ExploreWidget) {
+	var exploreResults []*gogtrends.ExploreWidget
+	const neededWidget = "fe_geo_chart_explore"
+
+	// fetch widgets for exploring this query
+	exploreResults, err := gogtrends.Explore(ctx, &gogtrends.ExploreRequest{
+		ComparisonItems: []*gogtrends.ComparisonItem{
+			{
+				Keyword: query,
+				Geo:     locUS,
+				Time:    today,
+			},
 		},
-		...
-	]
-*/
+		Category: 0, // all programming categories?
+		Property: "",
+	}, langEn)
+
+	// PrintGogTrends(exploreResults)
+
+	// TODO: determine how to handle errors...
+	LogGogTrendsError(err, "Error exploring google trends")
+	if err != nil {
+		panic(err)
+	}
+
+	// get the widget that we want
+	for j := 0; j < len(exploreResults); j++ {
+		curr := exploreResults[j]
+		// and return it
+		if curr.Type == neededWidget {
+			// log.Info("FOUND fe_geo_chart_explore")
+			// PrintGogTrends(make([]*gogtrends.ExploreWidget, 1))
+			ch <- curr
+			break
+		}
+	}
+}
+
+// getGeoMaps gets a list of GeoMaps for a given trend.
+// Each has a []ExploreWidget of type "fe_geo_chart_explore".
+// This method will get its geoMap (interest by region) using said widget.
+func (g GoogleTrend) getGeoMaps(ctx context.Context, geoWidgets []*gogtrends.ExploreWidget) map[string][][]*gogtrends.GeoMap {
+	ch := make(chan GeoMapResponse)
+	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
+
+	for i := 0; i < len(geoWidgets); i++ {
+		geoWidget := geoWidgets[i]
+		// TODO: determine how to handle errors...
+		go g.getGeoMapsConcurrent(ctx, geoWidget, ch, i)
+	}
+
+	for i := 0; i < len(geoWidgets); i++ {
+		// map geoMaps[topic name] => GeoMap
+		res := <-ch
+		geoMaps[res.Topic] = append(geoMaps[res.Topic], res.GeoMap)
+	}
+
+	return geoMaps
+}
+
+// getGeoMapsConcurrent will query the google api concurrently,
+// returning a GeoMap through a channel.
+func (g GoogleTrend) getGeoMapsConcurrent(ctx context.Context, geoWidget *gogtrends.ExploreWidget, ch chan<- GeoMapResponse, i int) {
+	// get the interests of this topic by location (from a given geoWidget)
+	log.Infof("Start GetGeoMap %d", i)
+	geoMap, err := gogtrends.InterestByLocation(ctx, geoWidget, langEn)
+	log.Infof("End GetGeoMap %d", i)
+
+	// TODO: determine how to handle errors...
+	LogGogTrendsError(err, "Error getting region data for google trends")
+	if err != nil {
+		panic(err)
+	}
+	// geoMaps = append(geoMaps, geoMap)
+	res := GeoMapResponse{
+		// TODO: add error checking here?
+		Topic:  geoWidget.Request.CompItem[0].ComplexKeywordsRestriction.Keyword[0].Value,
+		GeoMap: geoMap,
+	}
+	ch <- res
+}
+
+// processStateTrends processes daily trends and their corresponding geo maps
+// Into []StateTrend, which is the final result returned from this api.
 func (g GoogleTrend) getProcessedStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) map[string][]StateTrend {
 	var cacheKey = "daily-trends-by-state-go"
 	var results = make(map[string][]StateTrend)
