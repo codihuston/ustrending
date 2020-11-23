@@ -13,13 +13,7 @@
       "path": "private-api"
     },
     {
-      "path": "./public-api"
-    },
-    {
       "path": "./worker-cities"
-    },
-    {
-      "path": "./worker-google-trends"
     },
     {
       "path": "./worker-twitter-trends"
