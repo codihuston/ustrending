@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-trends-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: worker-trends
+  template:
+    metadata:
+      labels:
+        component: worker-trends
+    spec:
+      containers:
+        - name: worker-trends
+          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-trends
+          resources:
+            requests:
+              memory: "24Mi"
+              cpu: "0.1"
+            limits:
+              memory: "24Mi"
+              cpu: "0.1"
+          ports:
+            - containerPort: 3000
+          env:
+            # redis config
+            - name: TRENDS_API_HOST
+              value: trends-api-cluster-ip-service
+            - name: TRENDS_API_PORT
+              value: "3000"

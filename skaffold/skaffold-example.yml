@@ -23,6 +23,10 @@ build:
       context: ../trends-api
       docker:
         dockerfile: Dockerfile.dev
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-trends
+      context: ../worker-trends
+      docker:
+        dockerfile: Dockerfile.dev
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-client
       context: ../client
       docker:
