@@ -37,7 +37,7 @@
       "path": "mongodb"
     },
     {
-      "path": "public-api-go"
+      "path": "public-api"
     },
     {
       "path": "trends-api"

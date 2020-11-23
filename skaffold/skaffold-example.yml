@@ -13,10 +13,6 @@ build:
         dockerfile: Dockerfile.dev
       sync:
         '***/*.js': .
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api-go
-      context: ../public-api-go
-      docker:
-        dockerfile: Dockerfile.dev
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-private-api
       context: ../private-api
       docker:
@@ -36,12 +32,6 @@ build:
         '***/*.css': .
         '***/*.scss': .
         '***/*.html': .
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-google-trends
-      context: ../worker-google-trends
-      docker:
-        dockerfile: Dockerfile.dev
-      sync:
-        '***/*.js': .
     # - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-twitter-trends
     #   context: ../worker-twitter-trends
     #   docker:

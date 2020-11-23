@@ -84,7 +84,7 @@ func (g GoogleTrend) GetDailyTrends(result *[]GoogleTrend) error {
 }
 
 func (g GoogleTrend) GetDailyTrendsByState(result *[]State) error {
-	var cacheKey = "daily-trends-by-state-go"
+	var cacheKey = "daily-trends-by-state"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

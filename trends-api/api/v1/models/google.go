@@ -76,7 +76,7 @@ func PrintGogTrends(items interface{}) {
 func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	var maxTrends = 10
 	// TODO: rename me
-	var cacheKey = "daily-trends-go"
+	var cacheKey = "daily-trends"
 	ctx := context.Background()
 
 	// otherwise fetch from api
@@ -123,7 +123,7 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 // GetDailyTrendsByState returns an array of ...
 func (g GoogleTrend) GetDailyTrendsByState() ([]State, error) {
 	// ensures outgoing requests go out only once in a specific time window
-	var cacheKey = "daily-trends-by-state-go-proxy"
+	var cacheKey = "daily-trends-by-state-proxy"
 	var stateTrends []State
 	// how long the cache proxy should live for (in minutes)
 	const cacheProxyLifetime = 29
@@ -201,7 +201,7 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 // getGeoWidgets fetches a list of GeoWidgets (of type ExploreWidget) from
 // the google api concurrently.
 func (g GoogleTrend) getGeoWidgets(ctx context.Context, shouldUpdateCache bool, today string, dt *[]*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
-	var cacheKey = "daily-trends-by-state-geowidgets-go"
+	var cacheKey = "daily-trends-by-state-geowidgets"
 	//var results = make([]*gogtrends.ExploreWidget, len(*dt))
 	var results []*gogtrends.ExploreWidget
 
@@ -308,7 +308,7 @@ func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, today string, 
 // This method will get its geoMap (interest by region) using said widget.
 func (g GoogleTrend) getGeoMaps(ctx context.Context, shouldUpdateCache bool, geoWidgets *[]*gogtrends.ExploreWidget) map[string][][]*gogtrends.GeoMap {
 	var results = make(map[string][][]*gogtrends.GeoMap, 0)
-	var cacheKey = "daily-trends-by-state-geomaps-go"
+	var cacheKey = "daily-trends-by-state-geomaps"
 
 	// check cache
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
@@ -385,7 +385,7 @@ func (g GoogleTrend) getGeoMapsConcurrent(ctx context.Context, geoWidget *gogtre
 // Into []State (containg Trends), which is the final result returned from
 // this api.
 func (g GoogleTrend) getProcessedStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) []State {
-	var cacheKey = "daily-trends-by-state-go"
+	var cacheKey = "daily-trends-by-state"
 	// var results = make(map[string][]StateTrend)
 	var results []State
 

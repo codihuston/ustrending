@@ -20,7 +20,7 @@ function TrendsContainer({ children }) {
     async function asyncFunction() {
       try {
         // this returns an object of STATE FULL NAME => [{topic,value,geocode}]
-        let res = await fetch("/api-go/google/trends/daily/states");
+        let res = await fetch("/api/google/trends/daily/states");
         if (res.ok) {
           const result = await res.json();
           const processed = new Map();
@@ -37,7 +37,7 @@ function TrendsContainer({ children }) {
           }
         }
 
-        res = await fetch("/api-go/google/trends/daily");
+        res = await fetch("/api/google/trends/daily");
         if (res.ok) {
           const result = await res.json();
           const trendColorMap = new Map();
@@ -86,7 +86,7 @@ function TrendsContainer({ children }) {
       //     }
       //   });
 
-      // fetch("/api-go/google/trends/daily")
+      // fetch("/api/google/trends/daily")
       //   .then((res) => {
       //     if (res.ok) {
       //       return res.json();
