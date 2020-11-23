@@ -64,6 +64,7 @@ func PrintGogTrends(items interface{}) {
 
 // GetDailyTrends returns an array of gogtrends.TrendingSearch
 func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
+	var maxTrends = 10
 	// TODO: rename me
 	var cacheKey = "daily-trends-go"
 	ctx := context.Background()
@@ -77,13 +78,18 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 		if err == redis.Nil {
 			log.Info("CACHE MISS:", cacheKey)
 
-			results, err := gogtrends.Daily(ctx, langEn, locUS)
+			results, err = gogtrends.Daily(ctx, langEn, locUS)
 
 			LogGogTrendsError(err, "Failed to get daily google trends")
 
 			if err != nil {
 				return results, err
 			}
+
+			// we only want the first "maxTrends" responses, this is to help
+			// reduce the number of outgoing requests to their servers...
+			var end = min(len(results), maxTrends)
+			results = results[:end]
 
 			// cache it
 			response, _ := json.Marshal(results)
@@ -166,7 +172,7 @@ func (g GoogleTrend) GetGeoWidgetsOrig(ctx context.Context, today string, dt []*
 
 		// build array
 		// TODO: check for off-by-one errors!
-		for j := i; j < i+numToCompare-2; j++ {
+		for j := i; j < i+numToCompare; j++ {
 
 			log.Infof("PUSH CMP i:%d j:%d", i, j)
 			curr := dt[j]
@@ -336,8 +342,11 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	for i := 0; i < min(len(dt), len(geoMaps)); i++ {
 		// assuming there is exactly the same # of geoMaps as dts
 		trend := dt[i]
+		log.Infof("display geoMaps[%s]", trend.Title.Query)
+		PrintGogTrends(geoMaps[trend.Title.Query])
 		// geo maps are mapped to the trend query
 		geoMap := geoMaps[trend.Title.Query][0]
+
 		// map the geo map for each topic into a list
 		for j := 0; j < len(geoMap); j++ {
 			// get geo data
@@ -366,15 +375,21 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	if err != nil {
 		if err == redis.Nil {
 			// cache miss
-			log.Info(val)
+			log.Info("CACHE MISS!")
+
+			// cache it
+			response, _ := json.Marshal(stateTrends)
+			err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+			if err != nil {
+				panic(err)
+			}
 		}
 	} else {
-		// cache it
-		response, _ := json.Marshal(stateTrends)
-		err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
-		if err != nil {
-			panic(err)
-		}
+		// TODO: read from cache
+		log.Info("CACHE HIT!")
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &stateTrends)
 	}
 	// TODO: cache this end result
 	return stateTrends, nil
