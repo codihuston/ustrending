@@ -6,9 +6,9 @@ import (
 	c "github.com/codihuston/gorilla-mux-http/api/v1/controllers"
 	"github.com/codihuston/gorilla-mux-http/database"
 	// mw "github.com/codihuston/gorilla-mux-http/middleware"
-	"github.com/golang/glog"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 )
@@ -20,7 +20,7 @@ type App struct {
 // Initialize inits connections to dependant services
 func (a *App) Initialize() {
 
-	glog.Info("Connecting to services...")
+	log.Info("Connecting to services...")
 	database.InitializeDatabase()
 	database.InitializeCache()
 
@@ -35,7 +35,7 @@ func (a *App) Run(addr string) {
 	loggedRouter := handlers.LoggingHandler(os.Stdout, a.Router)
 
 	// init the http server
-	glog.Fatal(http.ListenAndServe(":3000", loggedRouter))
+	log.Fatal(http.ListenAndServe(":3000", loggedRouter))
 }
 
 func (a *App) initializeRoutes() {

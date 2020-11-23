@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"os"
@@ -34,7 +34,7 @@ func init() {
 	num, err := strconv.Atoi(os.Getenv("MONGO_PORT"))
 
 	if err != nil {
-		glog.Fatal("Cound not convert MONGO_PORT to integer from string", os.Getenv("MONGO_PORT"))
+		log.Fatal("Cound not convert MONGO_PORT to integer from string", os.Getenv("MONGO_PORT"))
 	}
 	mongoPort = num
 }
@@ -64,7 +64,7 @@ func GetDatabaseConnection() *mongo.Database {
 // InitializeDatabase creates a database connection
 func InitializeDatabase() *mongo.Database {
 	connectionString, safeString := getConnectionString()
-	glog.Info("Connecting to", safeString)
+	log.Info("Connecting to", safeString)
 
 	// connect to mongodb
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -72,7 +72,7 @@ func InitializeDatabase() *mongo.Database {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connectionString))
 
 	if err != nil {
-		glog.Fatal(err)
+		log.Fatal(err)
 	}
 	DBClient = client
 	DB = client.Database(mongoDB)

@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 )
@@ -20,19 +20,19 @@ func init() {
 
 	num, err := strconv.Atoi(os.Getenv("REDIS_DB"))
 	if err != nil {
-		glog.Fatal("Cound not convert REDIS_DB to integer from string", os.Getenv("REDIS_DB"))
+		log.Fatal("Cound not convert REDIS_DB to integer from string", os.Getenv("REDIS_DB"))
 	}
 	redisDB = num
 
 	num, err = strconv.Atoi(os.Getenv("REDIS_PORT"))
 	if err != nil {
-		glog.Fatal("Cound not convert REDIS_PORT to integer from string", os.Getenv("REDIS_PORT"))
+		log.Fatal("Cound not convert REDIS_PORT to integer from string", os.Getenv("REDIS_PORT"))
 	}
 	redisPort = num
 
 	num, err = strconv.Atoi(os.Getenv("REDIS_RECONNECT_ATTEMPTS"))
 	if err != nil {
-		glog.Fatal("Cound not convert REDIS_RECONNECT_ATTEMPTS to integer from string", os.Getenv("REDIS_RECONNECT_ATTEMPTS"))
+		log.Fatal("Cound not convert REDIS_RECONNECT_ATTEMPTS to integer from string", os.Getenv("REDIS_RECONNECT_ATTEMPTS"))
 	}
 	redisMaxRetries = num
 }
