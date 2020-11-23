@@ -193,7 +193,7 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 
 	// get interest by location (TODO: this is concurrent, handle panics)
 	log.Info("Start fetching geoMaps")
-	geoMaps = g.getGeoMaps(ctx, geoWidgets)
+	geoMaps = g.getGeoMaps(ctx, shouldUpdateCache, &geoWidgets)
 	log.Info("DONE fetching geoMaps.")
 	// log.Info("print geoMap:")
 	// PrintGogTrends(geoMaps)
@@ -317,17 +317,17 @@ func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, today string, 
 // getGeoMaps gets a list of GeoMaps for a given trend.
 // Each has a []ExploreWidget of type "fe_geo_chart_explore".
 // This method will get its geoMap (interest by region) using said widget.
-func (g GoogleTrend) getGeoMaps(ctx context.Context, geoWidgets []*gogtrends.ExploreWidget) map[string][][]*gogtrends.GeoMap {
+func (g GoogleTrend) getGeoMaps(ctx context.Context, shouldUpdateCache bool, geoWidgets *[]*gogtrends.ExploreWidget) map[string][][]*gogtrends.GeoMap {
 	ch := make(chan GeoMapResponse)
 	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
 
-	for i := 0; i < len(geoWidgets); i++ {
-		geoWidget := geoWidgets[i]
+	for i := 0; i < len(*geoWidgets); i++ {
+		geoWidget := (*geoWidgets)[i]
 		// TODO: determine how to handle errors...
 		go g.getGeoMapsConcurrent(ctx, geoWidget, ch, i)
 	}
 
-	for i := 0; i < len(geoWidgets); i++ {
+	for i := 0; i < len(*geoWidgets); i++ {
 		// map geoMaps[topic name] => GeoMap
 		res := <-ch
 		geoMaps[res.Topic] = append(geoMaps[res.Topic], res.GeoMap)
