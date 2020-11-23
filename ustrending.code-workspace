@@ -13,9 +13,6 @@
       "path": "private-api"
     },
     {
-      "path": "./worker-cities"
-    },
-    {
       "path": "./worker-twitter-trends"
     },
     {
