@@ -9,6 +9,10 @@ the US Census, then feed that into the Yahoo Weather API to get the `long/lat`,
 locations to analyze with the Twitter API), and to persist this final result
 somewhere that the other services in this product can access quickly.
 
+Ultimately, this ended up not being necessary for the `ustrending` project,
+as a small few of these cities exist in Twitter's database as a Place.
+This not be used in production.
+
 ## Development
 
 This container is not intended to be ran in a scalable fashion, as its sole
