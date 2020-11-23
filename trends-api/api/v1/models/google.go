@@ -76,7 +76,7 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			log.Info("CACHE MISS:", cacheKey)
+			log.Info("CACHE MISS: ", cacheKey)
 
 			results, err = gogtrends.Daily(ctx, langEn, locUS)
 
@@ -102,7 +102,7 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 			panic(err)
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)
@@ -266,22 +266,13 @@ func (g GoogleTrend) getGeoMaps(ctx context.Context, geoWidgets []*gogtrends.Exp
 
 // GetDailyTrendsByState returns an array of ...
 func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
-	var cacheKey = "daily-trends-by-state-go"
-	var dt []*gogtrends.TrendingSearch
-	var geoWidgets []*gogtrends.ExploreWidget
-	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
+	// ensures outgoing requests go out only once in a specific time window
+	var cacheKey = "daily-trends-by-state-go-proxy"
 	var stateTrends = make(map[string][]StateTrend)
+	// how long the cache proxy should live for (in minutes)
+	const cacheProxyLifetime = 29
 
-	start := time.Now()
 	ctx := context.Background()
-
-	// first, get dailyl trends
-	dt, err := g.GetDailyTrends()
-
-	LogGogTrendsError(err, "Error getting google trends")
-	if err != nil {
-		return stateTrends, err
-	}
 
 	/*
 		TODO: implement 2 cache keys, 1 for perpetual cache, and another for
@@ -298,6 +289,49 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 			- this will reduce outgoing requests in development or when
 			the worker eventually runs this code (even after a reboot)
 	*/
+
+	// first, see if it's time to invalidate/update the caches
+	_, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		// cache miss, proxy key is unset
+		if err == redis.Nil {
+			log.Info("CACHE MISS: ", cacheKey, "will update cache...")
+
+			// rehydrate the cache
+			stateTrends, err = g.getDailyTrendsByStateHelper(ctx, true)
+			if err != nil {
+				panic(err)
+			}
+
+			// set the proxy key
+			err = database.CacheClient.Set(ctx, cacheKey, "", time.Minute*cacheProxyLifetime).Err()
+			if err != nil {
+				panic(err)
+			}
+		}
+	} else {
+		// cache hit, proxy key is set, read the end-result from cache
+		log.Info("CACHE HIT: ", cacheKey, "attempting to return from cache (will use preserved caches, if any)...")
+		stateTrends, err = g.getDailyTrendsByStateHelper(ctx, false)
+	}
+	return stateTrends, nil
+}
+
+func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpdateCache bool) (map[string][]StateTrend, error) {
+	var dt []*gogtrends.TrendingSearch
+	var geoWidgets []*gogtrends.ExploreWidget
+	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
+	var stateTrends = make(map[string][]StateTrend)
+
+	start := time.Now()
+
+	// first, get daily trends
+	dt, err := g.GetDailyTrends()
+
+	LogGogTrendsError(err, "Error getting google trends")
+	if err != nil {
+		return stateTrends, err
+	}
 
 	// explore each trend (no need to be concurrent, this is far fewer requests
 	// now than it was... but it may be worth it for the practice)
@@ -318,87 +352,102 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	// log.Info("print geoMap:")
 	// PrintGogTrends(geoMaps)
 
-	/*
-		now process this into:
-		stateFullName => [
-			{
-				topic: "Kelly Loffler"
-				value: 100
-				geoCode: "US-GA"
-			},
-			...
-		]
-	*/
 	log.Info("Start processing all trends/geoMaps:")
-	// safely iterate over the smallest list (they should be same length)
-	for i := 0; i < min(len(dt), len(geoMaps)); i++ {
-		// assuming there is exactly the same # of geoMaps as dts
-		trend := dt[i]
-		// geo maps are mapped to the trend query, each trend should have a map
-		val, ok := geoMaps[trend.Title.Query]
-		var geoMap []*gogtrends.GeoMap
-
-		// confirm that there exists a geomap
-		if !ok {
-			log.Warnf("A geomap does not exist for query: %s", trend.Title.Query)
-			continue
-		}
-
-		// if there is a geomap, use it
-		if len(val) > 0 {
-			geoMap = val[0]
-		} else {
-			log.Warnf("A geomap exists for query: %s, but does not have a length (len=%d)", trend.Title.Query, len(geoMap))
-			PrintGogTrends(val)
-			continue
-		}
-
-		log.Infof("Processing geomap for '%s' (len=%d)", trend.Title.Query, len(geoMap))
-
-		// map the geo map for each topic into a list
-		for j := 0; j < len(geoMap); j++ {
-			// get geo data
-			location := geoMap[j]
-			// build output object
-			st := StateTrend{
-				GeoCode: location.GeoCode,
-				Topic:   trend.Title.Query,
-				Value:   location.Value[0],
-			}
-			// add output object to this state
-			stateTrends[location.GeoName] = append(stateTrends[location.GeoName], st)
-			// sorted by value (rank), ascending
-			sort.Slice(stateTrends[location.GeoName], func(i, j int) bool {
-				return stateTrends[location.GeoName][i].Value > stateTrends[location.GeoName][j].Value
-			})
-		}
-	}
+	stateTrends = processStateTrends(ctx, shouldUpdateCache, &dt, &geoMaps)
 
 	secs := time.Since(start).Seconds()
+
 	log.Infof("DONE. %.4f elapsed", secs)
 	// log.Info(stateTrends)
+	// TODO: cache this end result
+	return stateTrends, nil
+}
 
-	// TODO: check cache
+/*
+	processStateTrends processes  daily trends and their corresponding geo maps
+	into:
+
+	stateFullName => [
+		{
+			topic: "Kelly Loffler"
+			value: 100
+			geoCode: "US-GA"
+		},
+		...
+	]
+*/
+func processStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) map[string][]StateTrend {
+	var cacheKey = "daily-trends-by-state-go"
+	var results = make(map[string][]StateTrend)
+
+	// check cache
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
-	if err != nil {
-		if err == redis.Nil {
-			// cache miss
-			log.Info("CACHE MISS!")
+	if err != nil || shouldUpdateCache {
+		if err == redis.Nil || shouldUpdateCache {
+			if shouldUpdateCache {
+				log.Info("SHOULD UPDATE CACHE: ", cacheKey)
+			} else {
+				log.Info("CACHE MISS: ", cacheKey)
+			}
+
+			// safely iterate over the smallest list (they should be same length)
+			for i := 0; i < min(len(*dt), len(*geoMaps)); i++ {
+				// assuming there is exactly the same # of geoMaps as dts
+				trend := (*dt)[i]
+				// geo maps are mapped to the trend query, each trend should have a map
+				val, ok := (*geoMaps)[trend.Title.Query]
+				var geoMap []*gogtrends.GeoMap
+
+				// confirm that there exists a geomap
+				if !ok {
+					log.Warnf("A geomap does not exist for query: %s", trend.Title.Query)
+					continue
+				}
+
+				// if there is a geomap, use it
+				if len(val) > 0 {
+					geoMap = val[0]
+				} else {
+					log.Warnf("A geomap exists for query: %s, but does not have a length (len=%d)", trend.Title.Query, len(geoMap))
+					PrintGogTrends(val)
+					continue
+				}
+
+				log.Infof("Processing geomap for '%s' (len=%d)", trend.Title.Query, len(geoMap))
+
+				// map the geo map for each topic into a list
+				for j := 0; j < len(geoMap); j++ {
+					// get geo data
+					location := *geoMap[j]
+					// build output object
+					st := StateTrend{
+						GeoCode: location.GeoCode,
+						Topic:   trend.Title.Query,
+						Value:   location.Value[0],
+					}
+					// add output object to this state
+					results[location.GeoName] = append(results[location.GeoName], st)
+					// sorted by value (rank), ascending
+					sort.Slice(results[location.GeoName], func(i, j int) bool {
+						return results[location.GeoName][i].Value > results[location.GeoName][j].Value
+					})
+				}
+			} // end for
 
 			// cache it
-			response, _ := json.Marshal(stateTrends)
+			response, _ := json.Marshal(results)
 			err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
 			if err != nil {
 				panic(err)
 			}
+		} else {
+			panic(err)
 		}
 	} else {
-		// TODO: read from cache
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
-		json.Unmarshal([]byte(val), &stateTrends)
+		json.Unmarshal([]byte(val), &results)
 	}
-	// TODO: cache this end result
-	return stateTrends, nil
+	return results
 }
