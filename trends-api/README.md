@@ -41,7 +41,7 @@ go test -v
 Expected output:
 
 ```
-PS C:\Users\Codi\git\gorilla-mux-http> go test -v
+PS C:\Users\Codi\git\ustrending/trends-api> go test -v
 === RUN   TestEmptyTable
 --- PASS: TestEmptyTable (0.01s)  
 === RUN   TestCreateProduct     
@@ -53,7 +53,7 @@ PS C:\Users\Codi\git\gorilla-mux-http> go test -v
 === RUN   TestDeleteProduct
 --- PASS: TestDeleteProduct (0.02s)
 PASS
-ok      github.com/codihuston/gorilla-mux-http  0.459s
+ok      github.com/codihuston/ustrending/trends-api  0.459s
 ```
 
 ## Cleanup

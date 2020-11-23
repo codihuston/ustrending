@@ -1,4 +1,4 @@
-module github.com/codihuston/gorilla-mux-http
+module github.com/codihuston/ustrending/trends-api
 
 go 1.15
 

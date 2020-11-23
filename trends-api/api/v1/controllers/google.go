@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/codihuston/gorilla-mux-http/api/v1/models"
+	"github.com/codihuston/ustrending/trends-api/api/v1/models"
 	"net/http"
 )
 

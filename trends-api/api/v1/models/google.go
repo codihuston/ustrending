@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/codihuston/gorilla-mux-http/database"
+	"github.com/codihuston/ustrending/trends-api/database"
 	"github.com/go-redis/redis/v8"
 	"github.com/groovili/gogtrends"
 	"github.com/pkg/errors"

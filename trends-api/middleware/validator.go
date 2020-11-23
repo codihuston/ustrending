@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	c "github.com/codihuston/gorilla-mux-http/api/v1/controllers"
-	"github.com/codihuston/gorilla-mux-http/types"
+	c "github.com/codihuston/ustrending/trends-api/api/v1/controllers"
+	"github.com/codihuston/ustrending/trends-api/types"
 	"github.com/go-playground/validator/v10"
 	"net/http"
 )

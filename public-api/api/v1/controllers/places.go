@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/codihuston/gorilla-mux-http/api/v1/models"
+	"github.com/codihuston/ustrending/public-api/api/v1/models"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"

@@ -3,9 +3,9 @@
 package main
 
 import (
-	c "github.com/codihuston/gorilla-mux-http/api/v1/controllers"
-	"github.com/codihuston/gorilla-mux-http/database"
-	mw "github.com/codihuston/gorilla-mux-http/middleware"
+	c "github.com/codihuston/ustrending/public-api/api/v1/controllers"
+	"github.com/codihuston/ustrending/public-api/database"
+	mw "github.com/codihuston/ustrending/public-api/middleware"
 	"github.com/golang/glog"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"

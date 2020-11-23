@@ -38,6 +38,9 @@
     },
     {
       "path": "trends-api"
+    },
+    {
+      "path": "worker-trends"
     }
   ],
   "settings": {

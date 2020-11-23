@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/codihuston/gorilla-mux-http/types"
+	"github.com/codihuston/ustrending/public-api/types"
 	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strings"

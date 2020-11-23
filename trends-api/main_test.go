@@ -5,7 +5,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/codihuston/gorilla-mux-http/db"
+	"github.com/codihuston/ustrending/trends-api/db"
 	"log"
 	"net/http"
 	"net/http/httptest"

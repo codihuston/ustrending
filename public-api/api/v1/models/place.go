@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/codihuston/gorilla-mux-http/database"
+	"github.com/codihuston/ustrending/public-api/database"
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 	"go.mongodb.org/mongo-driver/bson"
