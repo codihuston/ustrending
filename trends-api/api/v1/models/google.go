@@ -29,6 +29,11 @@ type StateTrend struct {
 	GeoCode string `json:"geoCode" bson:"geo_code"`
 }
 
+type State struct {
+	Name   string       `json:"name" bson:"name"`
+	Trends []StateTrend `json:"trends" bson:"trends"`
+}
+
 type GeoMapResponse struct {
 	Topic  string
 	GeoMap []*gogtrends.GeoMap
@@ -116,30 +121,14 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 }
 
 // GetDailyTrendsByState returns an array of ...
-func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
+func (g GoogleTrend) GetDailyTrendsByState() ([]State, error) {
 	// ensures outgoing requests go out only once in a specific time window
 	var cacheKey = "daily-trends-by-state-go-proxy"
-	var stateTrends = make(map[string][]StateTrend)
+	var stateTrends []State
 	// how long the cache proxy should live for (in minutes)
 	const cacheProxyLifetime = 29
 
 	ctx := context.Background()
-
-	/*
-		TODO: implement 2 cache keys, 1 for perpetual cache, and another for
-		"updating" that cache, so that we don't have to lose the previous iteration,
-		and we can reduce outgoing requests during development
-
-		- check a "proxy key" "to-update-daily-trends" (should eventually expire)
-		- if there is no cache for "daily-trends"
-			- query the google api
-			- cache it
-		- if there is, and "proxy key" it is expired, update the cache
-			- query the google api
-		- otherwise, "proxy key" is NOT expired, READ from the cache
-			- this will reduce outgoing requests in development or when
-			the worker eventually runs this code (even after a reboot)
-	*/
 
 	// first, see if it's time to invalidate/update the caches
 	_, err := database.CacheClient.Get(ctx, cacheKey).Result()
@@ -168,11 +157,11 @@ func (g GoogleTrend) GetDailyTrendsByState() (map[string][]StateTrend, error) {
 	return stateTrends, nil
 }
 
-func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpdateCache bool) (map[string][]StateTrend, error) {
+func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpdateCache bool) ([]State, error) {
 	var dt []*gogtrends.TrendingSearch
 	var geoWidgets []*gogtrends.ExploreWidget
 	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
-	var stateTrends = make(map[string][]StateTrend)
+	var stateTrends []State
 
 	start := time.Now()
 
@@ -393,10 +382,12 @@ func (g GoogleTrend) getGeoMapsConcurrent(ctx context.Context, geoWidget *gogtre
 }
 
 // processStateTrends processes daily trends and their corresponding geo maps
-// Into []StateTrend, which is the final result returned from this api.
-func (g GoogleTrend) getProcessedStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) map[string][]StateTrend {
+// Into []State (containg Trends), which is the final result returned from
+// this api.
+func (g GoogleTrend) getProcessedStateTrends(ctx context.Context, shouldUpdateCache bool, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) []State {
 	var cacheKey = "daily-trends-by-state-go"
-	var results = make(map[string][]StateTrend)
+	// var results = make(map[string][]StateTrend)
+	var results []State
 
 	// check cache
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
@@ -408,7 +399,7 @@ func (g GoogleTrend) getProcessedStateTrends(ctx context.Context, shouldUpdateCa
 				log.Info("CACHE MISS: ", cacheKey)
 			}
 
-			g.processStateTrends(&results, dt, geoMaps)
+			results = g.processStateTrends(dt, geoMaps)
 
 			// cache it
 			response, _ := json.Marshal(results)
@@ -428,7 +419,10 @@ func (g GoogleTrend) getProcessedStateTrends(ctx context.Context, shouldUpdateCa
 	return results
 }
 
-func (g GoogleTrend) processStateTrends(results *map[string][]StateTrend, dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) {
+func (g GoogleTrend) processStateTrends(dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) []State {
+	var temp = make(map[string][]StateTrend, 51) // num states
+	var results []State
+
 	// safely iterate over the smallest list (they should be same length)
 	for i := 0; i < min(len(*dt), len(*geoMaps)); i++ {
 		// assuming there is exactly the same # of geoMaps as dts
@@ -465,11 +459,22 @@ func (g GoogleTrend) processStateTrends(results *map[string][]StateTrend, dt *[]
 				Value:   location.Value[0],
 			}
 			// add output object to this state
-			(*results)[location.GeoName] = append((*results)[location.GeoName], st)
+			temp[location.GeoName] = append(temp[location.GeoName], st)
 			// sorted by value (rank), ascending
-			sort.Slice((*results)[location.GeoName], func(i, j int) bool {
-				return (*results)[location.GeoName][i].Value > (*results)[location.GeoName][j].Value
+			sort.Slice(temp[location.GeoName], func(i, j int) bool {
+				return temp[location.GeoName][i].Value > temp[location.GeoName][j].Value
 			})
 		}
 	} // end for
+
+	// now that the map is complete, convert it to []State
+	// we used a map so that we could quickly append trends to it
+	for stateName, trends := range temp {
+		state := State{
+			Name:   stateName,
+			Trends: trends,
+		}
+		results = append(results, state)
+	}
+	return results
 }

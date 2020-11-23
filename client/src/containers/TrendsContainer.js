@@ -19,14 +19,15 @@ function TrendsContainer({ children }) {
   useEffect(() => {
     async function asyncFunction() {
       try {
+        // this returns an object of STATE FULL NAME => [{topic,value,geocode}]
         let res = await fetch("/api-go/google/trends/daily/states");
         if (res.ok) {
           const result = await res.json();
           const processed = new Map();
 
           if (result && !result.error) {
-            result.map((x) => {
-              processed.set(x[0], x[1]);
+            result.map((state) => {
+              processed.set(state.name, state.trends);
             });
 
             setDailyTrendsByState(processed);

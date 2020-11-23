@@ -41,8 +41,50 @@ type GoogleTrendArticle struct {
 	Snippet string           `json:"snippet" bson:"snippet"`
 }
 
+type StateTrend struct {
+	Topic   string `json:"topic" bson:"topic"`
+	Value   int    `json:"value" bson:"value"`
+	GeoCode string `json:"geoCode" bson:"geo_code"`
+}
+
+type State struct {
+	Name   string       `json:"name" bson:"name"`
+	Trends []StateTrend `json:"trends" bson:"trends"`
+}
+
 func (g GoogleTrend) GetDailyTrends(result *[]GoogleTrend) error {
 	var cacheKey = "daily-trends"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// check cache
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			glog.Info("CACHE MISS:", cacheKey)
+			// set nothing; worker will populate this memstore eventually...
+			return nil
+		}
+	} else {
+
+		dec := json.NewDecoder(strings.NewReader(val))
+
+		for {
+			if err := dec.Decode(&result); err == io.EOF {
+				break
+			} else if err != nil {
+				glog.Error(err)
+				panic(err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (g GoogleTrend) GetDailyTrendsByState(result *[]State) error {
+	var cacheKey = "daily-trends-by-state-go"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
