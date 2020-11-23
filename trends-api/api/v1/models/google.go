@@ -186,7 +186,7 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 
 	// explore each trend (TODO: this is concurrent, handle panics)
 	log.Info("Start fetching geoWidgets")
-	geoWidgets, err = g.getGeoWidgets(ctx, "today 12-m", &dt)
+	geoWidgets, err = g.getGeoWidgets(ctx, shouldUpdateCache, "today 12-m", &dt)
 	log.Info("DONE fetching geoWidgets.")
 	// log.Info("print geoWidgets:")
 	// PrintGogTrends(geoWidgets)
@@ -211,8 +211,43 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 
 // getGeoWidgets fetches a list of GeoWidgets (of type ExploreWidget) from
 // the google api concurrently.
-func (g GoogleTrend) getGeoWidgets(ctx context.Context, today string, dt *[]*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
-	var geoWidgets []*gogtrends.ExploreWidget
+func (g GoogleTrend) getGeoWidgets(ctx context.Context, shouldUpdateCache bool, today string, dt *[]*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
+	var cacheKey = "daily-trends-by-state-geowidgets-go"
+	//var results = make([]*gogtrends.ExploreWidget, len(*dt))
+	var results []*gogtrends.ExploreWidget
+
+	// check cache
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil || shouldUpdateCache {
+		if err == redis.Nil || shouldUpdateCache {
+			if shouldUpdateCache {
+				log.Info("SHOULD UPDATE CACHE: ", cacheKey)
+			} else {
+				log.Info("CACHE MISS: ", cacheKey)
+			}
+
+			results = g.fetchGeoWidgets(ctx, today, dt)
+
+			// cache it
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			panic(err)
+		}
+	} else {
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
+	}
+	return results, nil
+}
+
+func (g GoogleTrend) fetchGeoWidgets(ctx context.Context, today string, dt *[]*gogtrends.TrendingSearch) []*gogtrends.ExploreWidget {
+	var results []*gogtrends.ExploreWidget
 	var err error
 
 	ch := make(chan *gogtrends.ExploreWidget, len(*dt))
@@ -233,12 +268,10 @@ func (g GoogleTrend) getGeoWidgets(ctx context.Context, today string, dt *[]*gog
 	for i := 0; i < len(*dt); i++ {
 		// map geoMaps[topic name] => GeoMap
 		geoWidget := <-ch
-		// geoMaps[res.Topic] = append(geoMaps[res.Topic], res.GeoMap)
-		geoWidgets = append(geoWidgets, geoWidget)
+		results = append(results, geoWidget)
 	}
-
 	close(ch)
-	return geoWidgets, nil
+	return results
 }
 
 // getGeoWidgetsConcurrent actually queries the google trends api.
