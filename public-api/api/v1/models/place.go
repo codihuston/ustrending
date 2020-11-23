@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/codihuston/ustrending/public-api/database"
 	"github.com/go-redis/redis/v8"
-	"github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
@@ -52,7 +52,7 @@ func (p *Place) GetPlaces() error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			glog.Info("key does not exists")
+			log.Info("key does not exists")
 
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
@@ -72,7 +72,7 @@ func (p *Place) GetPlaces() error {
 				var result = Place{}
 				err := cur.Decode(&result)
 				if err != nil {
-					glog.Fatal(err)
+					log.Fatal(err)
 				}
 				// do something with result....
 				results = append(results, result)
@@ -91,7 +91,7 @@ func (p *Place) GetPlaces() error {
 			panic(err)
 		}
 	} else {
-		glog.Info("CACHE HIT!")
+		log.Info("CACHE HIT!")
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)
@@ -112,7 +112,7 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 	if err != nil {
 		if err == redis.Nil {
 
-			glog.Info("CACHE MISS:", cacheKey)
+			log.Info("CACHE MISS:", cacheKey)
 
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
@@ -150,7 +150,7 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 			panic(err)
 		}
 	} else {
-		glog.Info("CACHE HIT!")
+		log.Info("CACHE HIT!")
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &result)
 	}

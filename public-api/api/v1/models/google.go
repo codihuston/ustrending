@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"github.com/codihuston/ustrending/public-api/database"
 	"github.com/go-redis/redis/v8"
-	"github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"strings"
 	"time"
@@ -62,7 +62,7 @@ func (g GoogleTrend) GetDailyTrends(result *[]GoogleTrend) error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			glog.Info("CACHE MISS:", cacheKey)
+			log.Info("CACHE MISS:", cacheKey)
 			// set nothing; worker will populate this memstore eventually...
 			return nil
 		}
@@ -74,7 +74,7 @@ func (g GoogleTrend) GetDailyTrends(result *[]GoogleTrend) error {
 			if err := dec.Decode(&result); err == io.EOF {
 				break
 			} else if err != nil {
-				glog.Error(err)
+				log.Error(err)
 				panic(err)
 			}
 		}
@@ -93,7 +93,7 @@ func (g GoogleTrend) GetDailyTrendsByState(result *[]State) error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			glog.Info("CACHE MISS:", cacheKey)
+			log.Info("CACHE MISS:", cacheKey)
 			// set nothing; worker will populate this memstore eventually...
 			return nil
 		}
@@ -105,7 +105,7 @@ func (g GoogleTrend) GetDailyTrendsByState(result *[]State) error {
 			if err := dec.Decode(&result); err == io.EOF {
 				break
 			} else if err != nil {
-				glog.Error(err)
+				log.Error(err)
 				panic(err)
 			}
 		}

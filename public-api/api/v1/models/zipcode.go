@@ -8,7 +8,7 @@ import (
 	"github.com/codihuston/ustrending/public-api/database"
 	"github.com/codihuston/ustrending/public-api/types"
 	"github.com/go-redis/redis/v8"
-	"github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
@@ -43,7 +43,7 @@ func (z *ZipCode) GetPlaceByZipCode(zipcode string) error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			glog.Info("CACHE MISS:", cacheKey)
+			log.Info("CACHE MISS:", cacheKey)
 
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
@@ -69,7 +69,7 @@ func (z *ZipCode) GetPlaceByZipCode(zipcode string) error {
 			panic(err)
 		}
 	} else {
-		glog.Info("CACHE HIT!")
+		log.Info("CACHE HIT!")
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &result)
