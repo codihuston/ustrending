@@ -120,8 +120,9 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	return results, nil
 }
 
-// GetDailyTrendsByState returns an array of ...
-func (g GoogleTrend) GetDailyTrendsByState() ([]State, error) {
+// GetDailyTrendsByState returns an array of ... accepts a google time period
+// such as "now 1-d", "today 12-m"
+func (g GoogleTrend) GetDailyTrendsByState(timePeriod string) ([]State, error) {
 	// ensures outgoing requests go out only once in a specific time window
 	var cacheKey = "daily-trends-by-state-proxy"
 	var stateTrends []State
@@ -138,7 +139,7 @@ func (g GoogleTrend) GetDailyTrendsByState() ([]State, error) {
 			log.Info("CACHE MISS: ", cacheKey, " will update cache...")
 
 			// rehydrate the cache
-			stateTrends, err = g.getDailyTrendsByStateHelper(ctx, true)
+			stateTrends, err = g.getDailyTrendsByStateHelper(ctx, true, timePeriod)
 			if err != nil {
 				panic(err)
 			}
@@ -152,12 +153,12 @@ func (g GoogleTrend) GetDailyTrendsByState() ([]State, error) {
 	} else {
 		// cache hit, proxy key is set, read the end-result from cache
 		log.Info("CACHE HIT: ", cacheKey, " attempting to return from cache (will use preserved caches, if any)...")
-		stateTrends, err = g.getDailyTrendsByStateHelper(ctx, false)
+		stateTrends, err = g.getDailyTrendsByStateHelper(ctx, false, timePeriod)
 	}
 	return stateTrends, nil
 }
 
-func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpdateCache bool) ([]State, error) {
+func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpdateCache bool, timePeriod string) ([]State, error) {
 	var dt []*gogtrends.TrendingSearch
 	var geoWidgets []*gogtrends.ExploreWidget
 	var geoMaps = make(map[string][][]*gogtrends.GeoMap, 0)
@@ -175,7 +176,7 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 
 	// explore each trend (TODO: this is concurrent, handle panics)
 	log.Info("Start fetching geoWidgets")
-	geoWidgets, err = g.getGeoWidgets(ctx, shouldUpdateCache, "today 12-m", &dt)
+	geoWidgets, err = g.getGeoWidgets(ctx, shouldUpdateCache, timePeriod, &dt)
 	log.Info("DONE fetching geoWidgets.")
 	// log.Info("print geoWidgets:")
 	// PrintGogTrends(geoWidgets)
@@ -200,7 +201,7 @@ func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpda
 
 // getGeoWidgets fetches a list of GeoWidgets (of type ExploreWidget) from
 // the google api concurrently.
-func (g GoogleTrend) getGeoWidgets(ctx context.Context, shouldUpdateCache bool, today string, dt *[]*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
+func (g GoogleTrend) getGeoWidgets(ctx context.Context, shouldUpdateCache bool, timePeriod string, dt *[]*gogtrends.TrendingSearch) ([]*gogtrends.ExploreWidget, error) {
 	var cacheKey = "daily-trends-by-state-geowidgets"
 	//var results = make([]*gogtrends.ExploreWidget, len(*dt))
 	var results []*gogtrends.ExploreWidget
@@ -215,7 +216,7 @@ func (g GoogleTrend) getGeoWidgets(ctx context.Context, shouldUpdateCache bool, 
 				log.Info("CACHE MISS: ", cacheKey)
 			}
 
-			results = g.fetchGeoWidgets(ctx, today, dt)
+			results = g.fetchGeoWidgets(ctx, timePeriod, dt)
 
 			// cache it
 			response, _ := json.Marshal(results)
@@ -235,7 +236,7 @@ func (g GoogleTrend) getGeoWidgets(ctx context.Context, shouldUpdateCache bool, 
 	return results, nil
 }
 
-func (g GoogleTrend) fetchGeoWidgets(ctx context.Context, today string, dt *[]*gogtrends.TrendingSearch) []*gogtrends.ExploreWidget {
+func (g GoogleTrend) fetchGeoWidgets(ctx context.Context, timePeriod string, dt *[]*gogtrends.TrendingSearch) []*gogtrends.ExploreWidget {
 	var results []*gogtrends.ExploreWidget
 	var err error
 
@@ -245,7 +246,7 @@ func (g GoogleTrend) fetchGeoWidgets(ctx context.Context, today string, dt *[]*g
 		// get the current trend
 		trend := (*dt)[i]
 
-		go g.getGeoWidgetsConcurrent(ctx, today, trend.Title.Query, ch)
+		go g.getGeoWidgetsConcurrent(ctx, timePeriod, trend.Title.Query, ch)
 
 		// TODO: determine how to handle errors...
 		LogGogTrendsError(err, "Error exploring google trends")
@@ -265,7 +266,7 @@ func (g GoogleTrend) fetchGeoWidgets(ctx context.Context, today string, dt *[]*g
 
 // getGeoWidgetsConcurrent actually queries the google trends api.
 // returns a single ExploreWidget thru a channel.
-func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, today string, query string, ch chan<- *gogtrends.ExploreWidget) {
+func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, timePeriod string, query string, ch chan<- *gogtrends.ExploreWidget) {
 	var exploreResults []*gogtrends.ExploreWidget
 	const neededWidget = "fe_geo_chart_explore"
 
@@ -275,7 +276,7 @@ func (g GoogleTrend) getGeoWidgetsConcurrent(ctx context.Context, today string, 
 			{
 				Keyword: query,
 				Geo:     locUS,
-				Time:    today,
+				Time:    timePeriod,
 			},
 		},
 		Category: 0, // all programming categories?
@@ -346,14 +347,14 @@ func (g GoogleTrend) fetchGeoMaps(ctx context.Context, geoWidgets *[]*gogtrends.
 	ch := make(chan GeoMapResponse)
 
 	for i := 0; i < len(*geoWidgets); i++ {
-		geoWidget := (*geoWidgets)[i]
 		// TODO: determine how to handle errors...
-		go g.getGeoMapsConcurrent(ctx, geoWidget, ch, i)
+		go g.getGeoMapsConcurrent(ctx, (*geoWidgets)[i], ch, i)
 	}
 
 	for i := 0; i < len(*geoWidgets); i++ {
 		// map geoMaps[topic name] => GeoMap
 		res := <-ch
+		// TODO: this does not need to be a map of slices, a map of  []gotrends.GeoMap should do?
 		results[res.Topic] = append(results[res.Topic], res.GeoMap)
 	}
 	return results
@@ -378,6 +379,7 @@ func (g GoogleTrend) getGeoMapsConcurrent(ctx context.Context, geoWidget *gogtre
 		Topic:  geoWidget.Request.CompItem[0].ComplexKeywordsRestriction.Keyword[0].Value,
 		GeoMap: geoMap,
 	}
+
 	ch <- res
 }
 

@@ -26,9 +26,12 @@ func GetDailyTrends(w http.ResponseWriter, r *http.Request) {
 
 // GetDailyTrends returns a twitter place closest to a given zipcode
 func GetDailyTrendsByState(w http.ResponseWriter, r *http.Request) {
+	// "explores" a trend using this time period (now / today)
+	const today = "now 1-d"
+
 	// get the google trends (an array)
 	g := &models.GoogleTrend{}
-	results, err := g.GetDailyTrendsByState()
+	results, err := g.GetDailyTrendsByState(today)
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
