@@ -4,30 +4,23 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
 
-	thirdparty "github.com/codihuston/ustrending/trends-api/api/v1/third-party"
+	"github.com/codihuston/ustrending/trends-api/api/v1/models"
 )
 
 // GetDailyTrends returns a twitter place closest to a given zipcode
 func GetTrendsByPlace(w http.ResponseWriter, r *http.Request) {
-	// get the zipcode
+	// get the woeid
 	woeid, err := strconv.ParseInt(mux.Vars(r)["woeid"], 10, 64)
+	model := &models.Twitter{}
+
+	result, err := model.GetTrendsByPlace(woeid)
 
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	placeParams := &twitter.TrendsPlaceParams{WOEID: woeid, Exclude: ""}
-	client := thirdparty.GetTwitterClient()
-	results, _, err := client.Trends.Place(woeid, placeParams)
-
-	if err != nil {
-		RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	RespondWithJSON(w, http.StatusOK, results)
+	RespondWithJSON(w, http.StatusOK, result)
 }
