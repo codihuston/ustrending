@@ -41,9 +41,21 @@ func (p Place) IsEmpty() bool {
 	return p.ID == primitive.NilObjectID
 }
 
-func (p *Place) GetPlaces() ([]Place, error) {
+func (p *Place) GetPlaces(countryCode string) ([]Place, error) {
 	var cacheKey = "places"
+	var filter bson.M
 	results := []Place{}
+	ttl := time.Hour * 12
+
+	if len(countryCode) <= 0 {
+		cacheKey += ":all"
+		filter = bson.M{}
+	} else {
+		cacheKey += ":" + countryCode
+		filter = bson.M{
+			"countryCode": countryCode,
+		}
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -57,7 +69,7 @@ func (p *Place) GetPlaces() ([]Place, error) {
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
 			collection := dbClient.Collection(collectionName)
-			cur, err := collection.Find(ctx, bson.D{})
+			cur, err := collection.Find(ctx, filter)
 
 			if err == database.ErrNoDocuments {
 				return nil, nil
@@ -81,7 +93,7 @@ func (p *Place) GetPlaces() ([]Place, error) {
 			// cache it
 			if len(results) > 0 {
 				response, _ := json.Marshal(results)
-				err := database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+				err := database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
 				if err != nil {
 					panic(err)
 				}
