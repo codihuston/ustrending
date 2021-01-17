@@ -48,4 +48,5 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/google/trends/daily", c.GetDailyTrends).Methods("GET")
 	a.Router.HandleFunc("/google/trends/daily/states", c.GetDailyTrendsByState).Methods("GET")
 	a.Router.HandleFunc("/places", c.GetPlaces).Methods("GET")
+	a.Router.HandleFunc("/twitter/trends/{woeid:[0-9]+}", c.GetTrendsByPlace).Methods("GET")
 }
