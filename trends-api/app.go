@@ -5,12 +5,14 @@ package main
 import (
 	c "github.com/codihuston/ustrending/trends-api/api/v1/controllers"
 	"github.com/codihuston/ustrending/trends-api/database"
+
 	// mw "github.com/codihuston/ustrending/trends-api/middleware"
+	"net/http"
+	"os"
+
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"os"
 )
 
 type App struct {
@@ -45,4 +47,5 @@ func (a *App) initializeRoutes() {
 	// Note: this works, but I cannot pass in a specific
 	a.Router.HandleFunc("/google/trends/daily", c.GetDailyTrends).Methods("GET")
 	a.Router.HandleFunc("/google/trends/daily/states", c.GetDailyTrendsByState).Methods("GET")
+	a.Router.HandleFunc("/places", c.GetPlaces).Methods("GET")
 }
