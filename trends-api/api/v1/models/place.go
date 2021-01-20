@@ -41,20 +41,29 @@ func (p Place) IsEmpty() bool {
 	return p.ID == primitive.NilObjectID
 }
 
+// GetPlaces returns an array of all places, or countries for a given country (includes worldwide entry)
 func (p *Place) GetPlaces(countryCode string) ([]Place, error) {
 	var cacheKey = "places"
 	var filter bson.M
 	results := []Place{}
 	ttl := time.Hour * 12
+	worldwideWoeid := 1
 
 	if len(countryCode) <= 0 {
 		cacheKey += ":all"
+		// includes all places
 		filter = bson.M{}
 	} else {
 		cacheKey += ":" + countryCode
 		filter = bson.M{
-			"countryCode": countryCode,
-		}
+			"$or": []bson.M{
+				bson.M{ // this country
+					"countryCode": countryCode,
+				},
+				bson.M{ // include global
+					"woeid": worldwideWoeid,
+				},
+			}}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
