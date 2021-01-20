@@ -107,13 +107,11 @@ func getTwitterTrendsForPlaces(places []types.Place) error {
 			// fetch trends per place
 			for i := 0; i < len(places); i++ {
 				place := places[i]
-				result, err := getTwitterTrendsByPlace(place)
+				result, err := getTwitterTrendsByPlace(place.Woeid)
 
 				if err != nil {
 					log.Fatal(err)
 				}
-
-				log.Info(result)
 
 				m[place.Woeid] = result
 			} // end for
@@ -130,16 +128,16 @@ func getTwitterTrendsForPlaces(places []types.Place) error {
 		}
 	} else {
 		// cache is populated already, no need to re-populate
-		log.Info("CACHE HIT: skipping operation...")
+		log.Info("CACHE HIT: ", cacheKey, ". Skipping operation...")
 	}
 
 	log.Info("DONE.")
 	return nil
 }
 
-func getTwitterTrendsByPlace(place types.Place) ([]twitter.TrendsList, error) {
+func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
 	// for each place
-	var uri = getAPIString() + "/twitter/trends/" + strconv.Itoa(place.Woeid)
+	var uri = getAPIString() + "/twitter/trends/" + strconv.Itoa(woeid)
 	var result []twitter.TrendsList
 	log.Info("Querying uri:", uri)
 
