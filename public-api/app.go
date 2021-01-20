@@ -48,6 +48,9 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]{5}}", c.GetNearestPlaceByZipcode).Methods("GET")
 	a.Router.HandleFunc("/google/trends/daily", c.GetGoogleDailyTrends).Methods("GET")
 	a.Router.HandleFunc("/google/trends/daily/states", c.GetGoogleDailyTrendsByState).Methods("GET")
-	a.Router.HandleFunc("/twitter/trends/realtime", c.GetTwitterRealtimeTrends).Methods("GET")
+	// trends for all places
+	a.Router.HandleFunc("/twitter/trends", c.GetTwitterRealtimeTrends).Methods("GET")
+	// trends for specific place
+	a.Router.HandleFunc("/twitter/trends/{woeid:[0-9]+}", c.GetTwitterRealtimeTrendsByPlace).Methods("GET")
 
 }
