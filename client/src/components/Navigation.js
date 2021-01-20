@@ -24,6 +24,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 
 import AboutPage from "../pages/AboutPage";
 import MapViewPage from "../pages/MapPage";
+import MapPageTwitter from "../pages/MapPageTwitter";
 import TableViewPage from "../pages/TablePage";
 import TrendingTodayPage from "../pages/TrendingTodayPage";
 import SettingsPage from "../pages/SettingsPage";
@@ -83,6 +84,7 @@ function ResponsiveDrawer(props) {
           to={"/trending"}
         />
         <ListItemLink icon={<MapIcon />} primary={"Map"} to={"/"} />
+        <ListItemLink icon={<MapIcon />} primary={"Twitter"} to={"/twitter"} />
         <ListItemLink
           icon={<TableChartIcon />}
           primary={"Table"}
@@ -179,6 +181,10 @@ function ResponsiveDrawer(props) {
             <Route
               path="/settings"
               render={() => <SettingsPage {...props} />}
+            />
+            <Route
+              path="/twitter"
+              render={() => <MapPageTwitter {...props} />}
             />
             <Route path="/" render={() => <MapViewPage {...props} />} />
           </Switch>

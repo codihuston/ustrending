@@ -13,13 +13,18 @@ function TrendsContainer({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [dailyTrends, setDailyTrends] = useState([]);
   const [dailyTrendsByState, setDailyTrendsByState] = useState(new Map());
+  const [places, setPlaces] = useState(new Map());
+  const [twitterTrendsByPlace, setTwitterTrendsByPlace] = useState(new Map());
   // state => color
   const [colorsByTopic, setColorsByTopic] = useState(new Map());
 
   useEffect(() => {
     async function asyncFunction() {
       try {
-        // this returns an object of STATE FULL NAME => [{topic,value,geocode}]
+        /*
+        Fetch all daily google trends by state.
+        This returns an object of STATE FULL NAME => [{topic,value,geocode}]
+        */
         let res = await fetch("/api/google/trends/daily/states");
         if (res.ok) {
           const result = await res.json();
@@ -37,6 +42,7 @@ function TrendsContainer({ children }) {
           }
         }
 
+        // fetch daily google trends
         res = await fetch("/api/google/trends/daily");
         if (res.ok) {
           const result = await res.json();
@@ -63,69 +69,49 @@ function TrendsContainer({ children }) {
         } else {
           throw new Error("Error fetching daily trends from Google.");
         }
+
+        // fetch all US places
+        res = await fetch("/api/places/US");
+        if (res.ok) {
+          const result = await res.json();
+          const temp = new Map();
+          if (result && result.length > 0 && !result.error) {
+            result.map((x, i) => {
+              temp.set(x.woeid, x);
+            });
+
+            setPlaces(temp);
+          } else {
+            setError(true);
+          }
+        } else {
+          throw new Error("Error fetching places trends from API.");
+        }
+
+        // fetch all twitter trends
+        res = await fetch("/api/twitter/trends");
+        if (res.ok) {
+          const result = await res.json();
+          const temp = new Map();
+          const keys = Object.keys(result);
+
+          if (keys && keys.length > 0 && !result.error) {
+            Object.keys(result).map((x, i) => {
+              temp.set(x, result[x][0]);
+            });
+
+            setTwitterTrendsByPlace(temp);
+          } else {
+            setError(true);
+          }
+        } else {
+          throw new Error("Error fetching places trends from API.");
+        }
       } catch (e) {
         console.error(e);
         setIsLoading(false);
         setError(true);
       }
-      // fetch("/api/google/trends/daily/states")
-      //   .then((res) => res.json())
-      //   .then((result) => {
-      //     const processed = new Map();
-
-      //     if (result && !result.error) {
-      //       result.map((x) => {
-      //         processed.set(x[0], x[1]);
-      //       });
-
-      //       setDailyTrendsByState(processed);
-      //       setError(false);
-      //       console.log("Set error false A");
-      //     } else {
-      //       setError(true);
-      //     }
-      //   });
-
-      // fetch("/api/google/trends/daily")
-      //   .then((res) => {
-      //     if (res.ok) {
-      //       return res.json();
-      //     } else if (res.status === 404) {
-      //       return Promise.reject(res);
-      //     } else {
-      //       return Promise.reject(res);
-      //     }
-      //   })
-      //   .then((result) => {
-      //     const trendColorMap = new Map();
-
-      //     if (result && result.length > 0 && !result.error) {
-      //       result.map((x, i) => {
-      //         if (x?.title?.query) {
-      //           trendColorMap.set(x.title.query, colors[i]);
-      //         } else {
-      //           console.warn(
-      //             "WARNING: Title.Query is missing, cannot assign color to:",
-      //             x
-      //           );
-      //         }
-      //       });
-
-      //       setDailyTrends(result);
-      //       setColorsByTopic(trendColorMap);
-      //       setIsLoading(false);
-      //       console.log("Set error false B");
-      //       setError(false);
-      //     } else {
-      //       setError(true);
-      //     }
-      //   })
-      //   .catch((e) => {
-      //     console.log("ERROR");
-      //     console.error(e);
-      //     setIsLoading(false);
-      //     setError(true);
-      //   });
     }
 
     asyncFunction();
@@ -148,6 +134,8 @@ function TrendsContainer({ children }) {
       colors,
       colorsByTopic,
       error,
+      places,
+      twitterTrendsByPlace,
     };
 
     if (React.isValidElement(child)) {
