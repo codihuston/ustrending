@@ -43,9 +43,30 @@ func (p Place) IsEmpty() bool {
 	return p.ID == primitive.NilObjectID
 }
 
-func (p *Place) GetPlaces() error {
+// GetPlaces returns an array of all places, or countries for a given country (includes worldwide entry)
+func (p *Place) GetPlaces(countryCode string) ([]Place, error) {
 	var cacheKey = "places"
+	var filter bson.M
 	results := []Place{}
+	ttl := time.Hour * 12
+	worldwideWoeid := 1
+
+	if len(countryCode) <= 0 {
+		cacheKey += ":all"
+		// includes all places
+		filter = bson.M{}
+	} else {
+		cacheKey += ":" + countryCode
+		filter = bson.M{
+			"$or": []bson.M{
+				bson.M{ // this country
+					"countryCode": countryCode,
+				},
+				bson.M{ // include global
+					"woeid": worldwideWoeid,
+				},
+			}}
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -54,17 +75,17 @@ func (p *Place) GetPlaces() error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			log.Info("CACHE MISS: ", cacheKey)
+			log.Info("key does not exists")
 
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
 			collection := dbClient.Collection(collectionName)
-			cur, err := collection.Find(ctx, bson.D{})
+			cur, err := collection.Find(ctx, filter)
 
 			if err == database.ErrNoDocuments {
-				return nil
+				return nil, nil
 			} else if err != nil {
-				return err
+				return nil, err
 			}
 
 			defer cur.Close(ctx)
@@ -83,7 +104,7 @@ func (p *Place) GetPlaces() error {
 			// cache it
 			if len(results) > 0 {
 				response, _ := json.Marshal(results)
-				err := database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+				err := database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
 				if err != nil {
 					panic(err)
 				}
@@ -93,13 +114,13 @@ func (p *Place) GetPlaces() error {
 			panic(err)
 		}
 	} else {
-		log.Info("CACHE HIT!", cacheKey)
+		log.Info("CACHE HIT!")
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)
 	}
 
-	return nil
+	return results, nil
 }
 
 // GetNearestPlaceByPoint returns up to 5 locations nearest to a given point

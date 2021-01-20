@@ -44,6 +44,8 @@ func (a *App) initializeRoutes() {
 		w.Write([]byte("This is a catch-all route"))
 	})
 	// Note: this works, but I cannot pass in a specific
+	a.Router.HandleFunc("/places", c.GetPlaces).Methods("GET")
+	a.Router.HandleFunc("/places/{countryCode:[a-zA-Z]+}", c.GetPlaces).Methods("GET")
 	a.Router.HandleFunc("/places/nearest/point", mw.Adapter(c.GetNearestPlaceByPoint, mw.ValidatePoint)).Methods("GET")
 	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]{5}}", c.GetNearestPlaceByZipcode).Methods("GET")
 	a.Router.HandleFunc("/google/trends/daily", c.GetGoogleDailyTrends).Methods("GET")
