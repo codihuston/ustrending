@@ -3,14 +3,15 @@
 package main
 
 import (
+	"net/http"
+	"os"
+
 	c "github.com/codihuston/ustrending/public-api/api/v1/controllers"
 	"github.com/codihuston/ustrending/public-api/database"
 	mw "github.com/codihuston/ustrending/public-api/middleware"
-	log "github.com/sirupsen/logrus"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"net/http"
-	"os"
+	log "github.com/sirupsen/logrus"
 )
 
 type App struct {
@@ -45,7 +46,8 @@ func (a *App) initializeRoutes() {
 	// Note: this works, but I cannot pass in a specific
 	a.Router.HandleFunc("/places/nearest/point", mw.Adapter(c.GetNearestPlaceByPoint, mw.ValidatePoint)).Methods("GET")
 	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]{5}}", c.GetNearestPlaceByZipcode).Methods("GET")
-	a.Router.HandleFunc("/google/trends/daily", c.GetDailyTrends).Methods("GET")
-	a.Router.HandleFunc("/google/trends/daily/states", c.GetDailyTrendsByState).Methods("GET")
+	a.Router.HandleFunc("/google/trends/daily", c.GetGoogleDailyTrends).Methods("GET")
+	a.Router.HandleFunc("/google/trends/daily/states", c.GetGoogleDailyTrendsByState).Methods("GET")
+	a.Router.HandleFunc("/twitter/trends/realtime", c.GetTwitterRealtimeTrends).Methods("GET")
 
 }

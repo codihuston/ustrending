@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"github.com/codihuston/ustrending/public-api/api/v1/models"
 	"net/http"
+
+	"github.com/codihuston/ustrending/public-api/api/v1/models"
 )
 
-// GetDailyTrends returns a twitter place closest to a given zipcode
-func GetDailyTrends(w http.ResponseWriter, r *http.Request) {
+// GetGoogleDailyTrends returns a twitter place closest to a given zipcode
+func GetGoogleDailyTrends(w http.ResponseWriter, r *http.Request) {
 	// get the google trends (an array)
 	g := &models.GoogleTrend{}
 	results := make([]models.GoogleTrend, 0, 20)
@@ -25,7 +26,7 @@ func GetDailyTrends(w http.ResponseWriter, r *http.Request) {
 	RespondWithJSON(w, http.StatusOK, results)
 }
 
-func GetDailyTrendsByState(w http.ResponseWriter, r *http.Request) {
+func GetGoogleDailyTrendsByState(w http.ResponseWriter, r *http.Request) {
 	// get the google trends (an array)
 	g := &models.GoogleTrend{}
 	results := make([]models.State, 0, 51)
