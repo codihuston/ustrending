@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var collectionName = "places"
@@ -53,7 +54,7 @@ func (p *Place) GetPlaces() error {
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			log.Info("key does not exists")
+			log.Info("CACHE MISS: ", cacheKey)
 
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
@@ -92,7 +93,7 @@ func (p *Place) GetPlaces() error {
 			panic(err)
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT!", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)
@@ -101,25 +102,37 @@ func (p *Place) GetPlaces() error {
 	return nil
 }
 
-func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
-	var cacheKey = fmt.Sprintf("place:%f,%f", long, lat)
-	var result = p
+// GetNearestPlaceByPoint returns up to 5 locations nearest to a given point
+func (p *Place) GetNearestPlaceByPoint(long, lat float64, limit int64) ([]*Place, error) {
+	var cacheKey = fmt.Sprintf("place:%f,%f:%d", long, lat, limit)
+	var results []*Place
+	ttl := time.Hour * 3
+	var maxLimit int64 = 5
+
+	// validate limit
+	if limit > maxLimit {
+		limit = 5
+	} else if limit <= 0 {
+		limit = 1
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+
+	findOptions := options.Find()
+	findOptions.SetLimit(limit)
 
 	// check cache
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-
 			log.Info("CACHE MISS:", cacheKey)
 
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
 			collection := dbClient.Collection(collectionName)
 
-			err := collection.FindOne(ctx, bson.M{
+			cur, err := collection.Find(ctx, bson.M{
 				"geo": bson.M{
 					"$near": bson.M{
 						"$geometry": bson.M{
@@ -132,17 +145,29 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 					"code": 7,
 					"name": "Town",
 				},
-			}).Decode(&result)
+			}, findOptions)
 
 			if err == database.ErrNoDocuments {
-				return nil
+				return results, nil
 			} else if err != nil {
-				return err
+				return results, err
+			}
+
+			// parse data into results
+			for cur.Next(ctx) {
+				// create a value into which the single document can be decoded
+				var elem Place
+				err := cur.Decode(&elem)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				results = append(results, &elem)
 			}
 
 			// cache it
-			response, _ := json.Marshal(result)
-			err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
 			if err != nil {
 				panic(err)
 			}
@@ -151,10 +176,11 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64) error {
 			panic(err)
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT!", cacheKey)
+
 		// convert json to list of structs
-		json.Unmarshal([]byte(val), &result)
+		json.Unmarshal([]byte(val), &results)
 	}
 
-	return nil
+	return results, nil
 }
