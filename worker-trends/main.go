@@ -69,7 +69,7 @@ func getPlaces() ([]types.Place, error) {
 	json.Unmarshal([]byte(body), &results)
 
 	// assume successful
-	log.Info("Query successful!", results)
+	log.Info("Query successful!")
 
 	return results, nil
 }
@@ -159,7 +159,7 @@ func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
 	// append each result here in a map: {woeid: []trends}
 	json.Unmarshal([]byte(body), &result)
 
-	log.Info(result)
+	log.Info("Query successful!")
 
 	return result, nil
 }
