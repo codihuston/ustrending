@@ -5,14 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
+	"sort"
+	"time"
+
 	"github.com/codihuston/ustrending/trends-api/database"
 	"github.com/go-redis/redis/v8"
 	"github.com/groovili/gogtrends"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"reflect"
-	"sort"
-	"time"
 )
 
 const (
@@ -479,4 +480,46 @@ func (g GoogleTrend) processStateTrends(dt *[]*gogtrends.TrendingSearch, geoMaps
 		results = append(results, state)
 	}
 	return results
+}
+
+// GetRealtimeTrends returns a list of realtime google trends
+func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.TrendingStory, error) {
+	var cacheKey = "google-realtime-trends"
+	var results []*gogtrends.TrendingStory
+	ttl := time.Second * 0
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// check cache
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			log.Info("CACHE MISS:", cacheKey)
+
+			// otherwise fetch from google
+			results, err := gogtrends.Realtime(ctx, langEn, locUS, catAll)
+
+			if err != nil {
+				return results, err
+			}
+
+			// cache it
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+			if err != nil {
+				return nil, err
+			}
+			// end if key !exists
+		} else {
+			return nil, err
+		}
+	} else {
+		log.Info("CACHE HIT!")
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
+	}
+
+	return results, nil
 }
