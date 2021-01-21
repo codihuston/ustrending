@@ -499,7 +499,7 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 			log.Info("CACHE MISS:", cacheKey)
 
 			// otherwise fetch from google
-			results, err = gogtrends.Realtime(ctx, langEn, locUS, catAll)
+			results, err = gogtrends.Realtime(ctx, hl, loc, cat)
 
 			if err != nil {
 				return results, err
