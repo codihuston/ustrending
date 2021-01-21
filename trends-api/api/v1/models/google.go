@@ -484,9 +484,10 @@ func (g GoogleTrend) processStateTrends(dt *[]*gogtrends.TrendingSearch, geoMaps
 
 // GetRealtimeTrends returns a list of realtime google trends
 func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.TrendingStory, error) {
-	var cacheKey = "google-realtime-trends"
+	var cacheKey = fmt.Sprintf("google-realtime-trends:%s:%s:%s", hl, loc, cat)
 	var results []*gogtrends.TrendingStory
-	ttl := time.Second * 0
+	// 15 minutes
+	ttl := time.Second * 900
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -498,7 +499,7 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 			log.Info("CACHE MISS:", cacheKey)
 
 			// otherwise fetch from google
-			results, err := gogtrends.Realtime(ctx, langEn, locUS, catAll)
+			results, err = gogtrends.Realtime(ctx, langEn, locUS, catAll)
 
 			if err != nil {
 				return results, err
@@ -508,11 +509,11 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 			response, _ := json.Marshal(results)
 			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
 			if err != nil {
-				return nil, err
+				return results, err
 			}
 			// end if key !exists
 		} else {
-			return nil, err
+			return results, err
 		}
 	} else {
 		log.Info("CACHE HIT!")
