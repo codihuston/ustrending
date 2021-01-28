@@ -46,6 +46,8 @@ func (a *App) initializeRoutes() {
 	})
 	// Note: this works, but I cannot pass in a specific
 	a.Router.HandleFunc("/google/trends/realtime", c.GetGoogleRealtimeTrends).Methods("GET")
+	a.Router.HandleFunc("/google/trends/interest", c.GetGoogleTrendInterest).Methods("GET")
+	a.Router.HandleFunc("/google/trends/realtime/states", c.GetGoogleRealtimeTrendsByState).Methods("GET")
 	a.Router.HandleFunc("/google/trends/daily", c.GetDailyTrends).Methods("GET")
 	a.Router.HandleFunc("/google/trends/daily/states", c.GetDailyTrendsByState).Methods("GET")
 	a.Router.HandleFunc("/places", c.GetPlaces).Methods("GET")

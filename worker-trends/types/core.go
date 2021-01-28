@@ -27,3 +27,14 @@ type Place struct {
 	URL        string    `json:"url" bson:"url"`
 	Woeid      int       `json:"woeid" bson:"woeid"`
 }
+
+type StateTrend struct {
+	Topic   string `json:"topic" bson:"topic"`
+	Value   int    `json:"value" bson:"value"`
+	GeoCode string `json:"geoCode" bson:"geo_code"`
+}
+
+type State struct {
+	Name   string       `json:"name" bson:"name"`
+	Trends []StateTrend `json:"trends" bson:"trends"`
+}

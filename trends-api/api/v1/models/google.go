@@ -524,3 +524,103 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 
 	return results, nil
 }
+
+func (g GoogleTrend) GetRealtimeTrendsByState(hl, loc, cat string) ([]State, error) {
+	var cacheKey = "google-realtime-trends-by-state"
+	var results []State
+
+	ctx := context.Background()
+
+	// first, see if it's time to invalidate/update the caches
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		// cache miss, worker HAS NOT processed data yet
+		if err == redis.Nil {
+			log.Info("CACHE MISS: ", cacheKey)
+		}
+	} else {
+		// cache hit, worker HAS processed the data
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
+	}
+	return results, nil
+}
+
+func (g GoogleTrend) GetTrendInterest(keyword, loc, timePeriod, lang string) ([]*gogtrends.GeoMap, error) {
+	var result []*gogtrends.GeoMap
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// get the geo widget from exploring this topic
+	widget, err := g.getGeoWidget(ctx, keyword, loc, timePeriod, lang)
+
+	if err != nil {
+		return result, err
+	}
+
+	// now fetch the interests by location
+	result, err = g.getInterestByLocation(ctx, widget, lang)
+
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+func (g GoogleTrend) getGeoWidget(ctx context.Context, keyword, loc, timePeriod, lang string) (*gogtrends.ExploreWidget, error) {
+	var result *gogtrends.ExploreWidget
+	var exploreResults []*gogtrends.ExploreWidget
+	const neededWidget = "fe_geo_chart_explore"
+	// TODO: cache me
+
+	// fetch widgets for exploring this query
+	exploreResults, err := gogtrends.Explore(ctx, &gogtrends.ExploreRequest{
+		ComparisonItems: []*gogtrends.ComparisonItem{
+			{
+				Keyword: keyword,
+				Geo:     loc,
+				Time:    timePeriod,
+			},
+		},
+		Category: 0, // all programming categories?
+		Property: "",
+	}, lang)
+
+	// PrintGogTrends(exploreResults)
+
+	// TODO: determine how to handle errors...
+	LogGogTrendsError(err, "Error exploring google trends")
+	if err != nil {
+		return result, nil
+	}
+
+	// get the widget that we want
+	for j := 0; j < len(exploreResults); j++ {
+		curr := exploreResults[j]
+		// and return it
+		if curr.Type == neededWidget {
+			// log.Info("FOUND fe_geo_chart_explore")
+			// PrintGogTrends(make([]*gogtrends.ExploreWidget, 1))
+			result = curr
+			break
+		}
+	}
+	return result, nil
+}
+
+func (g GoogleTrend) getInterestByLocation(ctx context.Context, widget *gogtrends.ExploreWidget, lang string) ([]*gogtrends.GeoMap, error) {
+	var result []*gogtrends.GeoMap
+	result, err := gogtrends.InterestByLocation(ctx, widget, lang)
+
+	// TODO: determine how to handle errors...
+	LogGogTrendsError(err, "Error getting region data for google trends")
+	if err != nil {
+		log.Fatal("Error fetching interests by location for trend '", widget.Request.CompItem[0].ComplexKeywordsRestriction.Keyword[0].Value, "' with error: ", err)
+		return result, err
+	}
+
+	return result, nil
+}
