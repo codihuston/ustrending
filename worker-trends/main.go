@@ -26,6 +26,7 @@ import (
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
+// TODO: use me?
 func getJson(url string, target interface{}) error {
 	r, err := httpClient.Get(url)
 	if err != nil {
@@ -47,23 +48,103 @@ func getAPIString() string {
 	return fmt.Sprintf("http://%s:%s", os.Getenv("TRENDS_API_HOST"), os.Getenv("TRENDS_API_PORT"))
 }
 
-func getGoogleTrends() {
+func doGoogleDailyTrends() {
+	var trendingTopics []string
+	trends, err := getGoogleDailyTrends()
+	var queueKey = "google-daily-trends-queue"
+	var cacheKey = "google-daily-trends-by-state"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	defer cancel()
+
+	if err != nil {
+		log.Fatal("Failed to get daily trends from API... aborting job! ", err)
+		return
+	}
+
+	// empty the queue out prior to appending to it
+	_, err = database.CacheClient.Del(ctx, queueKey).Result()
+
+	if err != nil {
+		log.Fatal("Failed to get empty queue '", queueKey, "'... aborting job! ", err)
+		return
+	}
+
+	// for each trending story
+	for i := 0; i < len(trends); i++ {
+		trend := trends[i]
+		// split realtimeTrend.Title by commas
+		trendingTopics = append(trendingTopics, trend.Title.Query)
+	}
+
+	// convert []string into []interface{} for redis client LPUSH
+	s := make([]interface{}, len(trendingTopics))
+	for i, v := range trendingTopics {
+		s[i] = strings.TrimSpace(v)
+	}
+
+	// push each onto a queue in redis
+	_, err = database.CacheClient.LPush(ctx, queueKey, s...).Result()
+
+	if err != nil {
+		log.Fatal("Error queueing topics: '", trendingTopics, "... aborting job! Error: ", err)
+	} else {
+		log.Info("[", len(trendingTopics), "] Topics queued at '", queueKey, "': ", trendingTopics)
+	}
+
+	// RATE LIMITED: get the geo maps (interest by region) for each trend
+	geoMaps, err := getGoogleRealtimeTrendsGeoMaps(ctx, queueKey, 1*time.Second)
+
+	if err != nil {
+		log.Fatal("Failed to process google real time trends:", err)
+	}
+
+	// now process each trending story into a []State
+	result := getGeoMapsAsStates(trendingTopics, &geoMaps)
+
+	// and cache it
+	log.Info("=== Final result! ===")
+	log.Info(result)
+	log.Info("=== End final result! ===")
+
+	jsonMap, _ := json.Marshal(result)
+	ttl := time.Second * 0
+	err = database.CacheClient.Set(ctx, cacheKey, jsonMap, ttl).Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// TODO: refactor this, take any interface{} of which to feed results into
+// Replace this function, and getDailyRealtimeTrends() with this new function.
+func getGoogleDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	// this endpoint queries daily trends, and builds state trends, and caches.
-	var uri = getAPIString() + "/google/trends/daily/states"
+	var uri = getAPIString() + "/google/trends/daily"
+	var result []*gogtrends.TrendingSearch
 
 	log.Info("Querying uri:", uri)
 
 	// query the api; do nothing with the response
-	_, err := http.Get(uri)
+	r, err := http.Get(uri)
 
 	// handle error
 	if err != nil {
 		log.Fatal(err)
-		return
+		return result, err
 	}
+	// read body
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		return result, err
+	}
+
+	// append each result here in a map: {woeid: []trends}
+	json.Unmarshal([]byte(body), &result)
 
 	// assume successful
 	log.Info("Query successful!")
+	return result, err
 }
 
 /*
@@ -79,6 +160,7 @@ func doGoogleRealtimeTrends() {
 	var trendingTopics []string
 	realtimeTrends, err := getGoogleRealtimeTrends()
 	var queueKey = "google-realtime-trends-queue"
+	var cacheKey = "google-realtime-trends-by-state"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
@@ -139,7 +221,6 @@ func doGoogleRealtimeTrends() {
 	log.Info("=== End final result! ===")
 
 	jsonMap, _ := json.Marshal(result)
-	cacheKey := "google-realtime-trends-by-state"
 	ttl := time.Second * 0
 	err = database.CacheClient.Set(ctx, cacheKey, jsonMap, ttl).Err()
 	if err != nil {
@@ -468,43 +549,34 @@ func main() {
 
 	// run the commands immediately
 	log.Println("Run initial request")
-	// getGoogleTrends()
+	doGoogleDailyTrends()
 	doGoogleRealtimeTrends()
-	// getTwitterTrends()
+	getTwitterTrends()
 	log.Println("DONE with initial requests")
 
 	// configure schedules for re-runs
 	c := cron.New()
 
-	// update google trends every minute
-	// c.AddFunc("* * * * *", func() {
-	// 	log.Println("Every minute: Get Google Trends ")
+	// update google daily trends every 30 minutes
+	c.AddFunc("*/30 * * * *", func() {
+		log.Println("Every minute: Get Google Trends ")
 
-	// 	getGoogleTrends()
-	// })
+		doGoogleDailyTrends()
+	})
 
-	c.AddFunc("* * * * *", func() {
+	// update google realtime trends every 30 minutes
+	c.AddFunc("*/30 * * * *", func() {
 		log.Println("Every minute: Get Google Realtime Trends ")
 
 		doGoogleRealtimeTrends()
 	})
 
-	// c.AddFunc("* * * * *", func() {
-	// 	log.Println("Every minute: Get Twitter Trends")
-	// 	getTwitterTrends()
-	// })
+	// update twitter trends every 30 minutes
+	c.AddFunc("*/30 * * * *", func() {
+		log.Println("Every 30 minutes")
 
-	// c.AddFunc("*/30 * * * *", func() {
-	// 	log.Println("Every 30 minutes")
-
-	// 	getGoogleTrends()
-	// })
-
-	// c.AddFunc("*/30 * * * *", func() {
-	// 	log.Println("Every 30 minutes")
-
-	// 	getTwitterTrends()
-	// })
+		getTwitterTrends()
+	})
 
 	// start cronjobs
 	c.Start()

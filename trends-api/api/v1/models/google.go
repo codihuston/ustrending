@@ -121,43 +121,67 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	return results, nil
 }
 
-// GetDailyTrendsByState returns an array of ... accepts a google time period
-// such as "now 1-d", "today 12-m"
-func (g GoogleTrend) GetDailyTrendsByState(timePeriod string) ([]State, error) {
+func (g GoogleTrend) GetDailyTrendsByState(hl, loc, cat string) ([]State, error) {
 	// ensures outgoing requests go out only once in a specific time window
-	var cacheKey = "daily-trends-by-state-proxy"
-	var stateTrends []State
-	// how long the cache proxy should live for (in minutes)
-	const cacheProxyLifetime = 29
+	var cacheKey = "google-daily-trends-by-state"
+	var results []State
 
 	ctx := context.Background()
 
 	// first, see if it's time to invalidate/update the caches
-	_, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
-		// cache miss, proxy key is unset
+		// cache miss, worker HAS NOT processed data yet
 		if err == redis.Nil {
-			log.Info("CACHE MISS: ", cacheKey, " will update cache...")
-
-			// rehydrate the cache
-			stateTrends, err = g.getDailyTrendsByStateHelper(ctx, true, timePeriod)
-			if err != nil {
-				panic(err)
-			}
-
-			// set the proxy key
-			err = database.CacheClient.Set(ctx, cacheKey, "", time.Minute*cacheProxyLifetime).Err()
-			if err != nil {
-				panic(err)
-			}
+			log.Info("CACHE MISS: ", cacheKey)
 		}
 	} else {
-		// cache hit, proxy key is set, read the end-result from cache
-		log.Info("CACHE HIT: ", cacheKey, " attempting to return from cache (will use preserved caches, if any)...")
-		stateTrends, err = g.getDailyTrendsByStateHelper(ctx, false, timePeriod)
+		// cache hit, worker HAS processed the data
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
 	}
-	return stateTrends, nil
+	return results, nil
 }
+
+// GetDailyTrendsByState returns an array of ... accepts a google time period
+// such as "now 1-d", "today 12-m"
+// func (g GoogleTrend) GetDailyTrendsByState(timePeriod string) ([]State, error) {
+// 	// ensures outgoing requests go out only once in a specific time window
+// 	var cacheKey = "daily-trends-by-state-proxy"
+// 	var stateTrends []State
+// 	// how long the cache proxy should live for (in minutes)
+// 	const cacheProxyLifetime = 29
+
+// 	ctx := context.Background()
+
+// 	// first, see if it's time to invalidate/update the caches
+// 	_, err := database.CacheClient.Get(ctx, cacheKey).Result()
+// 	if err != nil {
+// 		// cache miss, proxy key is unset
+// 		if err == redis.Nil {
+// 			log.Info("CACHE MISS: ", cacheKey, " will update cache...")
+
+// 			// rehydrate the cache
+// 			stateTrends, err = g.getDailyTrendsByStateHelper(ctx, true, timePeriod)
+// 			if err != nil {
+// 				panic(err)
+// 			}
+
+// 			// set the proxy key
+// 			err = database.CacheClient.Set(ctx, cacheKey, "", time.Minute*cacheProxyLifetime).Err()
+// 			if err != nil {
+// 				panic(err)
+// 			}
+// 		}
+// 	} else {
+// 		// cache hit, proxy key is set, read the end-result from cache
+// 		log.Info("CACHE HIT: ", cacheKey, " attempting to return from cache (will use preserved caches, if any)...")
+// 		stateTrends, err = g.getDailyTrendsByStateHelper(ctx, false, timePeriod)
+// 	}
+// 	return stateTrends, nil
+// }
 
 func (g GoogleTrend) getDailyTrendsByStateHelper(ctx context.Context, shouldUpdateCache bool, timePeriod string) ([]State, error) {
 	var dt []*gogtrends.TrendingSearch

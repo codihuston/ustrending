@@ -111,12 +111,29 @@ func GetGoogleRealtimeTrendsByState(w http.ResponseWriter, r *http.Request) {
 
 // GetDailyTrends returns a twitter place closest to a given zipcode
 func GetDailyTrendsByState(w http.ResponseWriter, r *http.Request) {
-	// "explores" a trend using this time period (now / today)
-	const today = "now 1-d"
+	hl := r.URL.Query().Get("hl")
+	loc := r.URL.Query().Get("loc")
+	cat := r.URL.Query().Get("cat")
+
+	// validate / default incoming query parameters
+	if len(hl) <= 0 {
+		hl = langEn
+	}
+
+	if len(loc) <= 0 {
+		loc = locUS
+	}
+
+	if len(cat) <= 0 {
+		cat = catAll
+	}
+
+	// get the google trends (an array)
+	log.Info("hl/loc/cat is", hl, loc, cat)
 
 	// get the google trends (an array)
 	g := &models.GoogleTrend{}
-	results, err := g.GetDailyTrendsByState(today)
+	results, err := g.GetDailyTrendsByState(hl, loc, cat)
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return

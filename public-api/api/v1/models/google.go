@@ -4,12 +4,16 @@ package models
 import (
 	"context"
 	"encoding/json"
-	"github.com/codihuston/ustrending/public-api/database"
-	"github.com/go-redis/redis/v8"
-	log "github.com/sirupsen/logrus"
+	"fmt"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/groovili/gogtrends"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/codihuston/ustrending/public-api/database"
 )
 
 type GoogleTrend struct {
@@ -83,8 +87,9 @@ func (g GoogleTrend) GetDailyTrends(result *[]GoogleTrend) error {
 	return nil
 }
 
-func (g GoogleTrend) GetDailyTrendsByState(result *[]State) error {
-	var cacheKey = "daily-trends-by-state"
+func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.TrendingStory, error) {
+	var cacheKey = fmt.Sprintf("google-realtime-trends:%s:%s:%s", hl, loc, cat)
+	var results []*gogtrends.TrendingStory
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -95,14 +100,14 @@ func (g GoogleTrend) GetDailyTrendsByState(result *[]State) error {
 		if err == redis.Nil {
 			log.Info("CACHE MISS:", cacheKey)
 			// set nothing; worker will populate this memstore eventually...
-			return nil
+			return results, err
 		}
 	} else {
 
 		dec := json.NewDecoder(strings.NewReader(val))
 
 		for {
-			if err := dec.Decode(&result); err == io.EOF {
+			if err := dec.Decode(&results); err == io.EOF {
 				break
 			} else if err != nil {
 				log.Error(err)
@@ -111,5 +116,52 @@ func (g GoogleTrend) GetDailyTrendsByState(result *[]State) error {
 		}
 	}
 
-	return nil
+	return results, nil
+}
+
+func (g GoogleTrend) GetDailyTrendsByState(hl, loc, cat string) ([]State, error) {
+	// ensures outgoing requests go out only once in a specific time window
+	var cacheKey = "google-daily-trends-by-state"
+	var results []State
+
+	ctx := context.Background()
+
+	// first, see if it's time to invalidate/update the caches
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		// cache miss, worker HAS NOT processed data yet
+		if err == redis.Nil {
+			log.Info("CACHE MISS: ", cacheKey)
+		}
+	} else {
+		// cache hit, worker HAS processed the data
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
+	}
+	return results, nil
+}
+
+func (g GoogleTrend) GetRealtimeTrendsByState(hl, loc, cat string) ([]State, error) {
+	var cacheKey = "google-realtime-trends-by-state"
+	var results []State
+
+	ctx := context.Background()
+
+	// first, see if it's time to invalidate/update the caches
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		// cache miss, worker HAS NOT processed data yet
+		if err == redis.Nil {
+			log.Info("CACHE MISS: ", cacheKey)
+		}
+	} else {
+		// cache hit, worker HAS processed the data
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
+	}
+	return results, nil
 }
