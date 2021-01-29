@@ -125,7 +125,7 @@ func getGoogleDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	log.Info("Querying uri:", uri)
 
 	// query the api; do nothing with the response
-	r, err := http.Get(uri)
+	r, err := httpClient.Get(uri)
 
 	// handle error
 	if err != nil {
@@ -236,7 +236,7 @@ func getGoogleRealtimeTrends() ([]*gogtrends.TrendingStory, error) {
 	log.Info("Querying uri:", uri)
 
 	// query the api; do nothing with the response
-	r, err := http.Get(uri)
+	r, err := httpClient.Get(uri)
 
 	// handle error
 	if err != nil {
@@ -426,7 +426,7 @@ func getPlaces() ([]types.Place, error) {
 	log.Info("Querying uri:", uri)
 
 	// query the api
-	r, err := http.Get(uri)
+	r, err := httpClient.Get(uri)
 
 	// handle error
 	if err != nil {
@@ -516,7 +516,7 @@ func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
 	log.Info("Querying uri:", uri)
 
 	// hit the API endpoint to populate its trends list
-	r, err := http.Get(uri)
+	r, err := httpClient.Get(uri)
 
 	// handle error
 	if err != nil {
