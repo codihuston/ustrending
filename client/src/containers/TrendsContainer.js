@@ -13,6 +13,7 @@ function TrendsContainer({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [dailyTrends, setDailyTrends] = useState([]);
   const [dailyTrendsByState, setDailyTrendsByState] = useState(new Map());
+  const [realtimeTrendsByState, setRealtimeTrendsByState] = useState(new Map());
   const [places, setPlaces] = useState(new Map());
   const [twitterTrendsByPlace, setTwitterTrendsByPlace] = useState(new Map());
   // state => color
@@ -21,29 +22,8 @@ function TrendsContainer({ children }) {
   useEffect(() => {
     async function asyncFunction() {
       try {
-        /*
-        Fetch all daily google trends by state.
-        This returns an object of STATE FULL NAME => [{topic,value,geocode}]
-        */
-        let res = await fetch("/api/google/trends/daily/states");
-        if (res.ok) {
-          const result = await res.json();
-          const processed = new Map();
-
-          if (result && !result.error) {
-            result.map((state) => {
-              processed.set(state.name, state.trends);
-            });
-
-            setDailyTrendsByState(processed);
-            setError(false);
-          } else {
-            setError(true);
-          }
-        }
-
-        // fetch daily google trends
-        res = await fetch("/api/google/trends/daily");
+        // fetch google daily trends
+        let res = await fetch("/api/google/trends/daily");
         if (res.ok) {
           const result = await res.json();
           const trendColorMap = new Map();
@@ -68,6 +48,47 @@ function TrendsContainer({ children }) {
           }
         } else {
           throw new Error("Error fetching daily trends from Google.");
+        }
+
+        // TODO: fetch realtime trends
+
+        /*
+        Fetch all google realtime trends by state.
+        This returns an object of STATE FULL NAME => [{topic,value,geocode}]
+        */
+        res = await fetch("/api/google/trends/daily/states");
+        if (res.ok) {
+          const result = await res.json();
+          const processed = new Map();
+
+          if (result && !result.error) {
+            result.map((state) => {
+              processed.set(state.name, state.trends);
+            });
+
+            setDailyTrendsByState(processed);
+            setError(false);
+          } else {
+            setError(true);
+          }
+        }
+
+        // fetch google realtime trends by state
+        res = await fetch("/api/google/trends/realtime/states");
+        if (res.ok) {
+          const result = await res.json();
+          const processed = new Map();
+
+          if (result && !result.error) {
+            result.map((state) => {
+              processed.set(state.name, state.trends);
+            });
+
+            setRealtimeTrendsByState(processed);
+            setError(false);
+          } else {
+            setError(true);
+          }
         }
 
         // fetch all US places
@@ -131,6 +152,7 @@ function TrendsContainer({ children }) {
     const props = {
       dailyTrends,
       dailyTrendsByState,
+      realtimeTrendsByState,
       colors,
       colorsByTopic,
       error,
