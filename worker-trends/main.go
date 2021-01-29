@@ -48,6 +48,15 @@ func getAPIString() string {
 	return fmt.Sprintf("http://%s:%s", os.Getenv("TRENDS_API_HOST"), os.Getenv("TRENDS_API_PORT"))
 }
 
+/*
+Gets and processes google daily trends sorted by popularity per region.
+
+- [X] Rate limit friendly
+	- [X] Get realtime trends via HTTP, store locally (ranked #1 - X), where
+	  X is whatever number of trends that the API returns
+	- [X] For each trend
+		- [X] Insert each topic (split on comma) into in redis queue
+*/
 func doGoogleDailyTrends() {
 	var trendingTopics []string
 	trends, err := getGoogleDailyTrends()
@@ -148,11 +157,11 @@ func getGoogleDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 }
 
 /*
-Change of plans. New algorithm:
+Gets and processes google realtime trends sorted by popularity per region.
 
-Worker:
 - [X] Rate limit friendly
-	- [X] Get realtime trends via HTTP, store locally (ranked #1 - 15)
+	- [X] Get realtime trends via HTTP, store locally (ranked #1 - X), where
+	  X is whatever number of trends that the API returns
 	- [X] For each trend
 		- [X] Insert each topic (split on comma) into in redis queue
 */
@@ -228,6 +237,9 @@ func doGoogleRealtimeTrends() {
 	}
 }
 
+/*
+Fetches the list of google realtime trends
+*/
 func getGoogleRealtimeTrends() ([]*gogtrends.TrendingStory, error) {
 	// this endpoint queries daily trends, and builds state trends, and caches.
 	var uri = getAPIString() + "/google/trends/realtime"
@@ -268,6 +280,7 @@ func getGoogleRealtimeTrends() ([]*gogtrends.TrendingStory, error) {
 */
 var geoMaps = make(map[string][]*gogtrends.GeoMap, 0)
 
+// pops a keyword from the cache and returns the interest by region from google
 func getGoogleRealtimeTrendsGeoMaps(ctx context.Context, queueKey string, seconds time.Duration) (map[string][]*gogtrends.GeoMap, error) {
 
 	// while the queue is not empty
@@ -314,7 +327,7 @@ func getGoogleRealtimeTrendsGeoMaps(ctx context.Context, queueKey string, second
 	return geoMaps, nil
 }
 
-// func (g GoogleTrend) processStateTrends(dt *[]*gogtrends.TrendingSearch, geoMaps *map[string][][]*gogtrends.GeoMap) []State {
+// sorts each topic by popularity per region
 func getGeoMapsAsStates(trendingTopics []string, geoMaps *map[string][]*gogtrends.GeoMap) []types.State {
 	var temp = make(map[string][]types.StateTrend, 51) // num states
 	var results []types.State
@@ -448,6 +461,7 @@ func getPlaces() ([]types.Place, error) {
 	return results, nil
 }
 
+// gets all twitter places and their trending topics
 func getTwitterTrends() {
 	places, err := getPlaces()
 	if err != nil {
