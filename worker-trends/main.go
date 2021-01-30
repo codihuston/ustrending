@@ -25,6 +25,13 @@ import (
 )
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
+var configMap = make(map[string]int, 0)
+
+const (
+	DEFAULT_IS_GOOGLE_ENABLED          = 0
+	DEFAULT_MAX_GOOGLE_REALTIME_TRENDS = 25
+	DEFAULT_IS_TWITTER_ENABLED         = 0
+)
 
 // TODO: use me?
 func getJson(url string, target interface{}) error {
@@ -59,9 +66,15 @@ Gets and processes google daily trends sorted by popularity per region.
 */
 func doGoogleDailyTrends() {
 	var trendingTopics []string
-	trends, err := getGoogleDailyTrends()
 	var queueKey = "google-daily-trends-queue"
 	var cacheKey = "google-daily-trends-by-state"
+
+	if configMap["IS_GOOGLE_ENABLED"] == 0 {
+		log.Warn("Google processing is DISABLED! Skipping...")
+		return
+	}
+
+	trends, err := getGoogleDailyTrends()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
@@ -80,7 +93,7 @@ func doGoogleDailyTrends() {
 	}
 
 	// for each trending story
-	for i := 0; i < len(trends); i++ {
+	for i := 0; i < min(len(trends), configMap["MAX_GOOGLE_REALTIME_TRENDS"]); i++ {
 		trend := trends[i]
 		// split realtimeTrend.Title by commas
 		trendingTopics = append(trendingTopics, trend.Title.Query)
@@ -89,6 +102,9 @@ func doGoogleDailyTrends() {
 	// convert []string into []interface{} for redis client LPUSH
 	s := make([]interface{}, len(trendingTopics))
 	for i, v := range trendingTopics {
+		if i > configMap["MAX_GOOGLE_REALTIME_TRENDS"]-1 {
+			log.Info("Exceeded")
+		}
 		s[i] = strings.TrimSpace(v)
 	}
 
@@ -167,9 +183,15 @@ Gets and processes google realtime trends sorted by popularity per region.
 */
 func doGoogleRealtimeTrends() {
 	var trendingTopics []string
-	realtimeTrends, err := getGoogleRealtimeTrends()
 	var queueKey = "google-realtime-trends-queue"
 	var cacheKey = "google-realtime-trends-by-state"
+
+	if configMap["IS_GOOGLE_ENABLED"] == 0 {
+		log.Warn("Google processing is DISABLED! Skipping...")
+		return
+	}
+
+	realtimeTrends, err := getGoogleRealtimeTrends()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
@@ -188,14 +210,29 @@ func doGoogleRealtimeTrends() {
 	}
 
 	// for each trending story
+	var counter = 0
 	for i := 0; i < len(realtimeTrends); i++ {
+		// stop processing trends if we've processed to many
+		if counter > configMap["MAX_GOOGLE_REALTIME_TRENDS"]-1 {
+			log.Info("Number of realtime trends exceeds MAX_GOOGLE_REALTIME_TRENDS [", configMap["MAX_GOOGLE_REALTIME_TRENDS"], "]... done parsing trends-to-be-processed!")
+			break
+		}
+
 		realtimeTrend := realtimeTrends[i]
 		// split realtimeTrend.Title by commas
 		topics := strings.Split(realtimeTrend.Title, ",")
 
 		// clean up spaces between each topic
 		for _, v := range topics {
+			// stop processing trends if we've processed to many
+			if counter > configMap["MAX_GOOGLE_REALTIME_TRENDS"]-1 {
+				break
+			}
+
 			trendingTopics = append(trendingTopics, strings.TrimSpace(v))
+
+			// count # of trends processed so far
+			counter++
 		}
 	}
 
@@ -284,8 +321,16 @@ var geoMaps = make(map[string][]*gogtrends.GeoMap, 0)
 func getGoogleRealtimeTrendsGeoMaps(ctx context.Context, queueKey string, seconds time.Duration) (map[string][]*gogtrends.GeoMap, error) {
 
 	// while the queue is not empty
+	var counter = 0
 	for true {
 		var queueLength int64
+
+		// sanity check, but this should already be handled upstream
+		// stop processing if we've exceeded the max configuration of trends to process
+		if counter > configMap["MAX_GOOGLE_REALTIME_TRENDS"]-1 {
+			log.Info("Number of realtime trends exceeds MAX_GOOGLE_REALTIME_TRENDS [", configMap["MAX_GOOGLE_REALTIME_TRENDS"], "]... stopping queue processing!")
+			break
+		}
 
 		queueLength, err := database.CacheClient.LLen(ctx, queueKey).Result()
 
@@ -322,6 +367,7 @@ func getGoogleRealtimeTrendsGeoMaps(ctx context.Context, queueKey string, second
 
 		// sleep for 1 second
 		time.Sleep(seconds)
+		counter++
 	}
 
 	return geoMaps, nil
@@ -463,6 +509,12 @@ func getPlaces() ([]types.Place, error) {
 
 // gets all twitter places and their trending topics
 func getTwitterTrends() {
+
+	if configMap["IS_TWITTER_ENABLED"] == 0 {
+		log.Warn("Twitter processing is DISABLED! Skipping...")
+		return
+	}
+
 	places, err := getPlaces()
 	if err != nil {
 		log.Fatal(err)
@@ -553,8 +605,61 @@ func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
 }
 
 func initialize() {
+	log.Info("Initializing environment variables...")
+
+	if len(os.Getenv("IS_GOOGLE_ENABLED")) > 0 {
+		var result int
+		var err error
+		result, err = strconv.Atoi(os.Getenv("IS_GOOGLE_ENABLED"))
+		if err != nil {
+			log.Error(err)
+			configMap["IS_GOOGLE_ENABLED"] = DEFAULT_IS_GOOGLE_ENABLED
+		}
+		log.Info("USING ENV VALUE", result)
+		configMap["IS_GOOGLE_ENABLED"] = result
+	} else {
+		log.Info("DEFAULTING VALUE")
+		configMap["IS_GOOGLE_ENABLED"] = DEFAULT_IS_GOOGLE_ENABLED
+	}
+
+	if len(os.Getenv("MAX_GOOGLE_REALTIME_TRENDS")) > 0 {
+		var result int
+		var err error
+		result, err = strconv.Atoi(os.Getenv("MAX_GOOGLE_REALTIME_TRENDS"))
+		if err != nil {
+			log.Error(err)
+			configMap["MAX_GOOGLE_REALTIME_TRENDS"] = DEFAULT_MAX_GOOGLE_REALTIME_TRENDS
+		}
+		log.Info("USING ENV VALUE", result)
+		configMap["MAX_GOOGLE_REALTIME_TRENDS"] = result
+	} else {
+		log.Info("DEFAULTING VALUE")
+		configMap["MAX_GOOGLE_REALTIME_TRENDS"] = DEFAULT_MAX_GOOGLE_REALTIME_TRENDS
+	}
+
+	if len(os.Getenv("IS_TWITTER_ENABLED")) > 0 {
+		var result int
+		var err error
+		result, err = strconv.Atoi(os.Getenv("IS_TWITTER_ENABLED"))
+		if err != nil {
+			log.Error(err)
+			configMap["IS_TWITTER_ENABLED"] = DEFAULT_IS_TWITTER_ENABLED
+		}
+		log.Info("USING ENV VALUE", result)
+		configMap["IS_TWITTER_ENABLED"] = DEFAULT_IS_TWITTER_ENABLED
+	} else {
+		log.Info("DEFAULTING VALUE")
+		configMap["IS_TWITTER_ENABLED"] = DEFAULT_IS_TWITTER_ENABLED
+	}
+
+	log.Info("IS_GOOGLE_ENABLED: ", configMap["IS_GOOGLE_ENABLED"], os.Getenv("IS_GOOGLE_ENABLED"))
+	log.Info("MAX_GOOGLE_REALTIME_TRENDS: ", configMap["MAX_GOOGLE_REALTIME_TRENDS"], os.Getenv("MAX_GOOGLE_REALTIME_TRENDS"))
+	log.Info("IS_TWITTER_ENABLED: ", configMap["IS_TWITTER_ENABLED"], os.Getenv("IS_TWITTER_ENABLED"))
 	log.Info("Connecting to services...")
+
 	database.InitializeCache()
+
+	log.Info("Connected!")
 }
 
 func main() {
