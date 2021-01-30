@@ -148,8 +148,8 @@ func (g GoogleTrend) GetDailyTrendsByState(hl, loc, cat string) ([]State, error)
 func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.TrendingStory, error) {
 	var cacheKey = fmt.Sprintf("google-realtime-trends:%s:%s:%s", hl, loc, cat)
 	var results []*gogtrends.TrendingStory
-	// 15 minutes
-	ttl := time.Second * 900
+	// 25 minutes
+	ttl := time.Second * 1500
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -210,81 +210,167 @@ func (g GoogleTrend) GetRealtimeTrendsByState(hl, loc, cat string) ([]State, err
 	return results, nil
 }
 
+// GetTrendInterest returns an a list of topics and their popularity for the given region (loc)
 func (g GoogleTrend) GetTrendInterest(keyword, loc, timePeriod, lang string) ([]*gogtrends.GeoMap, error) {
-	var result []*gogtrends.GeoMap
+	var cacheKey = fmt.Sprintf("google-trend-interest:%s:%s:%s:%s", keyword, loc, timePeriod, lang)
+	var results []*gogtrends.GeoMap
+	// 25 minutes
+	ttl := time.Second * 1500
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// TODO: cache me
-
-	// get the geo widget from exploring this topic
-	widget, err := g.getGeoWidget(ctx, keyword, loc, timePeriod, lang)
-
+	// first, see if it's time to invalidate/update the caches
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
-		return result, err
+		// cache miss, worker HAS NOT processed data yet
+		if err == redis.Nil {
+			log.Info("CACHE MISS: ", cacheKey)
+
+			// get the geo widget from exploring this topic
+			widget, err := g.getGeoWidget(ctx, keyword, loc, timePeriod, lang)
+
+			if err != nil {
+				return results, err
+			}
+
+			// now fetch the interests by location
+			results, err = g.getInterestByLocation(ctx, keyword, loc, timePeriod, lang, widget)
+
+			if err != nil {
+				return results, err
+			}
+
+			// cache it
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+			if err != nil {
+				return results, err
+			}
+		}
+	} else {
+		// cache hit, worker HAS processed the data
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
 	}
 
-	// now fetch the interests by location
-	result, err = g.getInterestByLocation(ctx, widget, lang)
-
-	if err != nil {
-		return result, err
-	}
-
-	return result, nil
+	return results, nil
 }
 
 func (g GoogleTrend) getGeoWidget(ctx context.Context, keyword, loc, timePeriod, lang string) (*gogtrends.ExploreWidget, error) {
-	var result *gogtrends.ExploreWidget
+	var cacheKey = fmt.Sprintf("google-geowidget:%s:%s:%s:%s", keyword, loc, timePeriod, lang)
+	var results *gogtrends.ExploreWidget
 	var exploreResults []*gogtrends.ExploreWidget
 	const neededWidget = "fe_geo_chart_explore"
-	// TODO: cache me
+	// 25 minutes
+	ttl := time.Second * 1500
 
-	// fetch widgets for exploring this query
-	exploreResults, err := gogtrends.Explore(ctx, &gogtrends.ExploreRequest{
-		ComparisonItems: []*gogtrends.ComparisonItem{
-			{
-				Keyword: keyword,
-				Geo:     loc,
-				Time:    timePeriod,
-			},
-		},
-		Category: 0, // all programming categories?
-		Property: "",
-	}, lang)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
-	// PrintGogTrends(exploreResults)
-	// LogGogTrendsError(err, "Error exploring google trends")
-
+	// first, see if it's time to invalidate/update the caches
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
-		return result, nil
+		// cache miss, worker HAS NOT processed data yet
+		if err == redis.Nil {
+			log.Info("CACHE MISS: ", cacheKey)
+
+			// fetch widgets for exploring this query
+			exploreResults, err = gogtrends.Explore(ctx, &gogtrends.ExploreRequest{
+				ComparisonItems: []*gogtrends.ComparisonItem{
+					{
+						Keyword: keyword,
+						Geo:     loc,
+						Time:    timePeriod,
+					},
+				},
+				Category: 0, // all programming categories?
+				Property: "",
+			}, lang)
+
+			// PrintGogTrends(exploreResults)
+			// LogGogTrendsError(err, "Error exploring google trends")
+
+			if err != nil {
+				return results, nil
+			}
+
+			// get the widget that we want
+			for j := 0; j < len(exploreResults); j++ {
+				curr := exploreResults[j]
+				// and return it
+				if curr.Type == neededWidget {
+					log.Info("FOUND fe_geo_chart_explore")
+					// PrintGogTrends(make([]*gogtrends.ExploreWidget, 1))
+					results = curr
+					break
+				}
+			}
+
+			// cache it
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+			if err != nil {
+				return results, err
+			}
+		}
+	} else {
+		// cache hit, worker HAS processed the data
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
 	}
 
-	// get the widget that we want
-	for j := 0; j < len(exploreResults); j++ {
-		curr := exploreResults[j]
-		// and return it
-		if curr.Type == neededWidget {
-			// log.Info("FOUND fe_geo_chart_explore")
-			// PrintGogTrends(make([]*gogtrends.ExploreWidget, 1))
-			result = curr
-			break
-		}
-	}
-	return result, nil
+	return results, nil
 }
 
-func (g GoogleTrend) getInterestByLocation(ctx context.Context, widget *gogtrends.ExploreWidget, lang string) ([]*gogtrends.GeoMap, error) {
-	var result []*gogtrends.GeoMap
+func (g GoogleTrend) getInterestByLocation(ctx context.Context, keyword, loc, timePeriod, lang string, widget *gogtrends.ExploreWidget) ([]*gogtrends.GeoMap, error) {
+	var cacheKey = fmt.Sprintf("google-geomap:%s:%s:%s:%s", keyword, loc, timePeriod, lang)
+	var results []*gogtrends.GeoMap
+	var err error
+	// 25 minutes
+	ttl := time.Second * 1500
 
-	// TODO: cache me
-	result, err := gogtrends.InterestByLocation(ctx, widget, lang)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	//LogGogTrendsError(err, "Error getting region data for google trends")
 	if err != nil {
-		log.Fatal("Error fetching interests by location for trend '", widget.Request.CompItem[0].ComplexKeywordsRestriction.Keyword[0].Value, "' with error: ", err)
-		return result, err
+		log.Fatal("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
+		return results, err
 	}
 
-	return result, nil
+	// first, see if it's time to invalidate/update the caches
+	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	if err != nil {
+		// cache miss, worker HAS NOT processed data yet
+		if err == redis.Nil {
+			log.Info("CACHE MISS: ", cacheKey)
+			// TODO: fix me: runtime error: invalid memory address or nil pointer dereference
+			results, err = gogtrends.InterestByLocation(ctx, widget, lang)
+
+			//LogGogTrendsError(err, "Error getting region data for google trends")
+			if err != nil {
+				log.Fatal("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
+				return results, err
+			}
+
+			// cache it
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+			if err != nil {
+				return results, err
+			}
+		}
+	} else {
+		// cache hit, worker HAS processed the data
+		log.Info("CACHE HIT: ", cacheKey)
+
+		// convert json to list of structs
+		json.Unmarshal([]byte(val), &results)
+	}
+
+	return results, nil
 }
