@@ -4,6 +4,9 @@
       "path": "./client"
     },
     {
+      "path": "./old-client"
+    },
+    {
       "path": "./docs"
     },
     {
