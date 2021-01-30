@@ -607,59 +607,36 @@ func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
 func initialize() {
 	log.Info("Initializing environment variables...")
 
-	if len(os.Getenv("IS_GOOGLE_ENABLED")) > 0 {
-		var result int
-		var err error
-		result, err = strconv.Atoi(os.Getenv("IS_GOOGLE_ENABLED"))
-		if err != nil {
-			log.Error(err)
-			configMap["IS_GOOGLE_ENABLED"] = DEFAULT_IS_GOOGLE_ENABLED
-		}
-		log.Info("USING ENV VALUE", result)
-		configMap["IS_GOOGLE_ENABLED"] = result
-	} else {
-		log.Info("DEFAULTING VALUE")
-		configMap["IS_GOOGLE_ENABLED"] = DEFAULT_IS_GOOGLE_ENABLED
-	}
+	setConfigMapValue("IS_GOOGLE_ENABLED", DEFAULT_IS_GOOGLE_ENABLED)
+	setConfigMapValue("MAX_GOOGLE_REALTIME_TRENDS", DEFAULT_MAX_GOOGLE_REALTIME_TRENDS)
+	setConfigMapValue("IS_TWITTER_ENABLED", DEFAULT_IS_TWITTER_ENABLED)
 
-	if len(os.Getenv("MAX_GOOGLE_REALTIME_TRENDS")) > 0 {
-		var result int
-		var err error
-		result, err = strconv.Atoi(os.Getenv("MAX_GOOGLE_REALTIME_TRENDS"))
-		if err != nil {
-			log.Error(err)
-			configMap["MAX_GOOGLE_REALTIME_TRENDS"] = DEFAULT_MAX_GOOGLE_REALTIME_TRENDS
-		}
-		log.Info("USING ENV VALUE", result)
-		configMap["MAX_GOOGLE_REALTIME_TRENDS"] = result
-	} else {
-		log.Info("DEFAULTING VALUE")
-		configMap["MAX_GOOGLE_REALTIME_TRENDS"] = DEFAULT_MAX_GOOGLE_REALTIME_TRENDS
-	}
-
-	if len(os.Getenv("IS_TWITTER_ENABLED")) > 0 {
-		var result int
-		var err error
-		result, err = strconv.Atoi(os.Getenv("IS_TWITTER_ENABLED"))
-		if err != nil {
-			log.Error(err)
-			configMap["IS_TWITTER_ENABLED"] = DEFAULT_IS_TWITTER_ENABLED
-		}
-		log.Info("USING ENV VALUE", result)
-		configMap["IS_TWITTER_ENABLED"] = DEFAULT_IS_TWITTER_ENABLED
-	} else {
-		log.Info("DEFAULTING VALUE")
-		configMap["IS_TWITTER_ENABLED"] = DEFAULT_IS_TWITTER_ENABLED
-	}
-
-	log.Info("IS_GOOGLE_ENABLED: ", configMap["IS_GOOGLE_ENABLED"], os.Getenv("IS_GOOGLE_ENABLED"))
-	log.Info("MAX_GOOGLE_REALTIME_TRENDS: ", configMap["MAX_GOOGLE_REALTIME_TRENDS"], os.Getenv("MAX_GOOGLE_REALTIME_TRENDS"))
-	log.Info("IS_TWITTER_ENABLED: ", configMap["IS_TWITTER_ENABLED"], os.Getenv("IS_TWITTER_ENABLED"))
+	log.Info("IS_GOOGLE_ENABLED: ", configMap["IS_GOOGLE_ENABLED"], " ", os.Getenv("IS_GOOGLE_ENABLED"))
+	log.Info("MAX_GOOGLE_REALTIME_TRENDS: ", configMap["MAX_GOOGLE_REALTIME_TRENDS"], " ", os.Getenv("MAX_GOOGLE_REALTIME_TRENDS"))
+	log.Info("IS_TWITTER_ENABLED: ", configMap["IS_TWITTER_ENABLED"], " ", os.Getenv("IS_TWITTER_ENABLED"))
 	log.Info("Connecting to services...")
 
 	database.InitializeCache()
 
 	log.Info("Connected!")
+}
+
+// setConfigMapValue sets a configMap value to the corresponding environment variable, or a default value
+func setConfigMapValue(key string, defaultValue int) {
+	if len(os.Getenv(key)) > 0 {
+		var result int
+		var err error
+		result, err = strconv.Atoi(os.Getenv(key))
+		if err != nil {
+			log.Error(err)
+			configMap[key] = defaultValue
+		}
+		log.Info("Using ENV value", result)
+		configMap[key] = result
+	} else {
+		log.Info("UseingD Default value")
+		configMap[key] = defaultValue
+	}
 }
 
 func main() {
