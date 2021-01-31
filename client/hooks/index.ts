@@ -18,5 +18,5 @@ export function useTwitterRealtimeTrends(){
 }
 
 export function useUSPlaces(){
-  return useQuery<Place[], Error>("USplaces", fetchUSPlaces); 
+  return useQuery<Place[], Error>("USPlaces", fetchUSPlaces); 
 }
