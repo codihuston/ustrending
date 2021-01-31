@@ -6,8 +6,8 @@ type Props = {
 
 export function GoogleDailyTrendsList({ googleDailyTrends }: Props) {
   
-  if (!googleDailyTrends){
-    return <span>Error: no google daily trends are provided!</span>
+  if (!googleDailyTrends || !googleDailyTrends.length){
+    return <span>Error: no google realtime trends are provided!</span>
   }
 
   return (<>

@@ -6,7 +6,7 @@ type Props = {
 
 export function GoogleRealtimeTrendsList({ googleRealtimeTrends }: Props) {
   
-  if (!googleRealtimeTrends){
+  if (!googleRealtimeTrends || !googleRealtimeTrends.length){
     return <span>Error: no google realtime trends are provided!</span>
   }
 
