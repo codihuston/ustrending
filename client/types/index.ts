@@ -4,7 +4,7 @@ export interface RegionTrend {
   geoCode: string
 }
 
-export interface Region {
+export interface GoogleRegionTrend {
   name: string
   trends: RegionTrend[]
 }

@@ -7,6 +7,12 @@ export async function fetchGoogleDailyTrends() {
   return data;
 }
 
+export async function fetchGoogleDailyTrendsByState() {
+  const { data } = await http.get(
+    "/api/google/trends/daily/states"
+  );
+  return data;
+}
 
 export async function fetchGoogleRealtimeTrends(){
   const { data } = await http.get(
