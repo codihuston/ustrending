@@ -2,6 +2,7 @@ import Head from "next/head";
 
 import { Navigation } from "../../../components/Navigation";
 import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList";
+import { GoogleDailyTrendsContainer } from "../../../components/containers/GoogleDailyTrendsContainer";
 
 export default function GoogleDaily() {
   return (
@@ -9,7 +10,9 @@ export default function GoogleDaily() {
       <Head>Google Daily Trends</Head>
       <Navigation/>
       <div>
-        <GoogleDailyTrendsList/>
+        <GoogleDailyTrendsContainer>
+          <GoogleDailyTrendsList googleDailyTrends={[]}/>
+        </GoogleDailyTrendsContainer>
       </div>
     </>
   )

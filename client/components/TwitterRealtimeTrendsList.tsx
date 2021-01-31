@@ -1,6 +1,4 @@
 import { Place, TwitterTrendsMap } from "../types";
-import { Loading } from "./Loading";
-import { useTwitterRealtimeTrends } from "../hooks";
 
 type Props = {
   places: Place[];

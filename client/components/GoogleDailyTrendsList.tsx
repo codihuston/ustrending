@@ -1,20 +1,18 @@
-import { Loading } from "../components/Loading";
-import { useGoogleDailyTrends } from "../hooks";
+import { GoogleDailyTrend } from "../types";
 
-export function GoogleDailyTrendsList() {
-  const { status, data, error } = useGoogleDailyTrends();
+type Props = {
+  googleDailyTrends: GoogleDailyTrend[]
+}
+
+export function GoogleDailyTrendsList({ googleDailyTrends }: Props) {
   
-  if(status === "loading"){
-    return <Loading/>
-  }
-
-  if(status === "error"){
-    return (<span>Error: { error.message }</span>)
+  if (!googleDailyTrends){
+    return <span>Error: no google daily trends are provided!</span>
   }
 
   return (<>
     <ol>
-      {data.map((x,i) => {
+      {googleDailyTrends.map((x,i) => {
         return <li key={i}>
           {x.title.query}
         </li>
