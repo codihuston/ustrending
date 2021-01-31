@@ -32,6 +32,12 @@ export interface GoogleTrendArticle {
   snippet: string
 }
 
+export interface GoogleRealtimeTrend {
+  title: string
+  image: GoogleTrendImage
+  articles: GoogleTrendArticle[]
+}
+
 export interface Place {
   _id: string
   country: string

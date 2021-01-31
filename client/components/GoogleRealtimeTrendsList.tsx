@@ -1,8 +1,8 @@
-import { Loading } from "../components/Loading";
-import { useGoogleDailyTrends } from "../hooks";
+import { Loading } from "./Loading";
+import { useGoogleRealtimeTrends } from "../hooks";
 
-export function GoogleDailyTrendsList() {
-  const { status, data, error } = useGoogleDailyTrends();
+export function GoogleRealtimeTrendsList() {
+  const { status, data, error } = useGoogleRealtimeTrends();
   
   if(status === "loading"){
     return <Loading/>
@@ -16,7 +16,7 @@ export function GoogleDailyTrendsList() {
     <ol>
       {data.map((x,i) => {
         return <li key={i}>
-          {x.title.query}
+          {x.title}
         </li>
       })}
     </ol>
