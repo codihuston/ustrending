@@ -58,8 +58,15 @@ export interface Point {
   coordinates: [number, number]
 }
 
-export interface TwitterTrendMap {
-  [id: string]: TwitterTrend[]
+export interface TwitterTrendsMap {
+  [id: string]: TwitterTrendsList[]
+}
+
+export interface TwitterTrendsList {
+  trends: TwitterTrend[]
+  as_of: Date
+  created_at: string
+  locations: TwitterLocation[]
 }
 
 export interface TwitterTrend {
@@ -68,4 +75,9 @@ export interface TwitterTrend {
   promoted_content: string
   query: string
   tweet_volume: number
+}
+
+export interface TwitterLocation {
+  name: string
+  woeid: number
 }
