@@ -19,8 +19,8 @@ type Twitter struct{}
 
 // GetTrendsByPlace fetches, caches, returns trends for a given place from the Twitter API
 func (p Twitter) GetTrendsByPlace(woeid int64) ([]twitter.TrendsList, error) {
-	// indefinitely (in case the worker stops)
-	ttl := time.Second * 0
+	// 14:59 min:seconds; if the worker stops
+	ttl := time.Second * 899
 	var cacheKey = fmt.Sprintf("twitter-trends:%d", woeid)
 	var result []twitter.TrendsList
 
