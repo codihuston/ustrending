@@ -8,9 +8,23 @@
     "start": "next start"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "debug": "^4.3.1",
+    "html-entities": "^2.1.0",
+    "invert-color": "^2.0.0",
+    "jspdf": "^2.3.0",
+    "match-sorter": "^6.1.0",
     "next": "10.0.6",
+    "papaparse": "^5.3.0",
     "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "react-dom": "17.0.1",
+    "react-icons": "^4.1.0",
+    "react-query": "^3.6.0",
+    "react-simple-maps": "^2.3.0",
+    "react-table": "^7.6.3",
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "@types/node": "^14.14.22",
