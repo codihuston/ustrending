@@ -14,3 +14,17 @@ export async function fetchGoogleRealtimeTrends(){
   );
   return data;
 }
+
+export async function fetchTwitterRealtimeTrends(){
+  const { data } = await http.get(
+    "/api/twitter/trends"
+  );
+  return data;
+}
+
+export async function fetchUSPlaces(){
+  const { data } = await http.get(
+    "/api/places/US"
+  );
+  return data; 
+}
