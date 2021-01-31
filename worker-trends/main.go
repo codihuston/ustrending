@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
-	"github.com/go-redis/redis/v8"
 	"github.com/groovili/gogtrends"
 	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
@@ -527,9 +526,8 @@ func getTwitterTrends() {
 }
 
 func getTwitterTrendsForPlaces(places []types.Place) error {
-	// 14:59 min:seconds
 	var cacheKey = "twitter-trends-by-place"
-	ttl := time.Second * 899
+	ttl := time.Second * 0
 	m := make(map[int][]twitter.TrendsList)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -537,38 +535,23 @@ func getTwitterTrendsForPlaces(places []types.Place) error {
 
 	log.Info("Get twitter trends for ", len(places), " places")
 
-	// check cache
-	_, err := database.CacheClient.Get(ctx, cacheKey).Result()
+	// fetch trends per place
+	for i := 0; i < len(places); i++ {
+		place := places[i]
+		result, err := getTwitterTrendsByPlace(place.Woeid)
 
-	if err != nil {
-		if err == redis.Nil {
-			log.Info("CACHE MISS:", cacheKey)
-
-			// fetch trends per place
-			for i := 0; i < len(places); i++ {
-				place := places[i]
-				result, err := getTwitterTrendsByPlace(place.Woeid)
-
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				m[place.Woeid] = result
-			} // end for
-
-			// cache the map into redis: twitter-trends-by-place
-			jsonMap, _ := json.Marshal(m)
-			err = database.CacheClient.Set(ctx, cacheKey, jsonMap, ttl).Err()
-			if err != nil {
-				return err
-			}
-			// end if key !exists
-		} else {
-			return err
+		if err != nil {
+			log.Fatal(err)
 		}
-	} else {
-		// cache is populated already, no need to re-populate
-		log.Info("CACHE HIT: ", cacheKey, ". Skipping operation...")
+
+		m[place.Woeid] = result
+	} // end for
+
+	// always cache the map into redis no matter what...
+	jsonMap, _ := json.Marshal(m)
+	err := database.CacheClient.Set(ctx, cacheKey, jsonMap, ttl).Err()
+	if err != nil {
+		return err
 	}
 
 	log.Info("DONE.")
