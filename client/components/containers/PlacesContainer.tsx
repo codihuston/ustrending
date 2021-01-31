@@ -2,7 +2,7 @@ import React from "react";
 import { Loading } from "../Loading";
 import { useUSPlaces } from "../../hooks";
 
-export function PlacesContainer({ children }) {
+export function PlacesContainer({ children, ...rest }) {
   const { status, data, error } = useUSPlaces();
 
 
@@ -20,6 +20,7 @@ export function PlacesContainer({ children }) {
     // checking isValidElement is the safe way and avoids a typescript error too
     const props = {
       places: data,
+      ...rest,
     };
 
     if (React.isValidElement(child)) {

@@ -1,32 +1,25 @@
-import { Place } from "../types";
+import { Place, TwitterTrendsMap } from "../types";
 import { Loading } from "./Loading";
 import { useTwitterRealtimeTrends } from "../hooks";
 
 type Props = {
-  places: Place[]
+  places: Place[];
+  twitterRealtimeTrends: TwitterTrendsMap;
 };
 
-export function TwitterRealtimeTrendsList({ places }: Props) {
-
-  if (!places){
-    return <span>Error: no places are provided!</span>
-  }
-
-  const { status, data, error } = useTwitterRealtimeTrends();
-  
-  if (status === "error") {
-    return <span>Error: {error.message}</span>;
-  }
-
-  if (status === "loading") {
-    return <Loading />;
+export function TwitterRealtimeTrendsList({
+  places,
+  twitterRealtimeTrends,
+}: Props) {
+  if (!places) {
+    return <span>Error: no places are provided!</span>;
   }
 
   return (
     <>
       <ul>
-        {Object.keys(data).map((woeid: string) => {
-          const placeTrends = data[woeid];
+        {Object.keys(twitterRealtimeTrends).map((woeid: string) => {
+          const placeTrends = twitterRealtimeTrends[woeid];
 
           if (!placeTrends)
             return (
@@ -39,14 +32,14 @@ export function TwitterRealtimeTrendsList({ places }: Props) {
 
           return placeTrends.map((placeTrend) => {
             return (
-              <>
-                <li key={place._id}>{place.name}</li>
+              <li key={place._id}>
+                {place.name}
                 <ol>
                   {placeTrend.trends.map((trend, i) => {
                     return <li key={i}>{trend.name}</li>;
                   })}
                 </ol>
-              </>
+              </li>
             );
           });
         })}

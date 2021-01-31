@@ -1,10 +1,9 @@
 import React from "react";
 import { Loading } from "../Loading";
-import { useGoogleRealtimeTrends } from "../../hooks";
+import { useTwitterRealtimeTrends } from "../../hooks";
 
-export function GoogleRealtimeTrendsContainer({ children, ...rest }) {
-  const { status, data, error } = useGoogleRealtimeTrends();
-
+export function TwitterRealtimeTrendsContainer({ children, ...rest }) {
+  const { status, data, error } = useTwitterRealtimeTrends();
 
   if (status === "error") {
     return <span>Error: {error.message}</span>;
@@ -19,7 +18,7 @@ export function GoogleRealtimeTrendsContainer({ children, ...rest }) {
   const childrenWithProps = React.Children.map(children, (child) => {
     // checking isValidElement is the safe way and avoids a typescript error too
     const props = {
-      googleRealtimeTrends: data,
+      twitterRealtimeTrends: data,
       ...rest,
     };
 
