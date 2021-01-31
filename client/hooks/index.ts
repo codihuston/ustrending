@@ -3,7 +3,7 @@ import {
 } from 'react-query'
 
 import { GoogleDailyTrend, GoogleRegionTrend, GoogleRealtimeTrend, Place, TwitterTrendsMap } from "../types";
-import { fetchGoogleDailyTrends, fetchGoogleDailyTrendsByState, fetchGoogleRealtimeTrends, fetchTwitterRealtimeTrends, fetchUSPlaces } from "../queries";
+import { fetchGoogleDailyTrends, fetchGoogleDailyTrendsByState, fetchGoogleRealtimeTrends, fetchGoogleRealtimeTrendsByState, fetchTwitterRealtimeTrends, fetchUSPlaces } from "../queries";
 
 export function useGoogleDailyTrends(){
   return useQuery<GoogleDailyTrend[], Error>("googleDailyTrends", fetchGoogleDailyTrends);
@@ -15,6 +15,10 @@ export function useGoogleDailyTrendsByState(){
 
 export function useGoogleRealtimeTrends(){
   return useQuery<GoogleRealtimeTrend[], Error>("googleRealtimeTrends", fetchGoogleRealtimeTrends);
+}
+
+export function useGooleRealtimeTrendsByState(){
+  return useQuery<GoogleRegionTrend[], Error>("googleRealtimeTrendsByState", fetchGoogleRealtimeTrendsByState);
 }
 
 export function useTwitterRealtimeTrends(){

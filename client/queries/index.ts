@@ -28,6 +28,13 @@ export async function fetchTwitterRealtimeTrends(){
   return data;
 }
 
+export async function fetchGoogleRealtimeTrendsByState(){
+  const { data } = await http.get(
+    "/api/google/trends/realtime/states"
+  );
+  return data;
+}
+
 export async function fetchUSPlaces(){
   const { data } = await http.get(
     "/api/places/US"
