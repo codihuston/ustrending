@@ -10,9 +10,8 @@ export default function TwitterRealtimeTrends() {
       <Head>Twitter Realtime Trends</Head>
       <Navigation />
       <div>
-        {/* TODO: pass places into this component? */}
         <PlacesContainer>
-          <TwitterRealtimeTrendsList />
+          <TwitterRealtimeTrendsList places={[]}/>
         </PlacesContainer>
       </div>
     </>

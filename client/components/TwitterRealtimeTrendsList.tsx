@@ -3,10 +3,15 @@ import { Loading } from "./Loading";
 import { useTwitterRealtimeTrends } from "../hooks";
 
 type Props = {
-  places: Place[];
+  places: Place[]
 };
 
 export function TwitterRealtimeTrendsList({ places }: Props) {
+
+  if (!places){
+    return <span>Error: no places are provided!</span>
+  }
+
   const { status, data, error } = useTwitterRealtimeTrends();
   
   if (status === "error") {

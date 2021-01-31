@@ -1,20 +1,18 @@
-import { Loading } from "./Loading";
-import { useGoogleRealtimeTrends } from "../hooks";
+import { GoogleRealtimeTrend } from "../types";
 
-export function GoogleRealtimeTrendsList() {
-  const { status, data, error } = useGoogleRealtimeTrends();
+type Props = {
+  googleRealtimeTrends: GoogleRealtimeTrend[]
+};
+
+export function GoogleRealtimeTrendsList({ googleRealtimeTrends }: Props) {
   
-  if(status === "loading"){
-    return <Loading/>
-  }
-
-  if(status === "error"){
-    return (<span>Error: { error.message }</span>)
+  if (!googleRealtimeTrends){
+    return <span>Error: no google realtime trends are provided!</span>
   }
 
   return (<>
     <ol>
-      {data.map((x,i) => {
+      {googleRealtimeTrends.map((x,i) => {
         return <li key={i}>
           {x.title}
         </li>
