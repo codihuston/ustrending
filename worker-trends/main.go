@@ -631,10 +631,9 @@ func setConfigMapValue(key string, defaultValue int) {
 			log.Error(err)
 			configMap[key] = defaultValue
 		}
-		log.Info("Using ENV value", result)
 		configMap[key] = result
 	} else {
-		log.Info("UseingD Default value")
+		log.Info("Using Default value")
 		configMap[key] = defaultValue
 	}
 }
