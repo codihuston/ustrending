@@ -13,12 +13,6 @@ build:
         dockerfile: Dockerfile.dev
       sync:
         '***/*.js': .
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-private-api
-      context: ../private-api
-      docker:
-        dockerfile: Dockerfile.dev
-      sync:
-        '***/*.js': .
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-trends-api
       context: ../trends-api
       docker:
@@ -33,15 +27,21 @@ build:
         dockerfile: Dockerfile.dev
       sync:
         '***/*.js': .
+        '***/*.jsx': .
+        '***/*.ts': .
+        '***/*.tsx': .
         '***/*.css': .
         '***/*.scss': .
         '***/*.html': .
-    # - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-twitter-trends
-    #   context: ../worker-twitter-trends
-    #   docker:
-    #     dockerfile: Dockerfile.dev
-    #   sync:
-    #     '***/*.js': .
+    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-old-client
+      context: ../old-client
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        '***/*.js': .
+        '***/*.css': .
+        '***/*.scss': .
+        '***/*.html': .
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-redis
       context: ../redis
       docker:

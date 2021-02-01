@@ -13,12 +13,6 @@
       "path": "./k8s"
     },
     {
-      "path": "private-api"
-    },
-    {
-      "path": "./worker-twitter-trends"
-    },
-    {
       "path": "./worker-twitter-stream"
     },
     {
