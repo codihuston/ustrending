@@ -3,6 +3,7 @@ import Select, { Props as SelectProps, ValueType } from "react-select";
 import { GoogleRegionTrend } from "../types";
 
 type Props = {
+  value: ValueType<OptionType, false>;
   googleDailyTrendsByState: GoogleRegionTrend[];
   handleChange(option: ValueType<OptionType, false>): void;
 };
@@ -10,6 +11,7 @@ type Props = {
 export type OptionType = { label: string; value: string };
 
 export function RegionSelect({
+  value,
   googleDailyTrendsByState,
   handleChange,
 }: Props) {
@@ -37,6 +39,7 @@ export function RegionSelect({
   return (
     <>
       <Select
+        value={value}
         isSearchable={true}
         onChange={handleChange}
         options={options}
