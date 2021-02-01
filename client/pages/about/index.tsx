@@ -1,5 +1,5 @@
-import Head from 'next/head';
+import Head from "next/head";
 
 export default function About() {
-  return "About page!"
+  return "About page!";
 }

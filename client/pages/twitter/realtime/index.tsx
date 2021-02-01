@@ -13,7 +13,7 @@ export default function TwitterRealtimeTrends() {
       <div>
         <TwitterRealtimeTrendsContainer>
           <PlacesContainer>
-            <TwitterRealtimeTrendsList places={[]} twitterRealtimeTrends={{}}/>
+            <TwitterRealtimeTrendsList places={[]} twitterRealtimeTrends={{}} />
           </PlacesContainer>
         </TwitterRealtimeTrendsContainer>
       </div>

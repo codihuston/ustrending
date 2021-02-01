@@ -9,15 +9,15 @@ export default function GoogleRealtimeTrends() {
   return (
     <>
       <Head>Google Realtime Trends</Head>
-      <Navigation/>
+      <Navigation />
       <div>
         <GoogleRealtimeTrendsContainer>
-          <GoogleRealtimeTrendsList googleRealtimeTrends={[]}/>
+          <GoogleRealtimeTrendsList googleRealtimeTrends={[]} />
         </GoogleRealtimeTrendsContainer>
         <GoogleRealtimeTrendsByStateContainer>
-          <GoogleRealtimeTrendsByStateList googleRealtimeTrendsByState={[]}/>
+          <GoogleRealtimeTrendsByStateList googleRealtimeTrendsByState={[]} />
         </GoogleRealtimeTrendsByStateContainer>
       </div>
     </>
-  )
+  );
 }

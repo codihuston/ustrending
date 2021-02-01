@@ -1,3 +1,3 @@
-export function Loading(){
-  return <span>Loading...</span>
+export function Loading() {
+  return <span>Loading...</span>;
 }

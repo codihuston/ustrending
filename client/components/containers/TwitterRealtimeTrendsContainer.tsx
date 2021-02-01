@@ -13,7 +13,6 @@ export function TwitterRealtimeTrendsContainer({ children, ...rest }) {
     return <Loading />;
   }
 
-  
   // ref: https://reactjs.org/docs/react-api.html#cloneelement
   const childrenWithProps = React.Children.map(children, (child) => {
     // checking isValidElement is the safe way and avoids a typescript error too

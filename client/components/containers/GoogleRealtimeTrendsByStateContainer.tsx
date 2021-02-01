@@ -5,7 +5,6 @@ import { useGooleRealtimeTrendsByState } from "../../hooks";
 export function GoogleRealtimeTrendsByStateContainer({ children, ...rest }) {
   const { status, data, error } = useGooleRealtimeTrendsByState();
 
-
   if (status === "error") {
     return <span>Error: {error.message}</span>;
   }
@@ -14,7 +13,6 @@ export function GoogleRealtimeTrendsByStateContainer({ children, ...rest }) {
     return <Loading />;
   }
 
-  
   // ref: https://reactjs.org/docs/react-api.html#cloneelement
   const childrenWithProps = React.Children.map(children, (child) => {
     // checking isValidElement is the safe way and avoids a typescript error too
