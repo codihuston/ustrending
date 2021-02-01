@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-service
@@ -9,25 +9,34 @@ spec:
   rules:
     - http:
         paths:
-          - path: /api/?(.*)
+          - pathType: Prefix
+            path: /api/?(.*)
             backend:
-              serviceName: public-api-cluster-ip-service
-              servicePort: 3000
+              service:
+                name: public-api-cluster-ip-service
+                port:
+                  number: 3000
           # DEVELOPMENT PURPOSES ONLY, WILL NOT BE PUBLIC-FACING IN PRODUCITON!
           # DO NOT USE THIS HANDLE IN ANY CODEBASE, THIS IS SO YOU CAN TEST
           # IN THE BROWSER IF NEEDED! IT WILL NOT BE AVAILABLE IN PRODUCITON!!!
-          - path: /private-api/?(.*)
+          - pathType: Prefix
+            path: /trends-api/?(.*)
             backend:
-              serviceName: private-api-cluster-ip-service
-              servicePort: 3000
-          # DEVELOPMENT PURPOSES ONLY, WILL NOT BE PUBLIC-FACING IN PRODUCITON!
-          # DO NOT USE THIS HANDLE IN ANY CODEBASE, THIS IS SO YOU CAN TEST
-          # IN THE BROWSER IF NEEDED! IT WILL NOT BE AVAILABLE IN PRODUCITON!!!
-          - path: /trends-api/?(.*)
+              service:
+                name: trends-api-cluster-ip-service
+                port:
+                  number: 3000
+          - pathType: Prefix
+            path: /old-client/?(.*)
             backend:
-              serviceName: trends-api-cluster-ip-service
-              servicePort: 3000
-          - path: /?(.*)
+              service:
+                name: old-client-cluster-ip-service
+                port:
+                  number: 3000
+          - pathType: Prefix
+            path: /?(.*)
             backend:
-              serviceName: client-cluster-ip-service
-              servicePort: 3000
+              service:
+                name: client-cluster-ip-service
+                port:
+                  number: 3000
