@@ -11,6 +11,7 @@ type Props = {
   withTitle?: boolean;
   googleDailyTrendsByState: GoogleRegionTrend[];
   selectedRegion: string;
+  colorMap: Map<string, string>;
 };
 
 const defaultProps = {
@@ -26,6 +27,7 @@ export function GoogleDailyTrendsByStateList({
   withTitle,
   googleDailyTrendsByState,
   selectedRegion,
+  colorMap,
 }: Props) {
   if (!googleDailyTrendsByState || !googleDailyTrendsByState.length) {
     return <span>Error: no google daily trends are provided!</span>;
@@ -56,7 +58,10 @@ export function GoogleDailyTrendsByStateList({
           return (
             <ListItem key={i}>
               <ListItemText>
-                <Typography>
+                {/* TODO: color this better */}
+                <Typography
+                  style={{ backgroundColor: colorMap.get(trend.topic) }}
+                >
                   #{i + 1}. {trend.topic} | {trend.geoCode} | {trend.value}
                 </Typography>
               </ListItemText>

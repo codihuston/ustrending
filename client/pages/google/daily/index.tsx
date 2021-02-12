@@ -14,6 +14,7 @@ import GoogleTrendMap from "../../../components/GoogleTrendMap";
 export default function GoogleDaily() {
   const ref = useRef(null);
   const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const sectionRegionTrends = "#region-trends";
 
   const executeScroll = () =>
@@ -31,6 +32,10 @@ export default function GoogleDaily() {
     executeScroll();
   };
 
+  const initColorMap = (colorMap: Map<string, string>) => {
+    setColorMap(colorMap);
+  };
+
   return (
     <>
       <Head>Google Daily Trends</Head>
@@ -38,15 +43,15 @@ export default function GoogleDaily() {
       <Box>
         <Paper>
           <h3>Trending Right Now</h3>
-          <GoogleDailyTrendsContainer>
+          <GoogleDailyTrendsContainer setColorMap={initColorMap}>
             <GoogleDailyTrendsList googleDailyTrends={[]} />
           </GoogleDailyTrendsContainer>
           <h3 ref={ref}>Trending by Region</h3>
+          <Typography>
+            To see trends for a particular region, please choose the region by
+            using the dropdown or by clicking on a region on the map below.
+          </Typography>
           <GoogleDailyTrendsByStateContainer>
-            <Typography>
-              To see trends for a particular region, please choose the region by
-              using the dropdown or by clicking on a region on the map.
-            </Typography>
             <RegionSelect
               value={{
                 label: selectedRegion,
@@ -55,20 +60,17 @@ export default function GoogleDaily() {
               googleDailyTrendsByState={[]}
               handleChange={handleChange}
             />
-
             <GoogleDailyTrendsByStateList
               withTitle
               googleDailyTrendsByState={[]}
               selectedRegion={selectedRegion}
+              colorMap={colorMap}
             />
             <GoogleTrendMap
               handleClick={handleMapClick}
               googleDailyTrendsByState={[]}
-              colorsByTopic={new Map<string, string>()}
+              colorMap={colorMap}
             />
-            <h4 id={sectionRegionTrends}>
-              {selectedRegion ? `2. Trending today in ${selectedRegion}` : null}
-            </h4>
           </GoogleDailyTrendsByStateContainer>
         </Paper>
       </Box>

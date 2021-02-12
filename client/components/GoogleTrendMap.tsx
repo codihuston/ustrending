@@ -8,13 +8,14 @@ import {
   Geography,
   Marker,
   Annotation,
+  AnnotationProps,
 } from "react-simple-maps";
 import debugLib from "debug";
 import invert from "invert-color";
 
 import allStates from "../data/regions.json";
 import { GoogleRegionTrend } from "../types";
-import { copyFileSync } from "fs";
+import { isOptionDisabled } from "react-select/src/builtins";
 
 const tooltipFontSize = "1rem";
 const debug = debugLib("client:mapchart");
@@ -75,13 +76,13 @@ type Props = {
     regionName: string
   ): void;
   googleDailyTrendsByState: GoogleRegionTrend[];
-  colorsByTopic: Map<string, string>;
+  colorMap: Map<string, string>;
 };
 
 const GoogleTrendMap = ({
   handleClick,
   googleDailyTrendsByState,
-  colorsByTopic,
+  colorMap,
 }: Props) => {
   const [tooltipContent, setTooltipContent] = useState("");
   const projection = "geoAlbersUsa";
@@ -90,7 +91,33 @@ const GoogleTrendMap = ({
     return <span>No trends data provided.</span>;
   }
 
-  function tooltipStyle(name) {
+  function getTrendingTopicColorByRegion(
+    name: string,
+    defaultColor: string
+  ): string {
+    // handle null region
+    if (!name) {
+      console.warn(`Unable to fetch tooltip style, region not provided.`);
+      return defaultColor;
+    }
+
+    // handle region not found
+    const region = googleDailyTrendsByState.find((x) => x.name === name);
+    if (!region) {
+      console.warn("No tooltip style found for region: ", region, name);
+      return defaultColor;
+    }
+
+    // get the #1 topic for this region
+    const topicName = region.trends[0].topic;
+
+    // style this region with the color for this #1 topic
+    const color = colorMap.get(topicName);
+
+    return color ? color : defaultColor;
+  }
+
+  function getTooltipStyle(name: string) {
     const style = {
       default: {
         fill: "#D6D6DA",
@@ -106,31 +133,26 @@ const GoogleTrendMap = ({
       },
     };
 
-    if (!name) {
-      console.warn(`Unable to fetch tooltip style for state '${name}'`);
-      return;
-    }
+    const color = getTrendingTopicColorByRegion(name, style.default.fill);
 
-    // get color of top trending item for this state
-    // const topicName = dailyTrendsByState.find.get(name)
-    //   ? dailyTrendsByState.get(name)[0].topic
-    //   : null;
-
-    const region = googleDailyTrendsByState.find((x) => x.name === name);
-
-    if (!region) {
-      console.warn("No tooltip style found for region: ", region);
-      return style;
-    }
-
-    const topicName = region.trends[0].topic;
-
-    // style each state with color matching the #1 topic
-    if (topicName) {
-      style.default.fill = colorsByTopic.get(topicName);
-    }
+    style.default.fill = color;
 
     return style;
+  }
+
+  function getConnectorProps(name: string): React.SVGProps<SVGPathElement> {
+    const style: AnnotationProps = {
+      connectorProps: {
+        stroke: "#A2D6F9",
+        strokeWidth: 3,
+        strokeLinecap: "round",
+      },
+    };
+
+    const color = getTrendingTopicColorByRegion(name, style.stroke);
+    style.stroke = color;
+
+    return style.connectorProps;
   }
 
   function handleMouseEnter(event, name) {
@@ -158,7 +180,7 @@ const GoogleTrendMap = ({
                     onMouseLeave={() => {
                       setTooltipContent("");
                     }}
-                    style={tooltipStyle(geo?.properties?.name)}
+                    style={getTooltipStyle(geo?.properties?.name)}
                     onClick={(
                       event: React.MouseEvent<SVGPathElement, MouseEvent>
                     ) => handleClick(event, geo?.properties?.name)}
@@ -204,11 +226,9 @@ const GoogleTrendMap = ({
                             onClick={(event) =>
                               handleClick(event, geo?.properties?.name)
                             }
-                            connectorProps={{
-                              stroke: "#FF5533",
-                              strokeWidth: 3,
-                              strokeLinecap: "round",
-                            }}
+                            connectorProps={getConnectorProps(
+                              geo?.properties?.name
+                            )}
                           >
                             <text
                               x={4}
@@ -231,4 +251,5 @@ const GoogleTrendMap = ({
   );
 };
 
-export default memo(GoogleTrendMap);
+// export default memo(GoogleTrendMap);
+export default GoogleTrendMap;
