@@ -28,9 +28,10 @@ const colorPalatte = {
     "#0496FF",
   ],
 };
-type Props = {
-  setColorMap(colorMap: Map<string, string>): void;
-};
+
+interface Props {
+  setColorMap?(colorMap: Map<string, string>): void;
+}
 
 export function GoogleDailyTrendsContainer({
   children,
@@ -41,6 +42,8 @@ export function GoogleDailyTrendsContainer({
 
   // set color map based on the trending topic
   useEffect(() => {
+    if (!setColorMap) return;
+
     const colorMap = new Map<string, string>();
     const selectedColorPalatte = "default";
     if (data) {

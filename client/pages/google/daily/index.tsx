@@ -9,6 +9,7 @@ import { GoogleDailyTrendsContainer } from "../../../components/containers/Googl
 import { GoogleDailyTrendsByStateContainer } from "../../../components/containers/GoogleDailyTrendsByStateContainer";
 import { GoogleDailyTrendsByStateList } from "../../../components/GoogleDailyTrendsByStateList";
 import { RegionSelect, OptionType } from "../../../components/RegionSelect";
+import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
 import GoogleTrendMap from "../../../components/GoogleTrendMap";
 
 export default function GoogleDaily() {
@@ -72,6 +73,22 @@ export default function GoogleDaily() {
               colorMap={colorMap}
             />
           </GoogleDailyTrendsByStateContainer>
+          <h3>Compare Trends by Region</h3>
+          <Typography>
+            Below lists all of the trends for each region. You can compare
+            specific regions by selecting each region in the first column, and
+            viewing the comparision table that appears at the bottom of the
+            page.
+          </Typography>
+          <GoogleDailyTrendsContainer>
+            <GoogleDailyTrendsByStateContainer>
+              <GoogleTrendsTableContainer
+                googleDailyTrends={[]}
+                googleDailyTrendsByState={[]}
+                colorMap={colorMap}
+              />
+            </GoogleDailyTrendsByStateContainer>
+          </GoogleDailyTrendsContainer>
         </Paper>
       </Box>
     </>
