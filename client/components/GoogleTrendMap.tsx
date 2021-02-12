@@ -1,9 +1,8 @@
-import React, { memo, useState } from "react";
-import ReactTooltip from "react-tooltip";
+import React, { memo } from "react";
+import { cloneDeep } from "lodash";
 import { geoCentroid } from "d3-geo";
 import {
   ComposableMap,
-  ZoomableGroup,
   Geographies,
   Geography,
   Marker,
@@ -15,7 +14,6 @@ import invert from "invert-color";
 
 import allStates from "../data/regions.json";
 import { GoogleRegionTrend } from "../types";
-import { isOptionDisabled } from "react-select/src/builtins";
 
 const tooltipFontSize = "1rem";
 const debug = debugLib("client:mapchart");
@@ -79,12 +77,49 @@ type Props = {
   colorMap: Map<string, string>;
 };
 
+type GeographyStyle = {
+  default: {
+    fill: string;
+    outline: string;
+  };
+  hover: {
+    fill: string;
+    outline: string;
+  };
+  pressed: {
+    fill: string;
+    outline: string;
+  };
+};
+
+const defaultRegionStyle: GeographyStyle = {
+  default: {
+    fill: "#D6D6DA",
+    outline: "none",
+  },
+  hover: {
+    fill: "#F53",
+    outline: "none",
+  },
+  pressed: {
+    fill: "#E42",
+    outline: "none",
+  },
+};
+
+const defaultAnnotationProps: AnnotationProps = {
+  connectorProps: {
+    stroke: "#A2D6F9",
+    strokeWidth: 3,
+    strokeLinecap: "round",
+  },
+};
+
 const GoogleTrendMap = ({
   handleClick,
   googleDailyTrendsByState,
   colorMap,
 }: Props) => {
-  const [tooltipContent, setTooltipContent] = useState("");
   const projection = "geoAlbersUsa";
 
   if (!googleDailyTrendsByState || !googleDailyTrendsByState.length) {
@@ -97,14 +132,18 @@ const GoogleTrendMap = ({
   ): string {
     // handle null region
     if (!name) {
-      console.warn(`Unable to fetch tooltip style, region not provided.`);
+      console.warn(
+        `Unable to fetch style, region not provided, using defaults.`
+      );
       return defaultColor;
     }
 
     // handle region not found
     const region = googleDailyTrendsByState.find((x) => x.name === name);
     if (!region) {
-      console.warn("No tooltip style found for region: ", region, name);
+      console.warn(
+        `No trends found for region named: ${name}, using default styles.`
+      );
       return defaultColor;
     }
 
@@ -117,53 +156,24 @@ const GoogleTrendMap = ({
     return color ? color : defaultColor;
   }
 
-  function getTooltipStyle(name: string) {
-    const style = {
-      default: {
-        fill: "#D6D6DA",
-        outline: "none",
-      },
-      hover: {
-        fill: "#F53",
-        outline: "none",
-      },
-      pressed: {
-        fill: "#E42",
-        outline: "none",
-      },
-    };
-
-    const color = getTrendingTopicColorByRegion(name, style.default.fill);
+  function getRegionStyle(color: string): GeographyStyle {
+    const style = cloneDeep(defaultRegionStyle);
 
     style.default.fill = color;
 
     return style;
   }
 
-  function getConnectorProps(name: string): React.SVGProps<SVGPathElement> {
-    const style: AnnotationProps = {
-      connectorProps: {
-        stroke: "#A2D6F9",
-        strokeWidth: 3,
-        strokeLinecap: "round",
-      },
-    };
+  function getConnectorProps(color: string): React.SVGProps<SVGPathElement> {
+    const style = cloneDeep(defaultAnnotationProps);
 
-    const color = getTrendingTopicColorByRegion(name, style.stroke);
-    style.stroke = color;
+    style.connectorProps.stroke = color;
 
     return style.connectorProps;
   }
 
-  function handleMouseEnter(event, name) {
-    console.log("TODO: implement hover");
-  }
-
   return (
     <div>
-      <ReactTooltip html={true} multiline={true}>
-        {tooltipContent}
-      </ReactTooltip>
       <ComposableMap data-tip="" projection={projection}>
         <Geographies geography={geoUrl}>
           {({ geographies }) => {
@@ -174,13 +184,12 @@ const GoogleTrendMap = ({
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    onMouseEnter={(event) =>
-                      handleMouseEnter(event, geo?.properties?.name)
-                    }
-                    onMouseLeave={() => {
-                      setTooltipContent("");
-                    }}
-                    style={getTooltipStyle(geo?.properties?.name)}
+                    style={getRegionStyle(
+                      getTrendingTopicColorByRegion(
+                        geo?.properties?.name,
+                        defaultRegionStyle.default.fill
+                      )
+                    )}
                     onClick={(
                       event: React.MouseEvent<SVGPathElement, MouseEvent>
                     ) => handleClick(event, geo?.properties?.name)}
@@ -198,16 +207,19 @@ const GoogleTrendMap = ({
                       {cur &&
                         centroid[0] > -160 &&
                         centroid[0] < -67 &&
-                        // TODO: implement onhover / tooltips for markers?
                         (Object.keys(offsets).indexOf(cur.id) === -1 ? (
                           <Marker coordinates={centroid} style={labelStyle}>
                             <text
                               x={5}
+                              fill={invert(
+                                getTrendingTopicColorByRegion(
+                                  geo?.properties?.name,
+                                  defaultRegionStyle.default.fill
+                                ),
+                                true
+                              )}
                               fontSize={tooltipFontSize}
                               textAnchor="middle"
-                              onMouseEnter={(event) =>
-                                handleMouseEnter(event, geo?.properties?.name)
-                              }
                               onClick={(event) =>
                                 handleClick(event, geo?.properties?.name)
                               }
@@ -220,18 +232,25 @@ const GoogleTrendMap = ({
                             subject={centroid}
                             dx={offsets[cur.id].offsets[0]}
                             dy={offsets[cur.id].offsets[1]}
-                            onMouseEnter={(event) =>
-                              handleMouseEnter(event, geo?.properties?.name)
-                            }
                             onClick={(event) =>
                               handleClick(event, geo?.properties?.name)
                             }
                             connectorProps={getConnectorProps(
-                              geo?.properties?.name
+                              getTrendingTopicColorByRegion(
+                                geo?.properties?.name,
+                                defaultAnnotationProps.connectorProps.stroke
+                              )
                             )}
                           >
                             <text
                               x={4}
+                              fill={invert(
+                                getTrendingTopicColorByRegion(
+                                  geo?.properties?.name,
+                                  defaultRegionStyle.default.fill
+                                ),
+                                true
+                              )}
                               fontSize={tooltipFontSize}
                               alignmentBaseline="middle"
                             >
@@ -251,5 +270,4 @@ const GoogleTrendMap = ({
   );
 };
 
-// export default memo(GoogleTrendMap);
-export default GoogleTrendMap;
+export default memo(GoogleTrendMap);
