@@ -12,12 +12,15 @@ import {
 import debugLib from "debug";
 import invert from "invert-color";
 
+// TODO: modularize this by country?
 import allStates from "../data/regions.json";
 import { GoogleRegionTrend } from "../types";
 
 const tooltipFontSize = "1rem";
 const debug = debugLib("client:mapchart");
+// TODO: modularize this by country?
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+// TODO: modularize this by country?
 const offsets = {
   VT: {
     name: "Vermont",
