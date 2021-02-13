@@ -25,7 +25,6 @@ import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 
 import { TableToolbar } from "./TableToolbar";
-
 function fuzzyTextFilterFn(rows: Row[], id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
 }
@@ -220,33 +219,25 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
             );
           })}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TablePagination
-              style={{
-                display: "flex",
-                // width: "100vh",
-              }}
-              rowsPerPageOptions={[
-                5,
-                10,
-                25,
-                { label: "All", value: data.length },
-              ]}
-              count={data.length}
-              rowsPerPage={pageSize}
-              page={pageIndex}
-              SelectProps={{
-                inputProps: { "aria-label": "rows per page" },
-                native: true,
-              }}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-              ActionsComponent={TablePaginationActions}
-            />
-          </TableRow>
-        </TableFooter>
       </MaUTable>
+      <TablePagination
+        component="div"
+        style={{
+          display: "flex",
+          width: "100vh",
+        }}
+        rowsPerPageOptions={[5, 10, 25, { label: "All", value: data.length }]}
+        count={data.length}
+        rowsPerPage={pageSize}
+        page={pageIndex}
+        SelectProps={{
+          inputProps: { "aria-label": "rows per page" },
+          native: true,
+        }}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+        ActionsComponent={TablePaginationActions}
+      />
     </TableContainer>
   );
 }
