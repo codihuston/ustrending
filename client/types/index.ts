@@ -87,3 +87,5 @@ export interface TwitterLocation {
   name: string;
   woeid: number;
 }
+
+export type RegionSelectOptionType = { label: string; value: string };

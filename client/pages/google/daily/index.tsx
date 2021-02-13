@@ -1,17 +1,24 @@
 import { useState, useRef, useEffect } from "react";
+import { isEqual, clone } from "lodash";
 import Head from "next/head";
 import { ValueType } from "react-select";
-import { Box, Paper, Typography } from "@material-ui/core";
-
+import {
+  Box,
+  FormControlLabel,
+  Paper,
+  Switch,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
+import { RegionSelectOptionType } from "../../../types";
 import {
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
-import { Loading } from "../../../components/Loading";
 import { Navigation } from "../../../components/Navigation";
 import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList";
-import { GoogleDailyTrendsByStateList } from "../../../components/GoogleDailyTrendsByStateList";
-import { RegionSelect, OptionType } from "../../../components/RegionSelect";
+import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
+import { RegionSelect } from "../../../components/RegionSelect";
 import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
 import GoogleTrendMap from "../../../components/GoogleTrendMap";
 
@@ -44,19 +51,15 @@ const colorPalatte = {
 
 export default function GoogleDaily() {
   const ref = useRef(null);
-  const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [selectedRegions, setSelectedRegions] = useState<
+    ValueType<RegionSelectOptionType, true>
+  >([]);
+  const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
-  const selectedRegions = "selectedRegions";
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
   const googleDailyTrends = useGoogleDailyTrendsHook.data;
 
-  /**
-   * TODO:
-   *  - use hooks to fetch all required data, instead of resorting to
-   *    container pattern...
-   *  - remove color inversion on map annotations
-   */
   useEffect(() => {
     const colorMap = new Map<string, string>();
     const selectedColorPalatte = "default";
@@ -75,17 +78,77 @@ export default function GoogleDaily() {
       inline: "center",
     });
 
-  const handleChange = (option: ValueType<OptionType, false>): void => {
-    setSelectedRegion(option.value);
+  /**
+   * Handles change event from the dropdown select
+   * @param option
+   */
+  const handleChange = (
+    option: ValueType<RegionSelectOptionType, true>
+  ): void => {
+    setSelectedRegions(option);
     executeScroll();
   };
 
+  /**
+   * Handles click event on the map regions
+   * @param e
+   * @param regionName
+   */
   const handleMapClick = (
     e: React.MouseEvent<SVGGElement, MouseEvent>,
     regionName: string
   ): void => {
-    setSelectedRegion(regionName);
+    let found = false;
+
+    // check if region is already selected
+    for (const region of selectedRegions) {
+      if (region.label === regionName || region.value === regionName) {
+        found = true;
+        break;
+      }
+    }
+
+    // if not found, add to it
+    if (!found) {
+      const newValue: ValueType<RegionSelectOptionType, false> = {
+        label: regionName,
+        value: regionName,
+      };
+
+      const temp = clone(selectedRegions).concat(newValue);
+
+      setSelectedRegions(temp);
+    }
+
+    // scroll to view
     executeScroll();
+  };
+
+  /**
+   * Handles the click event for toggling sort method for the regions' trends list
+   * @param event
+   */
+  const handleListSort = (event) => {
+    setIsAlphabetical(event.target.checked);
+  };
+
+  /**
+   * Handles click event for deleting a list from the regions' trends list
+   * @param e
+   * @param selectedRegion
+   */
+  const handleListDelete = (
+    e: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    selectedRegion: ValueType<RegionSelectOptionType, true>
+  ) => {
+    if (!selectedRegion) return;
+
+    // filter out the given region
+    const temp = selectedRegions.filter(
+      (region) => !isEqual(region, selectedRegion)
+    );
+
+    setSelectedRegions(temp);
   };
 
   return (
@@ -100,19 +163,6 @@ export default function GoogleDaily() {
               useGoogleDailyTrendsHook.data ? useGoogleDailyTrendsHook.data : []
             }
           />
-          <h3 id={selectedRegions} ref={ref}>
-            Trending in Your Selected Region(s)
-          </h3>
-          <GoogleDailyTrendsByStateList
-            withTitle
-            googleDailyTrendsByState={
-              useGoogleDailyTrendsByStateHook.data
-                ? useGoogleDailyTrendsByStateHook.data
-                : []
-            }
-            selectedRegion={selectedRegion}
-            colorMap={colorMap}
-          />
           <h3>Select a Region to Compare</h3>
           <Typography>
             To see trends for a particular region, please choose the region by
@@ -121,10 +171,7 @@ export default function GoogleDaily() {
             <a href={`#${selectedRegions}`}>Click here to see the results</a>.
           </Typography>
           <RegionSelect
-            value={{
-              label: selectedRegion,
-              value: selectedRegion,
-            }}
+            values={selectedRegions}
             googleDailyTrendsByState={
               useGoogleDailyTrendsByStateHook.data
                 ? useGoogleDailyTrendsByStateHook.data
@@ -139,6 +186,31 @@ export default function GoogleDaily() {
                 ? useGoogleDailyTrendsByStateHook.data
                 : []
             }
+            colorMap={colorMap}
+          />
+          <h3 id={"selectedRegions"} ref={ref}>
+            Trending in Your Selected Region(s)
+          </h3>
+          <Toolbar>
+            <FormControlLabel
+              control={
+                <Switch checked={isAlphabetical} onChange={handleListSort} />
+              }
+              label={`Sort alphabetically (currently: ${
+                isAlphabetical ? "ordered by name" : "ordered by selection"
+              })`}
+            />
+          </Toolbar>
+          <GoogleDailyTrendsByRegionList
+            handleClick={handleListDelete}
+            withTitle
+            isAlphabetical={isAlphabetical}
+            googleRegionTrends={
+              useGoogleDailyTrendsByStateHook.data
+                ? useGoogleDailyTrendsByStateHook.data
+                : []
+            }
+            selectedRegions={selectedRegions}
             colorMap={colorMap}
           />
           <h3>Trends by Region: Grid View</h3>

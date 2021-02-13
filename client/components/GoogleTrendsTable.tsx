@@ -170,18 +170,16 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
                     ? column.getHeaderProps()
                     : column.getHeaderProps(column.getSortByToggleProps()))}
                 >
-                  <div>
-                    <span>
-                      {column.render("Header")}
-                      {column.id !== "selection" ? (
-                        <TableSortLabel
-                          active={column.isSorted}
-                          // react-table has a unsorted state which is not treated here
-                          direction={column.isSortedDesc ? "desc" : "asc"}
-                        />
-                      ) : null}
-                    </span>
-                  </div>
+                  <span>
+                    {column.render("Header")}
+                    {column.id !== "selection" ? (
+                      <TableSortLabel
+                        active={column.isSorted}
+                        // react-table has a unsorted state which is not treated here
+                        direction={column.isSortedDesc ? "desc" : "asc"}
+                      />
+                    ) : null}
+                  </span>
                   <Filter column={column} />
                 </TableCell>
               ))}
@@ -222,25 +220,33 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
             );
           })}
         </TableBody>
-        <TableFooter />
+        <TableFooter>
+          <TableRow>
+            <TablePagination
+              style={{
+                display: "flex",
+                // width: "100vh",
+              }}
+              rowsPerPageOptions={[
+                5,
+                10,
+                25,
+                { label: "All", value: data.length },
+              ]}
+              count={data.length}
+              rowsPerPage={pageSize}
+              page={pageIndex}
+              SelectProps={{
+                inputProps: { "aria-label": "rows per page" },
+                native: true,
+              }}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+              ActionsComponent={TablePaginationActions}
+            />
+          </TableRow>
+        </TableFooter>
       </MaUTable>
-      <TablePagination
-        style={{
-          display: "flex",
-          width: "100vh",
-        }}
-        rowsPerPageOptions={[5, 10, 25, { label: "All", value: data.length }]}
-        count={data.length}
-        rowsPerPage={pageSize}
-        page={pageIndex}
-        SelectProps={{
-          inputProps: { "aria-label": "rows per page" },
-          native: true,
-        }}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
-        ActionsComponent={TablePaginationActions}
-      />
     </TableContainer>
   );
 }
