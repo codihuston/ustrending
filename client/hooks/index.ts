@@ -1,30 +1,56 @@
+import { useQuery, useQueries } from "react-query";
+
 import {
-  useQuery,
-} from 'react-query'
+  GoogleDailyTrend,
+  GoogleRegionTrend,
+  GoogleRealtimeTrend,
+  Place,
+  TwitterTrendsMap,
+} from "../types";
+import {
+  fetchGoogleDailyTrends,
+  fetchGoogleDailyTrendsByState,
+  fetchGoogleRealtimeTrends,
+  fetchGoogleRealtimeTrendsByState,
+  fetchTwitterRealtimeTrends,
+  fetchUSPlaces,
+} from "../queries";
 
-import { GoogleDailyTrend, GoogleRegionTrend, GoogleRealtimeTrend, Place, TwitterTrendsMap } from "../types";
-import { fetchGoogleDailyTrends, fetchGoogleDailyTrendsByState, fetchGoogleRealtimeTrends, fetchGoogleRealtimeTrendsByState, fetchTwitterRealtimeTrends, fetchUSPlaces } from "../queries";
-
-export function useGoogleDailyTrends(){
-  return useQuery<GoogleDailyTrend[], Error>("googleDailyTrends", fetchGoogleDailyTrends);
+export function useGoogleDailyTrends() {
+  return useQuery<GoogleDailyTrend[], Error>(
+    "googleDailyTrends",
+    fetchGoogleDailyTrends
+  );
 }
 
-export function useGoogleDailyTrendsByState(){
-  return useQuery<GoogleRegionTrend[], Error>("googleDailyTrendsByState", fetchGoogleDailyTrendsByState);
+export function useGoogleDailyTrendsByState() {
+  return useQuery<GoogleRegionTrend[], Error>(
+    "googleDailyTrendsByState",
+    fetchGoogleDailyTrendsByState
+  );
 }
 
-export function useGoogleRealtimeTrends(){
-  return useQuery<GoogleRealtimeTrend[], Error>("googleRealtimeTrends", fetchGoogleRealtimeTrends);
+export function useGoogleRealtimeTrends() {
+  return useQuery<GoogleRealtimeTrend[], Error>(
+    "googleRealtimeTrends",
+    fetchGoogleRealtimeTrends
+  );
 }
 
-export function useGooleRealtimeTrendsByState(){
-  return useQuery<GoogleRegionTrend[], Error>("googleRealtimeTrendsByState", fetchGoogleRealtimeTrendsByState);
+export function useGooleRealtimeTrendsByState() {
+  return useQuery<GoogleRegionTrend[], Error>(
+    "googleRealtimeTrendsByState",
+    fetchGoogleRealtimeTrendsByState
+  );
 }
 
-export function useTwitterRealtimeTrends(){
-  return useQuery<TwitterTrendsMap, Error>("twitterRealtimeTrends", fetchTwitterRealtimeTrends); 
+export function useTwitterRealtimeTrends() {
+  return useQuery<TwitterTrendsMap, Error>(
+    "twitterRealtimeTrends",
+    fetchTwitterRealtimeTrends
+  );
 }
 
-export function useUSPlaces(){
-  return useQuery<Place[], Error>("USPlaces", fetchUSPlaces); 
+export function useUSPlaces() {
+  return useQuery<Place[], Error>("USPlaces", fetchUSPlaces);
 }
