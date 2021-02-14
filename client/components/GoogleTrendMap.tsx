@@ -135,18 +135,18 @@ const GoogleTrendMap = ({
   ): string {
     // handle null region
     if (!name) {
-      console.warn(
-        `Unable to fetch style, region not provided, using defaults.`
-      );
+      // console.warn(
+      //   `Unable to fetch style, region not provided, using defaults.`
+      // );
       return defaultColor;
     }
 
     // handle region not found
     const region = googleDailyTrendsByState.find((x) => x.name === name);
     if (!region) {
-      console.warn(
-        `No trends found for region named: ${name}, using default styles.`
-      );
+      // console.warn(
+      //   `No trends found for region named: ${name}, using default styles.`
+      // );
       return defaultColor;
     }
 
