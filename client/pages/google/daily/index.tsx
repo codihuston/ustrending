@@ -166,14 +166,18 @@ export default function GoogleDaily() {
   };
 
   /**
-   * Handles the click event for toggling sort method for the regions' trends list
+   * Toggles the sort method for the regions' trends list
    * @param event
    */
-  const handleListSort = (event) => {
+  const toggleListSort = (event) => {
     setIsAlphabetical(event.target.checked);
   };
 
-  const handleListColors = (event) => {
+  /**
+   * Toggles region list colors
+   * @param event 
+   */
+  const toggleListColors = (event) => {
     setIsWithColors(event.target.checked);
   };
 
@@ -267,13 +271,13 @@ export default function GoogleDaily() {
           <Toolbar>
             <FormControlLabel
               control={
-                <Switch checked={isAlphabetical} onChange={handleListSort} />
+                <Switch checked={isAlphabetical} onChange={toggleListSort} />
               }
               label={`Sort regions alphabetically`}
             />
             <FormControlLabel
               control={
-                <Switch checked={isWithColors} onChange={handleListColors} />
+                <Switch checked={isWithColors} onChange={toggleListColors} />
               }
               label={`Show colors`}
             />
