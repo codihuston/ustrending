@@ -1,6 +1,7 @@
 import React from "react";
+import invert from "invert-color";
 import { ValueType } from "react-select";
-import { Grid, Typography } from "@material-ui/core";
+import { Box, Grid } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Divider from "@material-ui/core/Divider";
@@ -75,52 +76,79 @@ export function GoogleDailyTrendsByRegionList({
   }
 
   return (
-    <Grid container direction="row" justify="center" alignItems="center">
-      {regions.map((region) => (
-        <List key={region.name}>
-          {withTitle ? (
-            <>
-              <ListItem
-                style={{
-                  cursor: "pointer",
-                }}
-                onClick={(e) =>
-                  handleClick(
-                    e,
-                    getSelectedRegionOption(region.name, selectedRegions)
-                  )
-                }
-              >
-                <ListItemText style={{ textAlign: "center" }}>
-                  {region.name}
-                </ListItemText>
-                <IconButton
-                  aria-label="delete"
-                  color="secondary"
-                  style={{ position: "absolute", top: 0, right: 0 }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </ListItem>
-              <Divider />
-            </>
-          ) : null}
-          {region.trends.map((trend, i) => {
-            return (
-              <ListItem key={i}>
-                <ListItemText>
-                  {/* TODO: color this better */}
-                  <Typography
-                    style={{ backgroundColor: colorMap.get(trend.topic) }}
+    <Box>
+      <Grid
+        container
+        direction="row"
+        justify="center"
+        alignItems="center"
+        spacing={3}
+      >
+        {regions.map((region) => (
+          <Grid
+            item
+            key={region.name}
+            style={{
+              minWidth: "25%",
+            }}
+          >
+            <List>
+              {withTitle ? (
+                <>
+                  <ListItem
+                    style={{
+                      cursor: "pointer",
+                    }}
+                    onClick={(e) =>
+                      handleClick(
+                        e,
+                        getSelectedRegionOption(region.name, selectedRegions)
+                      )
+                    }
                   >
-                    #{i + 1}. {trend.topic} | {trend.geoCode} | {trend.value}
-                  </Typography>
-                </ListItemText>
-              </ListItem>
-            );
-          })}
-        </List>
-      ))}
-    </Grid>
+                    <ListItemText style={{ textAlign: "center" }}>
+                      {region.name}
+                    </ListItemText>
+                    <IconButton
+                      aria-label="delete"
+                      color="secondary"
+                      style={{ position: "absolute", top: 0, right: 0 }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItem>
+                  <Divider />
+                </>
+              ) : null}
+              {region.trends.map((trend, i) => {
+                return (
+                  <ListItem key={i}>
+                    <Box display="flex">
+                      <Box width={50}>
+                        <ListItemText
+                          style={{
+                            background: colorMap.get(trend.topic),
+                            color: invert(colorMap.get(trend.topic), true),
+                            borderRadius: "2px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {i + 1}
+                        </ListItemText>
+                      </Box>
+                      <Box ml={2}>
+                        <ListItemText>
+                          {trend.topic} | {trend.geoCode} | {trend.value}
+                        </ListItemText>
+                      </Box>
+                    </Box>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 }
