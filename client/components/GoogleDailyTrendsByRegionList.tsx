@@ -1,5 +1,6 @@
 import React from "react";
 import invert from "invert-color";
+import { BsDash } from "react-icons/bs";
 import { ValueType } from "react-select";
 import { Box, Grid } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
@@ -10,6 +11,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
 import { GoogleRegionTrend, RegionSelectOptionType } from "../types";
+import { StyledUpArrow, StyledDownArrow } from "./Icons";
 
 type Props = {
   colorMap: Map<string, string>;
@@ -20,6 +22,7 @@ type Props = {
   ): void;
   isAlphabetical: boolean;
   selectedRegions: ValueType<RegionSelectOptionType, true>;
+  sourceMap: Map<string, number>;
   withTitle?: boolean;
 };
 
@@ -35,15 +38,45 @@ export function getSelectedRegionOption(
   return null;
 }
 
+function PositionChangeIndicator({ index }) {
+  const description = `This trend has changed ${index} positions relative to the trends for this country.`;
+  const style = {
+    cursor: "pointer",
+  };
+  let Position = null;
+
+  if (index > 0) {
+    Position = <StyledUpArrow color={"success"} number={index} />;
+  } else if (index < 0) {
+    Position = <StyledDownArrow color={"error"} number={index * -1} />;
+  } else if (index === 0) {
+    return <BsDash />;
+  }
+  return (
+    <span title={description} style={style}>
+      {Position}
+    </span>
+  );
+}
+
 export function GoogleDailyTrendsByRegionList({
   colorMap,
   googleRegionTrends,
   handleClick,
   isAlphabetical,
   selectedRegions,
+  sourceMap,
   withTitle,
 }: Props) {
   let regions: GoogleRegionTrend[] = [];
+
+  function getListPositionChange(topic: string, index: number) {
+    const srcIndex = sourceMap.get(topic);
+    if (srcIndex >= 0) {
+      return srcIndex - index;
+    }
+    return 0;
+  }
 
   if (!googleRegionTrends || !googleRegionTrends.length) {
     return <span>Error: no google trends are provided!</span>;
@@ -121,24 +154,32 @@ export function GoogleDailyTrendsByRegionList({
                 </>
               ) : null}
               {region.trends.map((trend, i) => {
+                const positionChange = getListPositionChange(trend.topic, i);
+
                 return (
                   <ListItem key={i}>
-                    <Box display="flex">
-                      <Box width={50}>
-                        <ListItemText
-                          style={{
-                            background: colorMap.get(trend.topic),
-                            color: invert(colorMap.get(trend.topic), true),
-                            borderRadius: "2px",
-                            textAlign: "center",
-                          }}
-                        >
-                          {i + 1}
+                    <Box display="flex" width={"100%"}>
+                      <Box
+                        display="flex"
+                        justifyContent="center"
+                        width={50}
+                        style={{
+                          background: colorMap.get(trend.topic),
+                          color: invert(colorMap.get(trend.topic), true),
+                          borderRadius: "2px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <ListItemText>
+                          <b>{i + 1}</b>
                         </ListItemText>
                       </Box>
-                      <Box ml={2}>
+                      <Box ml={2} flexGrow={1}>
+                        <ListItemText>{trend.topic}</ListItemText>
+                      </Box>
+                      <Box>
                         <ListItemText>
-                          {trend.topic} | {trend.geoCode} | {trend.value}
+                          <PositionChangeIndicator index={positionChange} />
                         </ListItemText>
                       </Box>
                     </Box>

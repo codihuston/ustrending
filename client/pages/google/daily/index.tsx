@@ -56,19 +56,24 @@ export default function GoogleDaily() {
   >([]);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
+  const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
   const googleDailyTrends = useGoogleDailyTrendsHook.data;
 
   useEffect(() => {
     const colorMap = new Map<string, string>();
+    const sourceMap = new Map<string, number>();
     const selectedColorPalatte = "default";
     if (googleDailyTrends) {
+      // NOTE: x.title.query will differ between realtime and daily trends
       googleDailyTrends.map((x, i) => {
         colorMap.set(x.title.query, colorPalatte[selectedColorPalatte][i]);
+        sourceMap.set(x.title.query, i);
       });
     }
     setColorMap(colorMap);
+    setSourceMap(sourceMap);
   }, [googleDailyTrends]);
 
   const executeScroll = () =>
@@ -205,6 +210,7 @@ export default function GoogleDaily() {
             handleClick={handleListDelete}
             withTitle
             isAlphabetical={isAlphabetical}
+            sourceMap={sourceMap}
             googleRegionTrends={
               useGoogleDailyTrendsByStateHook.data
                 ? useGoogleDailyTrendsByStateHook.data
