@@ -206,7 +206,7 @@ export default function GoogleDaily() {
               control={
                 <Switch checked={isAlphabetical} onChange={handleListSort} />
               }
-              label={`Sort alphabetically`}
+              label={`Sort regions alphabetically`}
             />
             <FormControlLabel
               control={
