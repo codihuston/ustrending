@@ -4,12 +4,17 @@ import Head from "next/head";
 import { ValueType } from "react-select";
 import {
   Box,
+  Button,
   FormControlLabel,
+  IconButton,
   Paper,
   Switch,
   Toolbar,
   Typography,
+  Snackbar,
 } from "@material-ui/core";
+import { Close } from "@material-ui/icons";
+
 import { RegionSelectOptionType } from "../../../types";
 import {
   useGoogleDailyTrends,
@@ -57,6 +62,8 @@ export default function GoogleDaily() {
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
+  const [open, setOpen] = useState<boolean>(false);
+  const [snackbarText, setSnackbarText] = useState<string>("");
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
@@ -77,12 +84,31 @@ export default function GoogleDaily() {
     setSourceMap(sourceMap);
   }, [googleDailyTrends]);
 
+  /**
+   * Scrolls to the reference (selected regions / region comparison secion)
+   */
   const executeScroll = () =>
     ref.current.scrollIntoView({
       behavior: "smooth",
       block: "center",
       inline: "center",
     });
+
+  /**
+   * Opens the snackbar
+   */
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  /**
+   * Closes the snackbar
+   */
+  const handleClose = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    setOpen(false);
+  };
 
   /**
    * Handles change event from the dropdown select
@@ -92,7 +118,14 @@ export default function GoogleDaily() {
     option: ValueType<RegionSelectOptionType, true>
   ): void => {
     setSelectedRegions(option);
-    executeScroll();
+    if (option.length > 0) {
+      setSnackbarText(
+        `Region "${option[option.length - 1].label}" added for comparison.`
+      );
+    } else {
+      setSnackbarText(`Region compairsons have been cleared.`);
+    }
+    handleOpen();
   };
 
   /**
@@ -124,10 +157,12 @@ export default function GoogleDaily() {
       const temp = clone(selectedRegions).concat(newValue);
 
       setSelectedRegions(temp);
+      setSnackbarText(`Region "${regionName}" added for comparison.`);
+      handleOpen();
+    } else {
+      setSnackbarText(`Region "${regionName}" is already selected!`);
+      handleOpen();
     }
-
-    // scroll to view
-    executeScroll();
   };
 
   /**
@@ -165,6 +200,34 @@ export default function GoogleDaily() {
     <>
       <Head>Google Daily Trends</Head>
       <Navigation />
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        message={snackbarText}
+        action={
+          selectedRegions.length > 0 ? (
+            <>
+              <Button color="secondary" size="small" onClick={executeScroll}>
+                Click here to view
+              </Button>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+                href="#"
+              >
+                <Close fontSize="small" />
+              </IconButton>
+            </>
+          ) : null
+        }
+      />
       <Box>
         <Paper>
           <h2>Trending Today on Google</h2>
