@@ -55,6 +55,7 @@ export default function GoogleDaily() {
     ValueType<RegionSelectOptionType, true>
   >([]);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
+  const [isWithColors, setIsWithColors] = useState<boolean>(true);
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
@@ -137,6 +138,10 @@ export default function GoogleDaily() {
     setIsAlphabetical(event.target.checked);
   };
 
+  const handleListColors = (event) => {
+    setIsWithColors(event.target.checked);
+  };
+
   /**
    * Handles click event for deleting a list from the regions' trends list
    * @param e
@@ -201,14 +206,17 @@ export default function GoogleDaily() {
               control={
                 <Switch checked={isAlphabetical} onChange={handleListSort} />
               }
-              label={`Sort alphabetically (currently: ${
-                isAlphabetical ? "ordered by name" : "ordered by selection"
-              })`}
+              label={`Sort alphabetically`}
+            />
+            <FormControlLabel
+              control={
+                <Switch checked={isWithColors} onChange={handleListColors} />
+              }
+              label={`Show colors`}
             />
           </Toolbar>
           <GoogleDailyTrendsByRegionList
             handleClick={handleListDelete}
-            withTitle
             isAlphabetical={isAlphabetical}
             sourceMap={sourceMap}
             googleRegionTrends={
@@ -218,6 +226,8 @@ export default function GoogleDaily() {
             }
             selectedRegions={selectedRegions}
             colorMap={colorMap}
+            withColor={isWithColors}
+            withTitle
           />
           <h3>Trends by Region: Grid View</h3>
           <Typography>

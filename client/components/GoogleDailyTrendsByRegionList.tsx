@@ -24,6 +24,7 @@ type Props = {
   selectedRegions: ValueType<RegionSelectOptionType, true>;
   sourceMap: Map<string, number>;
   withTitle?: boolean;
+  withColor?: boolean;
 };
 
 export function getSelectedRegionOption(
@@ -67,6 +68,7 @@ export function GoogleDailyTrendsByRegionList({
   selectedRegions,
   sourceMap,
   withTitle,
+  withColor,
 }: Props) {
   let regions: GoogleRegionTrend[] = [];
 
@@ -159,21 +161,27 @@ export function GoogleDailyTrendsByRegionList({
                 return (
                   <ListItem key={i}>
                     <Box display="flex" width={"100%"}>
-                      <Box
-                        display="flex"
-                        justifyContent="center"
-                        width={50}
-                        style={{
-                          background: colorMap.get(trend.topic),
-                          color: invert(colorMap.get(trend.topic), true),
-                          borderRadius: "2px",
-                          textAlign: "center",
-                        }}
-                      >
+                      {withColor ? (
+                        <Box
+                          display="flex"
+                          justifyContent="center"
+                          width={"3rem"}
+                          style={{
+                            background: colorMap.get(trend.topic),
+                            color: invert(colorMap.get(trend.topic), true),
+                            borderRadius: "2px",
+                            textAlign: "center",
+                          }}
+                        >
+                          <ListItemText>
+                            <b>{i + 1}</b>
+                          </ListItemText>
+                        </Box>
+                      ) : (
                         <ListItemText>
                           <b>{i + 1}</b>
                         </ListItemText>
-                      </Box>
+                      )}
                       <Box ml={2} flexGrow={1}>
                         <ListItemText>{trend.topic}</ListItemText>
                       </Box>
