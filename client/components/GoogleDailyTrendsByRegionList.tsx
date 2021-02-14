@@ -1,17 +1,13 @@
 import React from "react";
-import invert from "invert-color";
 import { BsDash } from "react-icons/bs";
 import { ValueType } from "react-select";
 import { Box, Grid } from "@material-ui/core";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import Divider from "@material-ui/core/Divider";
 import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 
 import { GoogleRegionTrend, RegionSelectOptionType } from "../types";
+import { getSelectedRegionOption } from "../lib";
 import { StyledUpArrow, StyledDownArrow } from "./Icons";
+import { GoogleDailyTrendsByRegionListItem } from "./GoogleDailyTrendsByRegionListItem";
 
 type Props = {
   colorMap: Map<string, string>;
@@ -27,19 +23,7 @@ type Props = {
   withColor?: boolean;
 };
 
-export function getSelectedRegionOption(
-  regionName,
-  selectedRegions
-): ValueType<RegionSelectOptionType, true> {
-  for (const givenRegion of selectedRegions) {
-    if (givenRegion.label === regionName || givenRegion.value === regionName) {
-      return givenRegion;
-    }
-  }
-  return null;
-}
-
-function PositionChangeIndicator({ index }) {
+export function PositionChangeIndicator({ index }) {
   const description = `This trend has changed ${index} positions relative to the trends for this country.`;
   const style = {
     cursor: "pointer",
@@ -67,18 +51,10 @@ export function GoogleDailyTrendsByRegionList({
   isAlphabetical,
   selectedRegions,
   sourceMap,
-  withTitle,
   withColor,
+  withTitle,
 }: Props) {
   let regions: GoogleRegionTrend[] = [];
-
-  function getListPositionChange(topic: string, index: number) {
-    const srcIndex = sourceMap.get(topic);
-    if (srcIndex >= 0) {
-      return srcIndex - index;
-    }
-    return 0;
-  }
 
   if (!googleRegionTrends || !googleRegionTrends.length) {
     return <span>Error: no google trends are provided!</span>;
@@ -128,72 +104,15 @@ export function GoogleDailyTrendsByRegionList({
             }}
           >
             <List>
-              {withTitle ? (
-                <>
-                  <ListItem
-                    style={{
-                      cursor: "pointer",
-                    }}
-                    onClick={(e) =>
-                      handleClick(
-                        e,
-                        getSelectedRegionOption(region.name, selectedRegions)
-                      )
-                    }
-                  >
-                    <ListItemText style={{ textAlign: "center" }}>
-                      {region.name}
-                    </ListItemText>
-                    <IconButton
-                      aria-label="delete"
-                      color="secondary"
-                      style={{ position: "absolute", top: 0, right: 0 }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItem>
-                  <Divider />
-                </>
-              ) : null}
-              {region.trends.map((trend, i) => {
-                const positionChange = getListPositionChange(trend.topic, i);
-
-                return (
-                  <ListItem key={i}>
-                    <Box display="flex" width={"100%"}>
-                      {withColor ? (
-                        <Box
-                          display="flex"
-                          justifyContent="center"
-                          width={"3rem"}
-                          style={{
-                            background: colorMap.get(trend.topic),
-                            color: invert(colorMap.get(trend.topic), true),
-                            borderRadius: "2px",
-                            textAlign: "center",
-                          }}
-                        >
-                          <ListItemText>
-                            <b>{i + 1}</b>
-                          </ListItemText>
-                        </Box>
-                      ) : (
-                        <ListItemText>
-                          <b>{i + 1}</b>
-                        </ListItemText>
-                      )}
-                      <Box ml={2} flexGrow={1}>
-                        <ListItemText>{trend.topic}</ListItemText>
-                      </Box>
-                      <Box>
-                        <ListItemText>
-                          <PositionChangeIndicator index={positionChange} />
-                        </ListItemText>
-                      </Box>
-                    </Box>
-                  </ListItem>
-                );
-              })}
+              <GoogleDailyTrendsByRegionListItem
+                colorMap={colorMap}
+                handleClick={handleClick}
+                region={region}
+                selectedRegions={selectedRegions}
+                sourceMap={sourceMap}
+                withColor={withColor}
+                withTitle={withTitle}
+              />
             </List>
           </Grid>
         ))}
