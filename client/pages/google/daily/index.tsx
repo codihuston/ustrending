@@ -23,6 +23,7 @@ import {
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
+import { getColors } from "../../../themes";
 import { Layout } from "../../../components/Layout";
 import { FullScreenDialog } from "../../../components/FullScreenDialog";
 import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList";
@@ -31,32 +32,8 @@ import { RegionSelect } from "../../../components/RegionSelect";
 import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
 
-// TODO: initialize this elsewhere?
-const colorPalatte = {
-  default: [
-    "#072AC8",
-    "#1E96FC",
-    "#A2D6F9",
-    "#FCF300",
-    "#FFC600",
-    "#93827F",
-    "#F3F9D2",
-    "#2F2F2F",
-    "#EF6F6C",
-    "#56E39F",
-    //
-    "#FCEFEF",
-    "#7FD8BE",
-    "#A1FCDF",
-    "#FCD29F",
-    "#FCAB64",
-    "#0F0A0A",
-    "#BDBF09",
-    "#D96C06",
-    "#006BA6",
-    "#0496FF",
-  ],
-};
+// TODO: initialize this via settings?
+const colorPalatte = getColors("blues", "high");
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -103,7 +80,7 @@ export default function GoogleDaily() {
     if (googleDailyTrends) {
       // NOTE: x.title.query will differ between realtime and daily trends
       googleDailyTrends.map((x, i) => {
-        colorMap.set(x.title.query, colorPalatte[selectedColorPalatte][i]);
+        colorMap.set(x.title.query, colorPalatte[i]);
         sourceMap.set(x.title.query, i);
       });
     }
@@ -337,21 +314,19 @@ export default function GoogleDaily() {
               }
               handleChange={handleChange}
             />
-            <div>
-              {isTooltipVisible && (
-                <ReactTooltip html>{tooltipContent}</ReactTooltip>
-              )}
-              <GoogleTrendsMap
-                colorMap={colorMap}
-                handleClick={debouncedHandleMapClick}
-                handleHover={debouncedHandleMapHover}
-                googleDailyTrendsByState={
-                  useGoogleDailyTrendsByStateHook.data
-                    ? useGoogleDailyTrendsByStateHook.data
-                    : []
-                }
-              />
-            </div>
+            {isTooltipVisible && (
+              <ReactTooltip html>{tooltipContent}</ReactTooltip>
+            )}
+            <GoogleTrendsMap
+              colorMap={colorMap}
+              handleClick={debouncedHandleMapClick}
+              handleHover={debouncedHandleMapHover}
+              googleDailyTrendsByState={
+                useGoogleDailyTrendsByStateHook.data
+                  ? useGoogleDailyTrendsByStateHook.data
+                  : []
+              }
+            />
           </div>
           <h3>Trending in the United States</h3>
           <Toolbar>

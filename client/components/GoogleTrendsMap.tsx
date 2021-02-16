@@ -122,90 +122,85 @@ const defaultAnnotationProps: AnnotationProps = {
   },
 };
 
-export const GoogleTrendsMap = memo(({
-  handleClick,
-  handleHover,
-  googleDailyTrendsByState,
-  colorMap
-}: Props) => {
-  // TODO: make this dynamic?
-  const projection = "geoAlbersUsa";
+export const GoogleTrendsMap = memo(
+  ({ handleClick, handleHover, googleDailyTrendsByState, colorMap }: Props) => {
+    // TODO: make this dynamic?
+    const projection = "geoAlbersUsa";
 
-  if (!googleDailyTrendsByState || !googleDailyTrendsByState.length) {
-    return <span>No trends data provided.</span>;
-  }
-
-  /**
-   * Will fetch a Google Region Trend with the given name
-   * 
-   * @param name 
-   */
-  function getRegionByGeoName(name: string): GoogleRegionTrend {
-    // handle null region
-    if (!name) {
-      // console.warn(
-      //   `Unable to fetch style, region not provided, using defaults.`
-      // );
-      return null;
+    if (!googleDailyTrendsByState || !googleDailyTrendsByState.length) {
+      return <span>No trends data provided.</span>;
     }
 
-    // handle region not found
-    const region = googleDailyTrendsByState.find((x) => x.name === name);
-    if (!region) {
-      // console.warn(
-      //   `No trends found for region named: ${name}, using default styles.`
-      // );
-      return null;
+    /**
+     * Will fetch a Google Region Trend with the given name
+     *
+     * @param name
+     */
+    function getRegionByGeoName(name: string): GoogleRegionTrend {
+      // handle null region
+      if (!name) {
+        // console.warn(
+        //   `Unable to fetch style, region not provided, using defaults.`
+        // );
+        return null;
+      }
+
+      // handle region not found
+      const region = googleDailyTrendsByState.find((x) => x.name === name);
+      if (!region) {
+        // console.warn(
+        //   `No trends found for region named: ${name}, using default styles.`
+        // );
+        return null;
+      }
+
+      return region;
     }
 
-    return region;
-  }
-  
-  /**
-   * Determines a background color to use for a given topic an region
-   * 
-   * @param name 
-   * @param defaultColor 
-   */
-  function getTrendingTopicColorByRegion(
-    name: string,
-    defaultColor: string
-  ): string {
-    const region = getRegionByGeoName(name);
+    /**
+     * Determines a background color to use for a given topic an region
+     *
+     * @param name
+     * @param defaultColor
+     */
+    function getTrendingTopicColorByRegion(
+      name: string,
+      defaultColor: string
+    ): string {
+      const region = getRegionByGeoName(name);
 
-    if(!region){
-      return defaultColor;
-    }
+      if (!region) {
+        return defaultColor;
+      }
 
-    // get the #1 topic for this region
-    const topicName = region.trends[0].topic;
-
-    // style this region with the color for this #1 topic
-    const color = colorMap.get(topicName);
-
-    return color ? color : defaultColor;
-  }
-
-  /**
-   * Renders an HTML string to be used for the tooltip content
-   * @param name 
-   */
-  function getTooltipContent(name: string){
-    const region = getRegionByGeoName(name);
-
-    if(region){
       // get the #1 topic for this region
       const topicName = region.trends[0].topic;
-      // style it
-      const backgroundColor = getTrendingTopicColorByRegion(
-        name,
-        defaultRegionStyle.default.fill
-      )
-      const color = invert(backgroundColor,true
-      );
 
-      if(topicName){
-        const html = `
+      // style this region with the color for this #1 topic
+      const color = colorMap.get(topicName);
+
+      return color ? color : defaultColor;
+    }
+
+    /**
+     * Renders an HTML string to be used for the tooltip content
+     * @param name
+     */
+    function getTooltipContent(name: string) {
+      const region = getRegionByGeoName(name);
+
+      if (region) {
+        // get the #1 topic for this region
+        const topicName = region.trends[0].topic;
+        // style it
+        const backgroundColor = getTrendingTopicColorByRegion(
+          name,
+          defaultRegionStyle.default.fill
+        );
+        const color = invert(backgroundColor, true);
+
+        if (topicName) {
+          const html = `
           <div style="text-align: center;">
             <span>
               ${name}
@@ -223,136 +218,146 @@ export const GoogleTrendsMap = memo(({
             </span>
           </div>
         `;
-        return html;
+          return html;
+        }
       }
+      return null;
     }
-    return null;
-  }
 
-  function getRegionStyle(color: string): GeographyStyle {
-    const style = cloneDeep(defaultRegionStyle);
+    function getRegionStyle(color: string): GeographyStyle {
+      const style = cloneDeep(defaultRegionStyle);
 
-    style.default.fill = color;
-    style.hover.fill = color;
-    style.pressed.fill= color;
+      style.default.fill = color;
+      style.hover.fill = color;
+      style.pressed.fill = color;
 
-    return style;
-  }
+      return style;
+    }
 
-  function getConnectorProps(color: string): React.SVGProps<SVGPathElement> {
-    const style = cloneDeep(defaultAnnotationProps);
+    function getConnectorProps(color: string): React.SVGProps<SVGPathElement> {
+      const style = cloneDeep(defaultAnnotationProps);
 
-    style.connectorProps.stroke = color;
+      style.connectorProps.stroke = color;
 
-    return style.connectorProps;
-  }
+      return style.connectorProps;
+    }
 
-  return (
-    <>
-      <ComposableMap data-tip="" projection={projection}>
-        <Geographies geography={geoUrl}>
-          {({ geographies }) => {
-            return (
-              <>
-                {/* Build the states map */}
-                {geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    style={getRegionStyle(
-                      getTrendingTopicColorByRegion(
-                        geo?.properties?.name,
-                        defaultRegionStyle.default.fill
-                      )
-                    )}
-                    onClick={(
-                      event: React.MouseEvent<SVGPathElement, MouseEvent>
-                    ) => handleClick(event, geo?.properties?.name)}
-                    onMouseEnter={(
-                      event: React.MouseEvent<SVGPathElement, MouseEvent>
-                    ) => handleHover(event, getTooltipContent(geo?.properties?.name))}
-                    onMouseLeave={(
-                      event: React.MouseEvent<SVGPathElement, MouseEvent>
-                    ) => handleHover(event, null)}
-                  ></Geography>
-                ))}
-                {/* Build the annotations */}
-                {geographies.map((geo) => {
-                  const centroid = geoCentroid(geo);
-                  const cur = allStates.find((s) => s.val === geo.id);
+    return (
+      <>
+        <ComposableMap data-tip="" projection={projection}>
+          <Geographies geography={geoUrl}>
+            {({ geographies }) => {
+              return (
+                <>
+                  {/* Build the states map */}
+                  {geographies.map((geo) => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      style={getRegionStyle(
+                        getTrendingTopicColorByRegion(
+                          geo?.properties?.name,
+                          defaultRegionStyle.default.fill
+                        )
+                      )}
+                      onClick={(
+                        event: React.MouseEvent<SVGPathElement, MouseEvent>
+                      ) => handleClick(event, geo?.properties?.name)}
+                      onMouseEnter={(
+                        event: React.MouseEvent<SVGPathElement, MouseEvent>
+                      ) =>
+                        handleHover(
+                          event,
+                          getTooltipContent(geo?.properties?.name)
+                        )
+                      }
+                      onMouseLeave={(
+                        event: React.MouseEvent<SVGPathElement, MouseEvent>
+                      ) => handleHover(event, null)}
+                    ></Geography>
+                  ))}
+                  {/* Build the annotations */}
+                  {geographies.map((geo) => {
+                    const centroid = geoCentroid(geo);
+                    const cur = allStates.find((s) => s.val === geo.id);
 
-                  debug(centroid, geo);
+                    debug(centroid, geo);
 
-                  return (
-                    <g key={geo.rsmKey + "-name"}>
-                      {cur &&
-                        centroid[0] > -160 &&
-                        centroid[0] < -67 &&
-                        (Object.keys(offsets).indexOf(cur.id) === -1 ? (
-                          <Marker coordinates={centroid} style={labelStyle}>
-                            <text
-                              x={5}
-                              fill={invert(
-                                getTrendingTopicColorByRegion(
-                                  geo?.properties?.name,
-                                  defaultRegionStyle.default.fill
-                                ),
-                                true
-                              )}
-                              fontSize={tooltipFontSize}
-                              textAnchor="middle"
+                    return (
+                      <g key={geo.rsmKey + "-name"}>
+                        {cur &&
+                          centroid[0] > -160 &&
+                          centroid[0] < -67 &&
+                          (Object.keys(offsets).indexOf(cur.id) === -1 ? (
+                            <Marker coordinates={centroid} style={labelStyle}>
+                              <text
+                                x={5}
+                                fill={invert(
+                                  getTrendingTopicColorByRegion(
+                                    geo?.properties?.name,
+                                    defaultRegionStyle.default.fill
+                                  ),
+                                  true
+                                )}
+                                fontSize={tooltipFontSize}
+                                textAnchor="middle"
+                                onClick={(event) =>
+                                  handleClick(event, geo?.properties?.name)
+                                }
+                              >
+                                {cur.id}
+                              </text>
+                            </Marker>
+                          ) : (
+                            <Annotation
+                              subject={centroid}
+                              dx={offsets[cur.id].offsets[0]}
+                              dy={offsets[cur.id].offsets[1]}
                               onClick={(event) =>
                                 handleClick(event, geo?.properties?.name)
                               }
-                            >
-                              {cur.id}
-                            </text>
-                          </Marker>
-                        ) : (
-                          <Annotation
-                            subject={centroid}
-                            dx={offsets[cur.id].offsets[0]}
-                            dy={offsets[cur.id].offsets[1]}
-                            onClick={(event) =>
-                              handleClick(event, geo?.properties?.name)
-                            }
-                            onMouseEnter={(
-                              event: React.MouseEvent<SVGPathElement, MouseEvent>
-                            ) => handleHover(event, getTooltipContent(geo?.properties?.name))}
-                            onMouseLeave={(
-                              event: React.MouseEvent<SVGPathElement, MouseEvent>
-                            ) => handleHover(event, null)}
-                            connectorProps={getConnectorProps(
-                              getTrendingTopicColorByRegion(
-                                geo?.properties?.name,
-                                defaultAnnotationProps.connectorProps.stroke
-                              )
-                            )}
-                          >
-                            <text
-                              x={4}
-                              fill={invert(
+                              onMouseEnter={(
+                                event: React.MouseEvent<
+                                  SVGPathElement,
+                                  MouseEvent
+                                >
+                              ) =>
+                                handleHover(
+                                  event,
+                                  getTooltipContent(geo?.properties?.name)
+                                )
+                              }
+                              onMouseLeave={(
+                                event: React.MouseEvent<
+                                  SVGPathElement,
+                                  MouseEvent
+                                >
+                              ) => handleHover(event, null)}
+                              connectorProps={getConnectorProps(
                                 getTrendingTopicColorByRegion(
                                   geo?.properties?.name,
-                                  defaultRegionStyle.default.fill
-                                ),
-                                true
+                                  defaultAnnotationProps.connectorProps.stroke
+                                )
                               )}
-                              fontSize={tooltipFontSize}
-                              alignmentBaseline="middle"
                             >
-                              {cur.id}
-                            </text>
-                          </Annotation>
-                        ))}
-                    </g>
-                  );
-                })}
-              </>
-            );
-          }}
-        </Geographies>
-      </ComposableMap>
-    </>
-  );
-});
+                              <text
+                                x={4}
+                                fontSize={tooltipFontSize}
+                                alignmentBaseline="middle"
+                              >
+                                {cur.id}
+                              </text>
+                            </Annotation>
+                          ))}
+                      </g>
+                    );
+                  })}
+                </>
+              );
+            }}
+          </Geographies>
+        </ComposableMap>
+      </>
+    );
+  }
+);
