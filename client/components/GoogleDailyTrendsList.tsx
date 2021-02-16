@@ -41,8 +41,8 @@ export function GoogleDailyTrendsList({
       >
         <List>
           <ListItem>
-            <ListItemText style={{ textAlign: "center" }}>
-              United States
+            <ListItemText>
+              <Box textAlign="center">United States</Box>
             </ListItemText>
           </ListItem>
           <Divider />

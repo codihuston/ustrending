@@ -53,8 +53,8 @@ export function GoogleDailyTrendsByRegionListItem({
               )
             }
           >
-            <ListItemText style={{ textAlign: "center" }}>
-              {region.name}
+            <ListItemText>
+              <Box textAlign="center">{region.name}</Box>
             </ListItemText>
             <IconButton
               aria-label="delete"
