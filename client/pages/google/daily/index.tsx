@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { isEqual, clone } from "lodash";
 import { ValueType } from "react-select";
 import Head from "next/head";
+import ReactTooltip from "react-tooltip";
 import {
   Box,
   Button,
@@ -316,8 +317,8 @@ export default function GoogleDaily() {
                 ? useGoogleDailyTrendsByStateHook.data
                 : []
             }
-            tooltipContent={tooltipContent}
           />
+          <ReactTooltip html>{tooltipContent}</ReactTooltip>
           </div>
           <h3>Trends by Region: Grid View</h3>
           <Typography>

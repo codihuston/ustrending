@@ -1,5 +1,4 @@
 import React, { memo } from "react";
-import ReactTooltip from "react-tooltip";
 import { cloneDeep } from "lodash";
 import { geoCentroid } from "d3-geo";
 import {
@@ -83,7 +82,6 @@ type Props = {
   ): void;
   googleDailyTrendsByState: GoogleRegionTrend[];
   colorMap: Map<string, string>;
-  tooltipContent: string
 };
 
 type GeographyStyle = {
@@ -128,8 +126,7 @@ const GoogleTrendMap = ({
   handleClick,
   handleHover,
   googleDailyTrendsByState,
-  colorMap,
-  tooltipContent
+  colorMap
 }: Props) => {
   // TODO: make this dynamic?
   const projection = "geoAlbersUsa";
@@ -251,8 +248,7 @@ const GoogleTrendMap = ({
   }
 
   return (
-    <div>
-    <ReactTooltip html>{tooltipContent}</ReactTooltip>
+    <>
       <ComposableMap data-tip="" projection={projection}>
         <Geographies geography={geoUrl}>
           {({ geographies }) => {
@@ -357,7 +353,7 @@ const GoogleTrendMap = ({
           }}
         </Geographies>
       </ComposableMap>
-    </div>
+    </>
   );
 };
 
