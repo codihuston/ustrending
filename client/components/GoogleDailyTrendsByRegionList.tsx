@@ -99,8 +99,8 @@ export function GoogleDailyTrendsByRegionList({
           alignItems="center"
           spacing={3}
         >
-          {regions.map((region) => (
-              <List>
+          {regions.map((region, i) => (
+              <List key={i}>
                 <GoogleDailyTrendsByRegionListItem
                   colorMap={colorMap}
                   handleClick={handleClick}
