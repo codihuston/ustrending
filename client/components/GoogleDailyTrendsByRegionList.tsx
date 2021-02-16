@@ -100,13 +100,6 @@ export function GoogleDailyTrendsByRegionList({
           spacing={3}
         >
           {regions.map((region) => (
-            <Grid
-              item
-              key={region.name}
-              style={{
-                minWidth: "25%",
-              }}
-            >
               <List>
                 <GoogleDailyTrendsByRegionListItem
                   colorMap={colorMap}
@@ -118,7 +111,6 @@ export function GoogleDailyTrendsByRegionList({
                   withTitle={withTitle}
                 />
               </List>
-            </Grid>
           ))}
         </Grid>
       </Box>

@@ -99,9 +99,11 @@ export function GoogleDailyTrendsByRegionListItem({
                   </ListItemText>
                 </Box>
               ) : (
+                <Box>
                 <ListItemText>
                   <b>{i + 1}</b>
                 </ListItemText>
+                </Box>
               )}
               <Box ml={2} flexGrow={1}>
                 <ListItemText>{trend.topic}</ListItemText>
