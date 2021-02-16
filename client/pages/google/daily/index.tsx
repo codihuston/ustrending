@@ -206,6 +206,9 @@ export default function GoogleDaily() {
     setTooltipContent(tooltipContent);
   };
 
+  const debouncedHandleMapHover = useDebouncedCallback(handleMapHover, 250);
+
+
   /**
    * Toggles the sort method for the regions' trends list
    * @param event
@@ -344,7 +347,7 @@ export default function GoogleDaily() {
           <GoogleTrendMap
             colorMap={colorMap}
             handleClick={debouncedHandleMapClick}
-            handleHover={handleMapHover}
+            handleHover={debouncedHandleMapHover}
             googleDailyTrendsByState={
               useGoogleDailyTrendsByStateHook.data
                 ? useGoogleDailyTrendsByStateHook.data
