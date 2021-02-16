@@ -125,14 +125,14 @@ export default function GoogleDaily() {
   /**
    * Opens the snackbar
    */
-  const handleOpen = () => {
+  const handleOpenSnackbar = () => {
     setOpen(true);
   };
 
   /**
    * Closes the snackbar
    */
-  const handleClose = (
+  const handleCloseSnackbar = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {
     setOpen(false);
@@ -158,7 +158,7 @@ export default function GoogleDaily() {
       setSnackbarText(
         `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
       );
-      handleOpen();
+      handleOpenSnackbar();
       return;
     }
 
@@ -174,12 +174,12 @@ export default function GoogleDaily() {
         setSnackbarText(
           `Region "${option[option.length - 1].label}" added for comparison.`
         );
-        handleOpen();
+        handleOpenSnackbar();
       }
     } else {
       // items have been cleared
-      setSnackbarText(`Region compairsons have been cleared.`);
-      handleOpen();
+      setSnackbarText(`Region comparisons have been cleared.`);
+      handleOpenSnackbar();
     }
   };
 
@@ -199,7 +199,7 @@ export default function GoogleDaily() {
       setSnackbarText(
         `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
       );
-      handleOpen();
+      handleOpenSnackbar();
       return;
     }
 
@@ -225,7 +225,7 @@ export default function GoogleDaily() {
     } else {
       setSnackbarText(`Region "${regionName}" is already selected!`);
     }
-    handleOpen();
+    handleOpenSnackbar();
   };
 
   const debouncedHandleMapClick = useDebouncedCallback(handleMapClick, 250);
@@ -298,7 +298,7 @@ export default function GoogleDaily() {
         }}
         open={open}
         autoHideDuration={6000}
-        onClose={handleClose}
+        onClose={handleCloseSnackbar}
         message={snackbarText}
         action={
           selectedRegions.length > 0 ? (
@@ -310,7 +310,7 @@ export default function GoogleDaily() {
                 size="small"
                 aria-label="close"
                 color="inherit"
-                onClick={handleClose}
+                onClick={handleCloseSnackbar}
                 href=""
               >
                 <Close fontSize="small" />
