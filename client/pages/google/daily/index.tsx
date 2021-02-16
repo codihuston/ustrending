@@ -60,6 +60,7 @@ export default function GoogleDaily() {
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<RegionSelectOptionType, true>
   >([]);
+  const MAX_NUM_SELECTED_REGIONS = 4;
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
@@ -140,6 +141,13 @@ export default function GoogleDaily() {
     regionName: string
   ): void => {
     let found = false;
+
+    // to save on performance, only max out compairsons
+    if(selectedRegions.length >= MAX_NUM_SELECTED_REGIONS){
+      setSnackbarText(`You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`);
+      handleOpen();
+      return;
+    }
 
     // check if region is already selected
     for (const region of selectedRegions) {
