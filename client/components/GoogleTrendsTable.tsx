@@ -39,9 +39,9 @@ fuzzyTextFilterFn.autoRemove = (val) => !val;
 
 const Filter = ({ column }) => {
   return (
-    <div style={{ marginTop: 5 }} onClick={(event) => event.stopPropagation()}>
+    <Box mt={1} onClick={(event) => event.stopPropagation()}>
       {column.canFilter && column.render("Filter")}
-    </div>
+    </Box>
   );
 };
 
@@ -188,14 +188,16 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
                     : column.getHeaderProps(column.getSortByToggleProps()))}
                 >
                   <span>
-                    {column.render("Header")}
-                    {column.id !== "selection" ? (
-                      <TableSortLabel
-                        active={column.isSorted}
-                        // react-table has a unsorted state which is not treated here
-                        direction={column.isSortedDesc ? "desc" : "asc"}
-                      />
-                    ) : null}
+                    <Box textAlign="center">
+                      {column.render("Header")}
+                      {column.id !== "selection" ? (
+                        <TableSortLabel
+                          active={column.isSorted}
+                          // react-table has a unsorted state which is not treated here
+                          direction={column.isSortedDesc ? "desc" : "asc"}
+                        />
+                      ) : null}
+                    </Box>
                   </span>
                   <Filter column={column} />
                 </TableCell>
