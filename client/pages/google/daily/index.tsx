@@ -23,17 +23,15 @@ import {
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
-import { getColors } from "../../../themes";
+import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import { Layout } from "../../../components/Layout";
+import { ColorPalette } from "../../../components/ColorPalette";
 import { FullScreenDialog } from "../../../components/FullScreenDialog";
 import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList";
 import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
 import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
-
-// TODO: initialize this via settings?
-const colorPalatte = getColors("blues", "high");
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -57,6 +55,18 @@ export default function GoogleDaily() {
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
+  const [selectedPalette, setSelectedPalette] = useState<
+    ValueType<RegionSelectOptionType, false>
+  >({
+    label: defaultPalette,
+    value: defaultPalette,
+  });
+  const [selectedContrast, setSelectedContrastLevel] = useState<
+    ValueType<RegionSelectOptionType, false>
+  >({
+    label: defaultContrast,
+    value: defaultContrast,
+  });
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const [open, setOpen] = useState<boolean>(false);
   const [snackbarText, setSnackbarText] = useState<string>("");
@@ -76,18 +86,21 @@ export default function GoogleDaily() {
   useEffect(() => {
     const colorMap = new Map<string, string>();
     const sourceMap = new Map<string, number>();
-    const selectedColorPalatte = "default";
+
+    // init the color palette
+    const palette = getColors(selectedPalette.value, selectedContrast.value);
+
     if (googleDailyTrends) {
       // NOTE: x.title.query will differ between realtime and daily trends
       googleDailyTrends.map((x, i) => {
-        colorMap.set(x.title.query, colorPalatte[i]);
+        colorMap.set(x.title.query, palette[i]);
         sourceMap.set(x.title.query, i);
       });
     }
     setTooltipVisibility(true);
     setColorMap(colorMap);
     setSourceMap(sourceMap);
-  }, [googleDailyTrends, isTooltipVisible]);
+  }, [googleDailyTrends, isTooltipVisible, selectedPalette, selectedContrast]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -120,6 +133,18 @@ export default function GoogleDaily() {
    */
   const handleCloseDialog = () => {
     setSelectedTrend("");
+  };
+
+  const handleChangePalette = (
+    option: ValueType<RegionSelectOptionType, false>
+  ) => {
+    setSelectedPalette(option);
+  };
+
+  const handleChangeContrast = (
+    option: ValueType<RegionSelectOptionType, false>
+  ) => {
+    setSelectedContrastLevel(option);
   };
 
   /**
@@ -313,6 +338,12 @@ export default function GoogleDaily() {
                   : []
               }
               handleChange={handleChange}
+            />
+            <ColorPalette
+              handleChangePalette={handleChangePalette}
+              handleChangeContrast={handleChangeContrast}
+              selectedContrast={selectedContrast}
+              selectedPalette={selectedPalette}
             />
             {isTooltipVisible && (
               <ReactTooltip html>{tooltipContent}</ReactTooltip>

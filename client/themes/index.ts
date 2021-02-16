@@ -22,25 +22,31 @@ import {
   yellow,
 } from "@material-ui/core/colors";
 
+export const defaultPalette = "Red to Blue";
+
 export const palettes = {
-  0: [red, deepPurple, lightBlue],
-  1: [pink, indigo, cyan],
-  2: [purple, blue, teal],
-  3: [green, yellow, deepOrange],
-  4: [lightGreen, amber, brown],
-  5: [lime, orange, grey, blueGrey],
-  reds: [red, pink, purple],
-  violets: [deepPurple, indigo, blue],
-  blues: [lightBlue, cyan, teal],
-  greens: [green, lightGreen, lime],
-  yellows: [yellow, amber, orange, deepOrange],
-  darks: [brown, grey, blueGrey],
+  "Red to Blue": [red, deepPurple, lightBlue],
+  "Red to Green": [pink, indigo, cyan],
+  "Purple to Blue": [purple, blue, teal],
+  "Green to Orange": [green, yellow, deepOrange],
+  "Green to Brown": [lightGreen, amber, brown],
+  "Yellow to Grey": [lime, orange, grey, blueGrey],
+  Reds: [red, pink, purple],
+  Violets: [deepPurple, indigo, blue],
+  Blues: [lightBlue, cyan, teal],
+  Greens: [green, lightGreen, lime],
+  Yellows: [yellow, amber, orange, deepOrange],
+  Darks: [brown, grey, blueGrey],
 };
 
+export const defaultContrast = "Very Dark";
+
 export const contrasts = {
-  high: ["A100", "A200", "A400", "A700"],
-  medium: ["900", "600", "300", "100"],
-  low: ["900", "800", "700", "600"],
+  "Very Dark": ["900", "800", "700", "600"],
+  Dark: ["900", "600", "300", "100"],
+  Medium: ["50", "300", "500", "900"],
+  Light: ["A100", "A200", "A400", "A700"],
+  "Very Light": ["50", "100", "200", "300"],
 };
 
 export const theme = createMuiTheme({
@@ -59,8 +65,6 @@ export function getColors(
   contrast: number | string
 ) {
   let result = [];
-  const defaultPalette = 0;
-  const defaultContrast = "high";
   let selectedPalette = palettes[defaultPalette];
   let selectedContrast = contrasts[defaultContrast];
 
