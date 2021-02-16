@@ -71,11 +71,7 @@ export function GoogleDailyTrendsByRegionListItem({
       ) : null}
       {region.trends.map((trend, i) => {
         // add +1 to account for the first column that contains the region name (non-trending data)
-        const positionChange = getListPositionChange(
-          trend.topic,
-          i + 1,
-          sourceMap
-        );
+        const positionChange = getListPositionChange(trend.topic, i, sourceMap);
 
         return (
           <ListItem key={i} button>

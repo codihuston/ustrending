@@ -209,9 +209,10 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
             return (
               <TableRow {...row.getRowProps()}>
                 {row.cells.map((cell, j) => {
+                  // subtract 1 to account for the first column (which we do not need to count)
                   const positionChange = getListPositionChange(
                     cell.value,
-                    j,
+                    j - 1,
                     sourceMap
                   );
 
