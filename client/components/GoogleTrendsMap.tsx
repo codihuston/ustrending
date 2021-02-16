@@ -60,6 +60,7 @@ const offsets = {
   },
 };
 
+// styles the region labels
 const labelStyle = {
   hover: {
     fill: "#FFFFFF",
@@ -99,6 +100,7 @@ type GeographyStyle = {
   };
 };
 
+// styles the regions themselves (not the label)
 const defaultRegionStyle: GeographyStyle = {
   default: {
     fill: "#D6D6DA",
@@ -114,6 +116,7 @@ const defaultRegionStyle: GeographyStyle = {
   },
 };
 
+// styles the annotations (for region offsets)
 const defaultAnnotationProps: AnnotationProps = {
   connectorProps: {
     stroke: "#A2D6F9",
