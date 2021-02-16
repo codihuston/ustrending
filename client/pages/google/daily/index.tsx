@@ -235,35 +235,22 @@ export default function GoogleDaily() {
       <Box>
         <Paper>
           <h2>Trending Today on Google</h2>
+          
+          <h3>Trending in the United States</h3>
+          <Toolbar>
+            <FormControlLabel
+              control={
+                <Switch checked={isWithColors} onChange={toggleListColors} />
+              }
+              label={`Show colors`}
+            />
+          </Toolbar>
           <GoogleDailyTrendsList
             googleDailyTrends={
               useGoogleDailyTrendsHook.data ? useGoogleDailyTrendsHook.data : []
             }
-          />
-          <h3>Select a Region to Compare</h3>
-          <Typography>
-            To see trends for a particular region, please choose the region by
-            using the dropdown or by clicking on a region on the map below.
-            After making your selection, the results will appear above.{" "}
-            <a href={`#${selectedRegions}`}>Click here to see the results</a>.
-          </Typography>
-          <RegionSelect
-            values={selectedRegions}
-            googleDailyTrendsByState={
-              useGoogleDailyTrendsByStateHook.data
-                ? useGoogleDailyTrendsByStateHook.data
-                : []
-            }
-            handleChange={handleChange}
-          />
-          <GoogleTrendMap
-            handleClick={handleMapClick}
-            googleDailyTrendsByState={
-              useGoogleDailyTrendsByStateHook.data
-                ? useGoogleDailyTrendsByStateHook.data
-                : []
-            }
             colorMap={colorMap}
+            withColor={isWithColors}
           />
           <h3 id={"selectedRegions"} ref={ref}>
             Trending in Your Selected Region(s)
@@ -295,6 +282,31 @@ export default function GoogleDaily() {
             colorMap={colorMap}
             withColor={isWithColors}
             withTitle
+          />
+          <h3>Select a Region to Compare</h3>
+          <Typography>
+            To see trends for a particular region, please choose the region by
+            using the dropdown or by clicking on a region on the map below.
+            After making your selection, the results will appear above.{" "}
+            <a href={`#${selectedRegions}`}>Click here to see the results</a>.
+          </Typography>
+          <RegionSelect
+            values={selectedRegions}
+            googleDailyTrendsByState={
+              useGoogleDailyTrendsByStateHook.data
+                ? useGoogleDailyTrendsByStateHook.data
+                : []
+            }
+            handleChange={handleChange}
+          />
+          <GoogleTrendMap
+            handleClick={handleMapClick}
+            googleDailyTrendsByState={
+              useGoogleDailyTrendsByStateHook.data
+                ? useGoogleDailyTrendsByStateHook.data
+                : []
+            }
+            colorMap={colorMap}
           />
           <h3>Trends by Region: Grid View</h3>
           <Typography>
