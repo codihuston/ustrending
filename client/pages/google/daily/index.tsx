@@ -61,6 +61,7 @@ export default function GoogleDaily() {
     ValueType<RegionSelectOptionType, true>
   >([]);
   const MAX_NUM_SELECTED_REGIONS = 5;
+  const [isTooltipVisible, setTooltipVisibility] = useState(false);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
@@ -83,9 +84,10 @@ export default function GoogleDaily() {
         sourceMap.set(x.title.query, i);
       });
     }
+    setTooltipVisibility(true)
     setColorMap(colorMap);
     setSourceMap(sourceMap);
-  }, [googleDailyTrends]);
+  }, [googleDailyTrends, isTooltipVisible]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -336,7 +338,7 @@ export default function GoogleDaily() {
             handleChange={handleChange}
           />
           <div>
-          <ReactTooltip html>{tooltipContent}</ReactTooltip>
+          {isTooltipVisible && <ReactTooltip html>{tooltipContent}</ReactTooltip>}
           <GoogleTrendMap
             colorMap={colorMap}
             handleClick={handleMapClick}
