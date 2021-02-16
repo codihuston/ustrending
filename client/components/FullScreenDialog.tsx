@@ -54,10 +54,6 @@ export function FullScreenDialog({
     setOpen(selectedTrend ? true : false);
   }, [googleDailyTrends, selectedTrend]);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
     setOpen(false);
     handleCloseDialog();

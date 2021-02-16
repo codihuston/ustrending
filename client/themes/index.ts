@@ -43,8 +43,8 @@ export const defaultContrast = "Very Dark";
 
 export const contrasts = {
   "Very Dark": ["900", "800", "700", "600"],
-  Dark: ["900", "600", "300", "100"],
-  Medium: ["50", "300", "500", "900"],
+  Dark: ["700", "500", "300", "100"],
+  Medium: ["A200", "300", "500", "900"],
   Light: ["A100", "A200", "A400", "A700"],
   "Very Light": ["50", "100", "200", "300"],
 };
