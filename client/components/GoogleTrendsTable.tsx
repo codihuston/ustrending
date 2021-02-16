@@ -246,9 +246,7 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
                               textOverflow="ellipsis"
                               overflow="hidden"
                               title={cell.value}
-                              style={{
-                                cursor: "pointer",
-                              }}
+                              className="cursor-pointer"
                             >
                               <b>{cell.value}</b>
                             </Box>

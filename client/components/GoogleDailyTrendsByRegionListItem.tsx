@@ -45,9 +45,7 @@ export function GoogleDailyTrendsByRegionListItem({
         <>
           <ListItem
             button
-            style={{
-              cursor: "pointer",
-            }}
+            className="cursor-pointer"
             onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
               handleClick(
                 e,

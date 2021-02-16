@@ -81,9 +81,7 @@ export function GoogleDailyTrendsList({
                   )}
                   <Box ml={2} flexGrow={1}>
                     <ListItemText
-                      style={{
-                        cursor: "pointer",
-                      }}
+                      className="cursor-pointer"
                       onClick={(
                         event: React.MouseEvent<HTMLDivElement, MouseEvent>
                       ) => handleTrendClick(event, trend.title.query)}

@@ -1,13 +1,11 @@
-
 import { BsDash } from "react-icons/bs";
 
 import { StyledUpArrow, StyledDownArrow } from "./Icons";
 
 export function PositionChangeIndicator({ index }) {
-  const description = `This trend has changed ${index > 0 ? `+${index}`: index} positions relative to the trends for this country.`;
-  const style = {
-    cursor: "pointer",
-  };
+  const description = `This trend has changed ${
+    index > 0 ? `+${index}` : index
+  } positions relative to the trends for this country.`;
   let Position = null;
 
   if (index > 0) {
@@ -18,7 +16,7 @@ export function PositionChangeIndicator({ index }) {
     return <BsDash />;
   }
   return (
-    <span title={description} style={style}>
+    <span title={description} className="cursor-pointer">
       {Position}
     </span>
   );
