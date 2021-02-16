@@ -243,7 +243,6 @@ export default function GoogleDaily() {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void => {
-    console.log("Show articles for trend:", name);
     setSelectedTrend(name);
   };
 
@@ -269,7 +268,7 @@ export default function GoogleDaily() {
    * @param selectedRegion
    */
   const handleListDelete = (
-    e: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<RegionSelectOptionType, true>
   ) => {
     if (!selectedRegion) return;

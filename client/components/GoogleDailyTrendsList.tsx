@@ -54,7 +54,7 @@ export function GoogleDailyTrendsList({
               : invert(background, true);
 
             return (
-              <ListItem key={i}>
+              <ListItem key={i} button>
                 <Box display="flex" width={"100%"}>
                   {withColor ? (
                     <Box

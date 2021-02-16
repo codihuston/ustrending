@@ -3,6 +3,7 @@ import { TransitionProps } from "@material-ui/core/transitions";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   AppBar,
+  Box,
   Button,
   Dialog,
   Divider,
@@ -64,10 +65,17 @@ export function FullScreenDialog({
 
   if (!googleDailyTrends) return null;
 
-  console.log(
-    selectedTrend,
-    googleDailyTrends?.filter((trend) => trend.title.query === selectedTrend)
-  );
+  const articles = googleDailyTrends
+    .filter((trend) => trend.title.query === selectedTrend)
+    .map((trend) => {
+      return trend.articles.map((article) => {
+        return (
+          <ListItem>
+            <ArticleDetailCard article={article} />
+          </ListItem>
+        );
+      });
+    });
 
   return (
     <div>
@@ -102,23 +110,22 @@ export function FullScreenDialog({
         </AppBar>
         <List>
           {/* TODO: if given googleRealtimeTrends, need to parse those differently! */}
-          {googleDailyTrends
-            .filter((trend) => trend.title.query === selectedTrend)
-            .map((trend, i) => {
-              console.log("articles", trend.articles);
-              return trend.articles.map((article) => {
-                return (
-                  <ListItem>
-                    <ArticleDetailCard article={article} />
-                  </ListItem>
-                );
-              });
-            })}
+          {articles.length > 0 ? (
+            articles
+          ) : (
+            <ListItem button onClick={handleClose}>
+              <ListItemText>
+                <Box textAlign="center">No articles found!</Box>
+              </ListItemText>
+            </ListItem>
+          )}
           <Divider />
-          <ListItem button>
+          <ListItem>
             <ListItemText>
-              Articles are sourced from{" "}
-              <a href="https://trends.google.com/">Google Trends</a>
+              <Box textAlign="center">
+                Articles are sourced from{" "}
+                <a href="https://trends.google.com/">Google Trends</a>
+              </Box>
             </ListItemText>
           </ListItem>
         </List>

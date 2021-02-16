@@ -11,7 +11,7 @@ type Props = {
   colorMap: Map<string, string>;
   googleRegionTrends: GoogleRegionTrend[];
   handleClick(
-    e: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<RegionSelectOptionType, true>
   ): void;
   handleTrendClick(

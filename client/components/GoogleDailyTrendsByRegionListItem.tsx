@@ -16,7 +16,7 @@ type Props = {
   colorMap: Map<string, string>;
   region: GoogleRegionTrend;
   handleClick(
-    e: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<RegionSelectOptionType, true>
   ): void;
   handleTrendClick(
@@ -44,10 +44,11 @@ export function GoogleDailyTrendsByRegionListItem({
       {withTitle ? (
         <>
           <ListItem
+            button
             style={{
               cursor: "pointer",
             }}
-            onClick={(e) =>
+            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
               handleClick(
                 e,
                 getSelectedRegionOption(region.name, selectedRegions)
@@ -77,7 +78,7 @@ export function GoogleDailyTrendsByRegionListItem({
         );
 
         return (
-          <ListItem key={i}>
+          <ListItem key={i} button>
             <Box display="flex" width={"100%"}>
               {withColor ? (
                 <Box
