@@ -13,6 +13,7 @@ import {
   Toolbar,
   Typography,
   Snackbar,
+  makeStyles,
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 
@@ -56,7 +57,22 @@ const colorPalatte = {
   ],
 };
 
+const useStyles = makeStyles((theme) => ({
+  root:{},
+  mapContainer: {
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+      margin: "auto"
+    },
+    [theme.breakpoints.up('lg')]: {
+      width: "50%",
+      margin: "auto"
+    },
+  }
+}));
+
 export default function GoogleDaily() {
+  const classes = useStyles();
   const ref = useRef(null);
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<RegionSelectOptionType, true>
@@ -85,7 +101,7 @@ export default function GoogleDaily() {
         sourceMap.set(x.title.query, i);
       });
     }
-    setTooltipVisibility(true)
+    setTooltipVisibility(true);
     setColorMap(colorMap);
     setSourceMap(sourceMap);
   }, [googleDailyTrends, isTooltipVisible]);
@@ -123,24 +139,24 @@ export default function GoogleDaily() {
   const handleChange = (
     option: ValueType<RegionSelectOptionType, true>
   ): void => {
-    
     // to save on performance, only allow a max number of comparisons
-    if(option.length > MAX_NUM_SELECTED_REGIONS){
+    if (option.length > MAX_NUM_SELECTED_REGIONS) {
       console.log(option);
-      setSnackbarText(`You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`);
+      setSnackbarText(
+        `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
+      );
       handleOpen();
       return;
     }
 
     setSelectedRegions(option);
-    
+
     // if the new list of options has a length
     if (option.length > 0) {
       // and it is longer than the currently selectedRegions
-      if(option.length <= selectedRegions.length){
+      if (option.length <= selectedRegions.length) {
         // an item was removed from the selectedRegions list, no need to notify
-      }
-      else{
+      } else {
         // notify that we added a new item for comparison
         setSnackbarText(
           `Region "${option[option.length - 1].label}" added for comparison.`
@@ -166,8 +182,10 @@ export default function GoogleDaily() {
     let found = false;
 
     // to save on performance, only allow a max number of comparisons
-    if(selectedRegions.length >= MAX_NUM_SELECTED_REGIONS){
-      setSnackbarText(`You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`);
+    if (selectedRegions.length >= MAX_NUM_SELECTED_REGIONS) {
+      setSnackbarText(
+        `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
+      );
       handleOpen();
       return;
     }
@@ -188,7 +206,7 @@ export default function GoogleDaily() {
       };
 
       const temp = clone(selectedRegions).concat(newValue);
-      
+
       setSelectedRegions(temp);
       setSnackbarText(`Region "${regionName}" added for comparison.`);
     } else {
@@ -208,7 +226,6 @@ export default function GoogleDaily() {
 
   const debouncedHandleMapHover = useDebouncedCallback(handleMapHover, 250);
 
-
   /**
    * Toggles the sort method for the regions' trends list
    * @param event
@@ -219,7 +236,7 @@ export default function GoogleDaily() {
 
   /**
    * Toggles region list colors
-   * @param event 
+   * @param event
    */
   const toggleListColors = (event) => {
     setIsWithColors(event.target.checked);
@@ -279,6 +296,38 @@ export default function GoogleDaily() {
       <Box>
         <Paper>
           <h2>Trending Today on Google</h2>
+          <h3>Select a Region to Compare</h3>
+          <Typography>
+            To see trends for a particular region, please choose the region by
+            using the dropdown or by clicking on a region on the map below.
+            After making your selection, the results will appear above.{" "}
+            <a href={`#${selectedRegions}`}>Click here to see the results</a>.
+          </Typography>
+          <RegionSelect
+            values={selectedRegions}
+            googleDailyTrendsByState={
+              useGoogleDailyTrendsByStateHook.data
+                ? useGoogleDailyTrendsByStateHook.data
+                : []
+            }
+            handleChange={handleChange}
+          />
+          <div
+            className={classes.mapContainer}>
+              {isTooltipVisible && (
+                <ReactTooltip html>{tooltipContent}</ReactTooltip>
+              )}
+              <GoogleTrendsMap
+                colorMap={colorMap}
+                handleClick={debouncedHandleMapClick}
+                handleHover={debouncedHandleMapHover}
+                googleDailyTrendsByState={
+                  useGoogleDailyTrendsByStateHook.data
+                    ? useGoogleDailyTrendsByStateHook.data
+                    : []
+                }
+              />
+          </div>
           <h3>Trending in the United States</h3>
           <Toolbar>
             <FormControlLabel
@@ -326,35 +375,6 @@ export default function GoogleDaily() {
             withColor={isWithColors}
             withTitle
           />
-          <h3>Select a Region to Compare</h3>
-          <Typography>
-            To see trends for a particular region, please choose the region by
-            using the dropdown or by clicking on a region on the map below.
-            After making your selection, the results will appear above.{" "}
-            <a href={`#${selectedRegions}`}>Click here to see the results</a>.
-          </Typography>
-          <RegionSelect
-            values={selectedRegions}
-            googleDailyTrendsByState={
-              useGoogleDailyTrendsByStateHook.data
-                ? useGoogleDailyTrendsByStateHook.data
-                : []
-            }
-            handleChange={handleChange}
-          />
-          <div>
-          {isTooltipVisible && <ReactTooltip html>{tooltipContent}</ReactTooltip>}
-          <GoogleTrendsMap
-            colorMap={colorMap}
-            handleClick={debouncedHandleMapClick}
-            handleHover={debouncedHandleMapHover}
-            googleDailyTrendsByState={
-              useGoogleDailyTrendsByStateHook.data
-                ? useGoogleDailyTrendsByStateHook.data
-                : []
-            }
-          />
-          </div>
           <h3>Trends by Region: Grid View</h3>
           <Typography>
             Below lists all of the trends for each region in a sortable,
