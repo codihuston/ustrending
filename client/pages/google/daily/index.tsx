@@ -61,7 +61,7 @@ export default function GoogleDaily() {
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<RegionSelectOptionType, true>
   >([]);
-  const MAX_NUM_SELECTED_REGIONS = 5;
+  const MAX_NUM_SELECTED_REGIONS = 10;
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
