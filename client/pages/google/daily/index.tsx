@@ -27,7 +27,7 @@ import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList
 import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
 import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
-import GoogleTrendMap from "../../../components/GoogleTrendMap";
+import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
 
 // TODO: initialize this elsewhere?
 const colorPalatte = {
@@ -344,7 +344,7 @@ export default function GoogleDaily() {
           />
           <div>
           {isTooltipVisible && <ReactTooltip html>{tooltipContent}</ReactTooltip>}
-          <GoogleTrendMap
+          <GoogleTrendsMap
             colorMap={colorMap}
             handleClick={debouncedHandleMapClick}
             handleHover={debouncedHandleMapHover}

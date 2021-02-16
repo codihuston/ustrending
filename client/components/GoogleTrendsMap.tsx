@@ -122,7 +122,7 @@ const defaultAnnotationProps: AnnotationProps = {
   },
 };
 
-const GoogleTrendMap = ({
+export const GoogleTrendsMap = memo(({
   handleClick,
   handleHover,
   googleDailyTrendsByState,
@@ -355,6 +355,4 @@ const GoogleTrendMap = ({
       </ComposableMap>
     </>
   );
-};
-
-export default memo(GoogleTrendMap);
+});
