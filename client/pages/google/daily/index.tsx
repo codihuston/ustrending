@@ -23,7 +23,7 @@ import {
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
-import { Navigation } from "../../../components/Navigation";
+import { Layout } from "../../../components/Layout";
 import { FullScreenDialog } from "../../../components/FullScreenDialog";
 import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList";
 import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
@@ -282,9 +282,8 @@ export default function GoogleDaily() {
   };
 
   return (
-    <>
+    <Layout>
       <Head>Google Daily Trends</Head>
-      <Navigation />
       <FullScreenDialog
         selectedTrend={selectedTrend}
         googleDailyTrends={googleDailyTrends}
@@ -420,6 +419,6 @@ export default function GoogleDaily() {
           ) : null}
         </Paper>
       </Box>
-    </>
+    </Layout>
   );
 }
