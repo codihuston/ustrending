@@ -24,6 +24,7 @@ import {
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
 import { Navigation } from "../../../components/Navigation";
+import { FullScreenDialog } from "../../../components/FullScreenDialog";
 import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList";
 import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
@@ -74,10 +75,8 @@ const useStyles = makeStyles((theme) => ({
 export default function GoogleDaily() {
   const classes = useStyles();
   const ref = useRef(null);
-  const [selectedRegions, setSelectedRegions] = useState<
-    ValueType<RegionSelectOptionType, true>
-  >([]);
   const MAX_NUM_SELECTED_REGIONS = 10;
+  // visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
@@ -86,6 +85,13 @@ export default function GoogleDaily() {
   const [snackbarText, setSnackbarText] = useState<string>("");
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const [tooltipContent, setTooltipContent] = useState<string>("");
+  // stateful data
+  const [selectedRegions, setSelectedRegions] = useState<
+    ValueType<RegionSelectOptionType, true>
+  >([]);
+  const [selectedTrend, setSelectedTrend] = useState<string>("");
+
+  // data
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
   const googleDailyTrends = useGoogleDailyTrendsHook.data;
@@ -130,6 +136,13 @@ export default function GoogleDaily() {
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {
     setOpen(false);
+  };
+
+  /**
+   * Will nullify selectedTrend
+   */
+  const handleCloseDialog = () => {
+    setSelectedTrend("");
   };
 
   /**
@@ -226,6 +239,14 @@ export default function GoogleDaily() {
 
   const debouncedHandleMapHover = useDebouncedCallback(handleMapHover, 250);
 
+  const handleTrendClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    name: string
+  ): void => {
+    console.log("Show articles for trend:", name);
+    setSelectedTrend(name);
+  };
+
   /**
    * Toggles the sort method for the regions' trends list
    * @param event
@@ -265,6 +286,11 @@ export default function GoogleDaily() {
     <>
       <Head>Google Daily Trends</Head>
       <Navigation />
+      <FullScreenDialog
+        selectedTrend={selectedTrend}
+        googleDailyTrends={googleDailyTrends}
+        handleCloseDialog={handleCloseDialog}
+      ></FullScreenDialog>
       <Snackbar
         anchorOrigin={{
           vertical: "bottom",
@@ -342,6 +368,7 @@ export default function GoogleDaily() {
             }
             colorMap={colorMap}
             withColor={isWithColors}
+            handleTrendClick={handleTrendClick}
           />
           <h3 id={"selectedRegions"} ref={ref}>
             Trending in Your Selected Region(s)
@@ -362,6 +389,7 @@ export default function GoogleDaily() {
           </Toolbar>
           <GoogleDailyTrendsByRegionList
             handleClick={handleListDelete}
+            handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}
             sourceMap={sourceMap}
             googleRegionTrends={

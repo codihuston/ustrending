@@ -14,6 +14,10 @@ type Props = {
     e: React.MouseEvent<HTMLLIElement, MouseEvent>,
     selectedRegion: ValueType<RegionSelectOptionType, true>
   ): void;
+  handleTrendClick(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    name: string
+  ): void;
   isAlphabetical: boolean;
   selectedRegions: ValueType<RegionSelectOptionType, true>;
   sourceMap: Map<string, number>;
@@ -25,6 +29,7 @@ export function GoogleDailyTrendsByRegionList({
   colorMap,
   googleRegionTrends,
   handleClick,
+  handleTrendClick,
   isAlphabetical,
   selectedRegions,
   sourceMap,
@@ -77,17 +82,18 @@ export function GoogleDailyTrendsByRegionList({
           spacing={3}
         >
           {regions.map((region, i) => (
-              <List key={i}>
-                <GoogleDailyTrendsByRegionListItem
-                  colorMap={colorMap}
-                  handleClick={handleClick}
-                  region={region}
-                  selectedRegions={selectedRegions}
-                  sourceMap={sourceMap}
-                  withColor={withColor}
-                  withTitle={withTitle}
-                />
-              </List>
+            <List key={i}>
+              <GoogleDailyTrendsByRegionListItem
+                colorMap={colorMap}
+                handleClick={handleClick}
+                handleTrendClick={handleTrendClick}
+                region={region}
+                selectedRegions={selectedRegions}
+                sourceMap={sourceMap}
+                withColor={withColor}
+                withTitle={withTitle}
+              />
+            </List>
           ))}
         </Grid>
       </Box>

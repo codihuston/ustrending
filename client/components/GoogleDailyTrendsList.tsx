@@ -12,6 +12,10 @@ import {
 
 type Props = {
   googleDailyTrends: GoogleDailyTrend[];
+  handleTrendClick(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    name: string
+  ): void;
   colorMap: Map<string, string>;
   withColor: boolean;
 };
@@ -19,12 +23,13 @@ type Props = {
 export function GoogleDailyTrendsList({
   colorMap,
   googleDailyTrends,
+  handleTrendClick,
   withColor,
 }: Props) {
   if (!googleDailyTrends || !googleDailyTrends.length) {
     return <span>Error: no google daily trends are provided!</span>;
   }
-  
+
   return (
     <Box>
       <Grid
@@ -75,7 +80,16 @@ export function GoogleDailyTrendsList({
                     </Box>
                   )}
                   <Box ml={2} flexGrow={1}>
-                    <ListItemText>{trend.title.query}</ListItemText>
+                    <ListItemText
+                      style={{
+                        cursor: "pointer",
+                      }}
+                      onClick={(
+                        event: React.MouseEvent<HTMLDivElement, MouseEvent>
+                      ) => handleTrendClick(event, trend.title.query)}
+                    >
+                      {trend.title.query}
+                    </ListItemText>
                   </Box>
                 </Box>
               </ListItem>

@@ -19,6 +19,10 @@ type Props = {
     e: React.MouseEvent<HTMLLIElement, MouseEvent>,
     selectedRegion: ValueType<RegionSelectOptionType, true>
   ): void;
+  handleTrendClick(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    name: string
+  ): void;
   selectedRegions: ValueType<RegionSelectOptionType, true>;
   sourceMap: Map<string, number>;
   withTitle?: boolean;
@@ -28,6 +32,7 @@ type Props = {
 export function GoogleDailyTrendsByRegionListItem({
   colorMap,
   handleClick,
+  handleTrendClick,
   region,
   selectedRegions,
   sourceMap,
@@ -65,7 +70,11 @@ export function GoogleDailyTrendsByRegionListItem({
       ) : null}
       {region.trends.map((trend, i) => {
         // add +1 to account for the first column that contains the region name (non-trending data)
-        const positionChange = getListPositionChange(trend.topic, i+1, sourceMap);
+        const positionChange = getListPositionChange(
+          trend.topic,
+          i + 1,
+          sourceMap
+        );
 
         return (
           <ListItem key={i}>
@@ -94,7 +103,13 @@ export function GoogleDailyTrendsByRegionListItem({
                 </Box>
               )}
               <Box ml={2} flexGrow={1}>
-                <ListItemText>{trend.topic}</ListItemText>
+                <ListItemText
+                  onClick={(
+                    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+                  ) => handleTrendClick(event, trend.topic)}
+                >
+                  {trend.topic}
+                </ListItemText>
               </Box>
               <Box>
                 <ListItemText>
