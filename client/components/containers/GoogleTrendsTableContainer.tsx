@@ -4,6 +4,10 @@ import { GoogleTrendsTable } from "../GoogleTrendsTable";
 import { GoogleRegionTrend, GoogleDailyTrend } from "../../types";
 
 type Props = {
+  handleTrendClick(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    name: string
+  ): void;
   googleDailyTrends: GoogleDailyTrend[];
   googleDailyTrendsByState: GoogleRegionTrend[];
   colorMap: Map<string, string>;
@@ -11,6 +15,7 @@ type Props = {
 };
 
 export function GoogleTrendsTableContainer({
+  handleTrendClick,
   googleDailyTrends,
   googleDailyTrendsByState,
   colorMap,
@@ -54,12 +59,9 @@ export function GoogleTrendsTableContainer({
           }
           colorMap={colorMap}
           sourceMap={sourceMap}
+          handleTrendClick={handleTrendClick}
         />
       </div>
     );
-  }, [
-    googleDailyTrends,
-    googleDailyTrendsByState,
-    colorMap,
-    sourceMap]);
+  }, [googleDailyTrends, googleDailyTrendsByState, colorMap, sourceMap]);
 }

@@ -11,7 +11,8 @@ import {
   Row,
   TableOptions,
 } from "react-table";
-import { Box,
+import {
+  Box,
   FormControlLabel,
   Table,
   Switch,
@@ -22,7 +23,8 @@ import { Box,
   TableHead,
   TablePagination,
   TableRow,
-  TableSortLabel } from "@material-ui/core";
+  TableSortLabel,
+} from "@material-ui/core";
 import TablePaginationActions from "./TablePaginationActions";
 
 import { getListPositionChange } from "../lib";
@@ -61,9 +63,13 @@ function DefaultColumnFilter({
 }
 
 interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
-  skipPageReset: boolean;
   defaultPageSize: number;
+  handleTrendClick(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    name: string
+  ): void;
   colorMap: Map<string, string>;
+  skipPageReset: boolean;
   sourceMap: Map<string, number>;
 }
 
@@ -71,11 +77,12 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
   props: PropsWithChildren<Props<T>>
 ): ReactElement {
   const {
+    colorMap,
     columns,
     data,
-    skipPageReset,
     defaultPageSize,
-    colorMap,
+    handleTrendClick,
+    skipPageReset,
     sourceMap,
   } = props;
   const [dense, setDense] = React.useState(true);
@@ -228,20 +235,30 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
                         <Box>
                           <div style={{ width: "9rem", whiteSpace: "nowrap" }}>
                             <Box
+                              onClick={(
+                                event: React.MouseEvent<
+                                  HTMLDivElement,
+                                  MouseEvent
+                                >
+                              ) => handleTrendClick(event, cell.value)}
                               component="div"
-                              // my={2}
                               textOverflow="ellipsis"
                               overflow="hidden"
+                              title={cell.value}
+                              style={{
+                                cursor: "pointer",
+                              }}
                             >
-                              <b>{cell.value} </b>
+                              <b>{cell.value}</b>
                             </Box>
                           </div>
                         </Box>
                         {/* do not show indicators on the first column (region name) */}
-                        { j === 0 ? null : 
-                        <Box>
-                          <PositionChangeIndicator index={positionChange} />
-                        </Box>}
+                        {j === 0 ? null : (
+                          <Box>
+                            <PositionChangeIndicator index={positionChange} />
+                          </Box>
+                        )}
                       </Box>
                     </TableCell>
                   );

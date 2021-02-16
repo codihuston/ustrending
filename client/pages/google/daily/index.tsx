@@ -409,6 +409,7 @@ export default function GoogleDaily() {
           {useGoogleDailyTrendsHook.data &&
           useGoogleDailyTrendsByStateHook.data ? (
             <GoogleTrendsTableContainer
+              handleTrendClick={handleTrendClick}
               googleDailyTrends={useGoogleDailyTrendsHook.data}
               googleDailyTrendsByState={useGoogleDailyTrendsByStateHook.data}
               colorMap={colorMap}
