@@ -60,7 +60,7 @@ export default function GoogleDaily() {
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<RegionSelectOptionType, true>
   >([]);
-  const MAX_NUM_SELECTED_REGIONS = 4;
+  const MAX_NUM_SELECTED_REGIONS = 5;
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
@@ -120,15 +120,35 @@ export default function GoogleDaily() {
   const handleChange = (
     option: ValueType<RegionSelectOptionType, true>
   ): void => {
-    setSelectedRegions(option);
-    if (option.length > 0) {
-      setSnackbarText(
-        `Region "${option[option.length - 1].label}" added for comparison.`
-      );
-    } else {
-      setSnackbarText(`Region compairsons have been cleared.`);
+    
+    // to save on performance, only allow a max number of comparisons
+    if(option.length > MAX_NUM_SELECTED_REGIONS){
+      console.log(option);
+      setSnackbarText(`You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`);
+      handleOpen();
+      return;
     }
-    handleOpen();
+
+    setSelectedRegions(option);
+    
+    // if the new list of options has a length
+    if (option.length > 0) {
+      // and it is longer than the currently selectedRegions
+      if(option.length <= selectedRegions.length){
+        // an item was removed from the selectedRegions list, no need to notify
+      }
+      else{
+        // notify that we added a new item for comparison
+        setSnackbarText(
+          `Region "${option[option.length - 1].label}" added for comparison.`
+        );
+        handleOpen();
+      }
+    } else {
+      // items have been cleared
+      setSnackbarText(`Region compairsons have been cleared.`);
+      handleOpen();
+    }
   };
 
   /**
@@ -142,7 +162,7 @@ export default function GoogleDaily() {
   ): void => {
     let found = false;
 
-    // to save on performance, only max out compairsons
+    // to save on performance, only allow a max number of comparisons
     if(selectedRegions.length >= MAX_NUM_SELECTED_REGIONS){
       setSnackbarText(`You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`);
       handleOpen();
@@ -241,7 +261,7 @@ export default function GoogleDaily() {
                 aria-label="close"
                 color="inherit"
                 onClick={handleClose}
-                href="#"
+                href=""
               >
                 <Close fontSize="small" />
               </IconButton>
@@ -316,6 +336,7 @@ export default function GoogleDaily() {
             handleChange={handleChange}
           />
           <div>
+          <ReactTooltip html>{tooltipContent}</ReactTooltip>
           <GoogleTrendMap
             colorMap={colorMap}
             handleClick={handleMapClick}
@@ -326,7 +347,6 @@ export default function GoogleDaily() {
                 : []
             }
           />
-          <ReactTooltip html>{tooltipContent}</ReactTooltip>
           </div>
           <h3>Trends by Region: Grid View</h3>
           <Typography>
