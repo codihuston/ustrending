@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import ReactTooltip from "react-tooltip";
 import { cloneDeep } from "lodash";
 import { geoCentroid } from "d3-geo";
 import {
@@ -76,8 +77,13 @@ type Props = {
     e: React.MouseEvent<SVGGElement, MouseEvent>,
     regionName: string
   ): void;
+  handleHover(
+    e: React.MouseEvent<SVGGElement, MouseEvent>,
+    regionName: string
+  ): void;
   googleDailyTrendsByState: GoogleRegionTrend[];
   colorMap: Map<string, string>;
+  tooltipContent: string
 };
 
 type GeographyStyle = {
@@ -120,25 +126,30 @@ const defaultAnnotationProps: AnnotationProps = {
 
 const GoogleTrendMap = ({
   handleClick,
+  handleHover,
   googleDailyTrendsByState,
   colorMap,
+  tooltipContent
 }: Props) => {
+  // TODO: make this dynamic?
   const projection = "geoAlbersUsa";
 
   if (!googleDailyTrendsByState || !googleDailyTrendsByState.length) {
     return <span>No trends data provided.</span>;
   }
 
-  function getTrendingTopicColorByRegion(
-    name: string,
-    defaultColor: string
-  ): string {
+  /**
+   * Will fetch a Google Region Trend with the given name
+   * 
+   * @param name 
+   */
+  function getRegionByGeoName(name: string): GoogleRegionTrend {
     // handle null region
     if (!name) {
       // console.warn(
       //   `Unable to fetch style, region not provided, using defaults.`
       // );
-      return defaultColor;
+      return null;
     }
 
     // handle region not found
@@ -147,6 +158,25 @@ const GoogleTrendMap = ({
       // console.warn(
       //   `No trends found for region named: ${name}, using default styles.`
       // );
+      return null;
+    }
+
+    return region;
+  }
+  
+  /**
+   * Determines a background color to use for a given topic an region
+   * 
+   * @param name 
+   * @param defaultColor 
+   */
+  function getTrendingTopicColorByRegion(
+    name: string,
+    defaultColor: string
+  ): string {
+    const region = getRegionByGeoName(name);
+
+    if(!region){
       return defaultColor;
     }
 
@@ -159,10 +189,55 @@ const GoogleTrendMap = ({
     return color ? color : defaultColor;
   }
 
+  /**
+   * Renders an HTML string to be used for the tooltip content
+   * @param name 
+   */
+  function getTooltipContent(name: string){
+    const region = getRegionByGeoName(name);
+
+    if(region){
+      // get the #1 topic for this region
+      const topicName = region.trends[0].topic;
+      // style it
+      const backgroundColor = getTrendingTopicColorByRegion(
+        name,
+        defaultRegionStyle.default.fill
+      )
+      const color = invert(backgroundColor,true
+      );
+
+      if(topicName){
+        const html = `
+          <div style="text-align: center;">
+            <span>
+              ${name}
+            </span>
+          </div>
+          <br>
+          <div>
+            <span style="background-color: ${backgroundColor}; color: ${color}; padding: 0.25rem; width: 0.25rem; border: 1px solid ${color}; border-radius: 2px;">
+              <b>
+                #1
+              </b>
+            </span>
+            <span style="margin-left: 1em;">
+              ${topicName}
+            </span>
+          </div>
+        `;
+        return html;
+      }
+    }
+    return null;
+  }
+
   function getRegionStyle(color: string): GeographyStyle {
     const style = cloneDeep(defaultRegionStyle);
 
     style.default.fill = color;
+    style.hover.fill = color;
+    style.pressed.fill= color;
 
     return style;
   }
@@ -177,6 +252,7 @@ const GoogleTrendMap = ({
 
   return (
     <div>
+    <ReactTooltip html>{tooltipContent}</ReactTooltip>
       <ComposableMap data-tip="" projection={projection}>
         <Geographies geography={geoUrl}>
           {({ geographies }) => {
@@ -196,6 +272,12 @@ const GoogleTrendMap = ({
                     onClick={(
                       event: React.MouseEvent<SVGPathElement, MouseEvent>
                     ) => handleClick(event, geo?.properties?.name)}
+                    onMouseEnter={(
+                      event: React.MouseEvent<SVGPathElement, MouseEvent>
+                    ) => handleHover(event, getTooltipContent(geo?.properties?.name))}
+                    onMouseLeave={(
+                      event: React.MouseEvent<SVGPathElement, MouseEvent>
+                    ) => handleHover(event, null)}
                   ></Geography>
                 ))}
                 {/* Build the annotations */}
@@ -238,6 +320,12 @@ const GoogleTrendMap = ({
                             onClick={(event) =>
                               handleClick(event, geo?.properties?.name)
                             }
+                            onMouseEnter={(
+                              event: React.MouseEvent<SVGPathElement, MouseEvent>
+                            ) => handleHover(event, getTooltipContent(geo?.properties?.name))}
+                            onMouseLeave={(
+                              event: React.MouseEvent<SVGPathElement, MouseEvent>
+                            ) => handleHover(event, null)}
                             connectorProps={getConnectorProps(
                               getTrendingTopicColorByRegion(
                                 geo?.properties?.name,

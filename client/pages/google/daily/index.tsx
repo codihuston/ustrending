@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { isEqual, clone } from "lodash";
-import Head from "next/head";
 import { ValueType } from "react-select";
+import Head from "next/head";
 import {
   Box,
   Button,
@@ -65,6 +65,7 @@ export default function GoogleDaily() {
   const [open, setOpen] = useState<boolean>(false);
   const [snackbarText, setSnackbarText] = useState<string>("");
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
+  const [tooltipContent, setTooltipContent] = useState<string>("");
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
   const googleDailyTrends = useGoogleDailyTrendsHook.data;
@@ -155,7 +156,7 @@ export default function GoogleDaily() {
       };
 
       const temp = clone(selectedRegions).concat(newValue);
-
+      
       setSelectedRegions(temp);
       setSnackbarText(`Region "${regionName}" added for comparison.`);
       handleOpen();
@@ -163,6 +164,13 @@ export default function GoogleDaily() {
       setSnackbarText(`Region "${regionName}" is already selected!`);
       handleOpen();
     }
+  };
+
+  const handleMapHover = (
+    e: React.MouseEvent<SVGGElement, MouseEvent>,
+    tooltipContent: string
+  ): void => {
+    setTooltipContent(tooltipContent);
   };
 
   /**
@@ -235,7 +243,6 @@ export default function GoogleDaily() {
       <Box>
         <Paper>
           <h2>Trending Today on Google</h2>
-          
           <h3>Trending in the United States</h3>
           <Toolbar>
             <FormControlLabel
@@ -299,15 +306,19 @@ export default function GoogleDaily() {
             }
             handleChange={handleChange}
           />
+          <div>
           <GoogleTrendMap
+            colorMap={colorMap}
             handleClick={handleMapClick}
+            handleHover={handleMapHover}
             googleDailyTrendsByState={
               useGoogleDailyTrendsByStateHook.data
                 ? useGoogleDailyTrendsByStateHook.data
                 : []
             }
-            colorMap={colorMap}
+            tooltipContent={tooltipContent}
           />
+          </div>
           <h3>Trends by Region: Grid View</h3>
           <Typography>
             Below lists all of the trends for each region in a sortable,
