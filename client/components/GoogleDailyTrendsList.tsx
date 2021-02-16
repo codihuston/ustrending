@@ -8,7 +8,17 @@ import {
   List,
   ListItem,
   ListItemText,
+  makeStyles,
 } from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  trendingRank: {
+    borderRadius: "2px",
+    textAlign: "center",
+    width: "3rem",
+  },
+}));
 
 type Props = {
   googleDailyTrends: GoogleDailyTrend[];
@@ -26,6 +36,8 @@ export function GoogleDailyTrendsList({
   handleTrendClick,
   withColor,
 }: Props) {
+  const classes = useStyles();
+
   if (!googleDailyTrends || !googleDailyTrends.length) {
     return <span>Error: no google daily trends are provided!</span>;
   }
@@ -58,14 +70,12 @@ export function GoogleDailyTrendsList({
                 <Box display="flex" width={"100%"}>
                   {withColor ? (
                     <Box
+                      className={classes.trendingRank}
                       display="flex"
                       justifyContent="center"
-                      width={"3rem"}
                       style={{
                         background,
                         color: textColor,
-                        borderRadius: "2px",
-                        textAlign: "center",
                       }}
                     >
                       <ListItemText>
