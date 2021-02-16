@@ -386,6 +386,7 @@ export default function GoogleDaily() {
               googleDailyTrends={useGoogleDailyTrendsHook.data}
               googleDailyTrendsByState={useGoogleDailyTrendsByStateHook.data}
               colorMap={colorMap}
+              sourceMap={sourceMap}
             />
           ) : null}
         </Paper>

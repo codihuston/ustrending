@@ -6,6 +6,21 @@ import { RegionSelectOptionType } from "../types";
 export const styledBy = (property, mapping) => (props) =>
   mapping[props[property]];
 
+  
+/**
+ * Calculates position changes of a topic in this region list, compared to the sourceMap
+ * @param topic
+ * @param index
+ */
+export function getListPositionChange(topic: string, index: number, sourceMap: Map<string, number>) {
+  const srcIndex = sourceMap.get(topic);
+  if (srcIndex >= 0) {
+    return srcIndex - index;
+  }
+  return 0;
+}
+
+
 export function getSelectedRegionOption(
   regionName,
   selectedRegions

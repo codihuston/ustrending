@@ -9,8 +9,8 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
 import { GoogleRegionTrend, RegionSelectOptionType } from "../types";
-import { getSelectedRegionOption } from "../lib";
-import { PositionChangeIndicator } from "./GoogleDailyTrendsByRegionList";
+import { getListPositionChange, getSelectedRegionOption } from "../lib";
+import { PositionChangeIndicator } from "./PositionChangeIndicator";
 
 type Props = {
   colorMap: Map<string, string>;
@@ -34,19 +34,6 @@ export function GoogleDailyTrendsByRegionListItem({
   withColor,
   withTitle,
 }: Props) {
-  /**
-   * Calculates position changes of a topic in this region list, compared to the sourceMap
-   * @param topic
-   * @param index
-   */
-  function getListPositionChange(topic: string, index: number) {
-    const srcIndex = sourceMap.get(topic);
-    if (srcIndex >= 0) {
-      return srcIndex - index;
-    }
-    return 0;
-  }
-
   return (
     <>
       {withTitle ? (
@@ -77,7 +64,8 @@ export function GoogleDailyTrendsByRegionListItem({
         </>
       ) : null}
       {region.trends.map((trend, i) => {
-        const positionChange = getListPositionChange(trend.topic, i);
+        // add +1 to account for the first column that contains the region name (non-trending data)
+        const positionChange = getListPositionChange(trend.topic, i+1, sourceMap);
 
         return (
           <ListItem key={i}>

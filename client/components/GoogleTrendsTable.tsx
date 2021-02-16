@@ -1,5 +1,6 @@
 import React, { ReactElement, PropsWithChildren } from "react";
 import { matchSorter } from "match-sorter";
+import invert from "invert-color";
 import {
   useGlobalFilter,
   useFilters,
@@ -10,21 +11,23 @@ import {
   Row,
   TableOptions,
 } from "react-table";
-import invert from "invert-color";
-import MaUTable from "@material-ui/core/Table";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableFooter from "@material-ui/core/TableFooter";
-import TableHead from "@material-ui/core/TableHead";
-import TablePagination from "@material-ui/core/TablePagination";
+import { Box,
+  FormControlLabel,
+  Table,
+  Switch,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel } from "@material-ui/core";
 import TablePaginationActions from "./TablePaginationActions";
-import TableRow from "@material-ui/core/TableRow";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
 
+import { getListPositionChange } from "../lib";
 import { TableToolbar } from "./TableToolbar";
+import { PositionChangeIndicator } from "./PositionChangeIndicator";
 function fuzzyTextFilterFn(rows: Row[], id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
 }
@@ -61,12 +64,20 @@ interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
   skipPageReset: boolean;
   defaultPageSize: number;
   colorMap: Map<string, string>;
+  sourceMap: Map<string, number>;
 }
 
 export function GoogleTrendsTable<T extends Record<string, unknown>>(
   props: PropsWithChildren<Props<T>>
 ): ReactElement {
-  const { columns, data, skipPageReset, defaultPageSize, colorMap } = props;
+  const {
+    columns,
+    data,
+    skipPageReset,
+    defaultPageSize,
+    colorMap,
+    sourceMap,
+  } = props;
   const [dense, setDense] = React.useState(true);
   const [isBackgroundColored, setIsBackgroundColored] = React.useState(true);
   const defaultColumn = React.useMemo(
@@ -152,14 +163,14 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
               onChange={handleChangeIsBackgroundColored}
             />
           }
-          label="Background colors"
+          label="Show colors"
         />
         <FormControlLabel
           control={<Switch checked={dense} onChange={handleChangeDense} />}
           label="Dense padding"
         />
       </TableToolbar>
-      <MaUTable size={dense ? "small" : "medium"} {...getTableProps()}>
+      <Table size={dense ? "small" : "medium"} {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
@@ -190,7 +201,13 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
             prepareRow(row);
             return (
               <TableRow {...row.getRowProps()}>
-                {row.cells.map((cell) => {
+                {row.cells.map((cell, j) => {
+                  const positionChange = getListPositionChange(
+                    cell.value,
+                    j,
+                    sourceMap
+                  );
+
                   return (
                     <TableCell
                       {...cell.getCellProps()}
@@ -207,11 +224,25 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
                         return {};
                       })()}
                     >
-                      {isBackgroundColored ? (
-                        <b>{cell.render("Cell")}</b>
-                      ) : (
-                        cell.render("Cell")
-                      )}
+                      <Box display="flex" justifyContent="flex-start">
+                        <Box>
+                          <div style={{ width: "9rem", whiteSpace: "nowrap" }}>
+                            <Box
+                              component="div"
+                              // my={2}
+                              textOverflow="ellipsis"
+                              overflow="hidden"
+                            >
+                              <b>{cell.value} </b>
+                            </Box>
+                          </div>
+                        </Box>
+                        {/* do not show indicators on the first column (region name) */}
+                        { j === 0 ? null : 
+                        <Box>
+                          <PositionChangeIndicator index={positionChange} />
+                        </Box>}
+                      </Box>
                     </TableCell>
                   );
                 })}
@@ -219,7 +250,7 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
             );
           })}
         </TableBody>
-      </MaUTable>
+      </Table>
       <TablePagination
         component="div"
         style={{
