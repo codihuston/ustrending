@@ -1,7 +1,7 @@
 import React from "react";
 import { ValueType } from "react-select";
 import invert from "invert-color";
-import { Box } from "@material-ui/core";
+import { Box, makeStyles } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Divider from "@material-ui/core/Divider";
@@ -11,6 +11,15 @@ import ListItemText from "@material-ui/core/ListItemText";
 import { GoogleRegionTrend, SelectStringOptionType } from "../types";
 import { getListPositionChange, getSelectedRegionOption } from "../lib";
 import { PositionChangeIndicator } from "./PositionChangeIndicator";
+
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  topRight: { position: "absolute", top: 0, right: 0 },
+  trendingRank: {
+    borderRadius: "2px",
+    textAlign: "center",
+  },
+}));
 
 type Props = {
   colorMap: Map<string, string>;
@@ -39,6 +48,8 @@ export function GoogleDailyTrendsByRegionListItem({
   withColor,
   withTitle,
 }: Props) {
+  const classes = useStyles();
+
   return (
     <>
       {withTitle ? (
@@ -57,9 +68,9 @@ export function GoogleDailyTrendsByRegionListItem({
               <Box textAlign="center">{region.name}</Box>
             </ListItemText>
             <IconButton
+              className={classes.topRight}
               aria-label="delete"
               color="secondary"
-              style={{ position: "absolute", top: 0, right: 0 }}
             >
               <DeleteIcon />
             </IconButton>
@@ -79,11 +90,10 @@ export function GoogleDailyTrendsByRegionListItem({
                   display="flex"
                   justifyContent="center"
                   width={"3rem"}
+                  className={classes.trendingRank}
                   style={{
                     background: colorMap.get(trend.topic),
                     color: invert(colorMap.get(trend.topic), true),
-                    borderRadius: "2px",
-                    textAlign: "center",
                   }}
                 >
                   <ListItemText>
