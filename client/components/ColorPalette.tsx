@@ -1,13 +1,13 @@
 import Select, { ValueType } from "react-select";
 
 import { palettes, contrasts } from "../themes";
-import { RegionSelectOptionType } from "../types";
+import { SelectStringOptionType } from "../types";
 
 type Props = {
-  handleChangePalette(option: ValueType<RegionSelectOptionType, false>): void;
-  handleChangeContrast(option: ValueType<RegionSelectOptionType, false>): void;
-  selectedContrast: ValueType<RegionSelectOptionType, false>;
-  selectedPalette: ValueType<RegionSelectOptionType, false>;
+  handleChangePalette(option: ValueType<SelectStringOptionType, false>): void;
+  handleChangeContrast(option: ValueType<SelectStringOptionType, false>): void;
+  selectedContrast: ValueType<SelectStringOptionType, false>;
+  selectedPalette: ValueType<SelectStringOptionType, false>;
 };
 
 export function ColorPalette({

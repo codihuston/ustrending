@@ -17,7 +17,7 @@ import {
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 
-import { RegionSelectOptionType } from "../../../types";
+import { SelectStringOptionType } from "../../../types";
 import {
   useDebouncedCallback,
   useGoogleDailyTrends,
@@ -56,13 +56,13 @@ export default function GoogleDaily() {
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
   const [selectedPalette, setSelectedPalette] = useState<
-    ValueType<RegionSelectOptionType, false>
+    ValueType<SelectStringOptionType, false>
   >({
     label: defaultPalette,
     value: defaultPalette,
   });
   const [selectedContrast, setSelectedContrastLevel] = useState<
-    ValueType<RegionSelectOptionType, false>
+    ValueType<SelectStringOptionType, false>
   >({
     label: defaultContrast,
     value: defaultContrast,
@@ -74,7 +74,7 @@ export default function GoogleDaily() {
   const [tooltipContent, setTooltipContent] = useState<string>("");
   // stateful data
   const [selectedRegions, setSelectedRegions] = useState<
-    ValueType<RegionSelectOptionType, true>
+    ValueType<SelectStringOptionType, true>
   >([]);
   const [selectedTrend, setSelectedTrend] = useState<string>("");
 
@@ -136,13 +136,13 @@ export default function GoogleDaily() {
   };
 
   const handleChangePalette = (
-    option: ValueType<RegionSelectOptionType, false>
+    option: ValueType<SelectStringOptionType, false>
   ) => {
     setSelectedPalette(option);
   };
 
   const handleChangeContrast = (
-    option: ValueType<RegionSelectOptionType, false>
+    option: ValueType<SelectStringOptionType, false>
   ) => {
     setSelectedContrastLevel(option);
   };
@@ -152,7 +152,7 @@ export default function GoogleDaily() {
    * @param option
    */
   const handleChange = (
-    option: ValueType<RegionSelectOptionType, true>
+    option: ValueType<SelectStringOptionType, true>
   ): void => {
     // to save on performance, only allow a max number of comparisons
     if (option.length > MAX_NUM_SELECTED_REGIONS) {
@@ -215,7 +215,7 @@ export default function GoogleDaily() {
 
     // if not found, add to it
     if (!found) {
-      const newValue: ValueType<RegionSelectOptionType, false> = {
+      const newValue: ValueType<SelectStringOptionType, false> = {
         label: regionName,
         value: regionName,
       };
@@ -271,7 +271,7 @@ export default function GoogleDaily() {
    */
   const handleListDelete = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    selectedRegion: ValueType<RegionSelectOptionType, true>
+    selectedRegion: ValueType<SelectStringOptionType, true>
   ) => {
     if (!selectedRegion) return;
 

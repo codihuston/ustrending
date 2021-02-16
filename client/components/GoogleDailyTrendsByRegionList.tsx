@@ -3,7 +3,7 @@ import { ValueType } from "react-select";
 import { Box, Grid } from "@material-ui/core";
 import List from "@material-ui/core/List";
 
-import { GoogleRegionTrend, RegionSelectOptionType } from "../types";
+import { GoogleRegionTrend, SelectStringOptionType } from "../types";
 import { getSelectedRegionOption } from "../lib";
 import { GoogleDailyTrendsByRegionListItem } from "./GoogleDailyTrendsByRegionListItem";
 
@@ -12,14 +12,14 @@ type Props = {
   googleRegionTrends: GoogleRegionTrend[];
   handleClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    selectedRegion: ValueType<RegionSelectOptionType, true>
+    selectedRegion: ValueType<SelectStringOptionType, true>
   ): void;
   handleTrendClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void;
   isAlphabetical: boolean;
-  selectedRegions: ValueType<RegionSelectOptionType, true>;
+  selectedRegions: ValueType<SelectStringOptionType, true>;
   sourceMap: Map<string, number>;
   withTitle?: boolean;
   withColor?: boolean;

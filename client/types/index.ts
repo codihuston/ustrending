@@ -88,4 +88,4 @@ export interface TwitterLocation {
   woeid: number;
 }
 
-export type RegionSelectOptionType = { label: string; value: string };
+export type SelectStringOptionType = { label: string; value: string };

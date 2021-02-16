@@ -1,11 +1,11 @@
 import Select, { Props as SelectProps, ValueType } from "react-select";
 
-import { GoogleRegionTrend, RegionSelectOptionType } from "../types";
+import { GoogleRegionTrend, SelectStringOptionType } from "../types";
 
 type Props = {
-  values: ValueType<RegionSelectOptionType, true>;
+  values: ValueType<SelectStringOptionType, true>;
   googleDailyTrendsByState: GoogleRegionTrend[];
-  handleChange(option: ValueType<RegionSelectOptionType, true>): void;
+  handleChange(option: ValueType<SelectStringOptionType, true>): void;
 };
 
 export function RegionSelect({
@@ -17,7 +17,7 @@ export function RegionSelect({
     return <span>Error: no google daily trends are provided!</span>;
   }
 
-  const options: RegionSelectOptionType[] = googleDailyTrendsByState
+  const options: SelectStringOptionType[] = googleDailyTrendsByState
     .sort((a, b) => {
       const x = a.name.toUpperCase();
       const y = b.name.toUpperCase();

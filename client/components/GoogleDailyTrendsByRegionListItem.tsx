@@ -8,7 +8,7 @@ import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import { GoogleRegionTrend, RegionSelectOptionType } from "../types";
+import { GoogleRegionTrend, SelectStringOptionType } from "../types";
 import { getListPositionChange, getSelectedRegionOption } from "../lib";
 import { PositionChangeIndicator } from "./PositionChangeIndicator";
 
@@ -17,13 +17,13 @@ type Props = {
   region: GoogleRegionTrend;
   handleClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    selectedRegion: ValueType<RegionSelectOptionType, true>
+    selectedRegion: ValueType<SelectStringOptionType, true>
   ): void;
   handleTrendClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void;
-  selectedRegions: ValueType<RegionSelectOptionType, true>;
+  selectedRegions: ValueType<SelectStringOptionType, true>;
   sourceMap: Map<string, number>;
   withTitle?: boolean;
   withColor?: boolean;

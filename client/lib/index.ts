@@ -1,6 +1,6 @@
 import { ValueType } from "react-select";
 
-import { RegionSelectOptionType } from "../types";
+import { SelectStringOptionType } from "../types";
 
 // ref: https://material-ui.com/customization/components/#2-dynamic-variation-for-a-one-time-situation
 export const styledBy = (property, mapping) => (props) =>
@@ -26,7 +26,7 @@ export function getListPositionChange(
 export function getSelectedRegionOption(
   regionName,
   selectedRegions
-): ValueType<RegionSelectOptionType, true> {
+): ValueType<SelectStringOptionType, true> {
   for (const givenRegion of selectedRegions) {
     if (givenRegion.label === regionName || givenRegion.value === regionName) {
       return givenRegion;
