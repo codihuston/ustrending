@@ -58,17 +58,17 @@ const colorPalatte = {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root:{},
+  root: {},
   mapContainer: {
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down("xs")]: {
       width: "100%",
-      margin: "auto"
+      margin: "auto",
     },
-    [theme.breakpoints.up('lg')]: {
+    [theme.breakpoints.up("lg")]: {
       width: "50%",
-      margin: "auto"
+      margin: "auto",
     },
-  }
+  },
 }));
 
 export default function GoogleDaily() {
@@ -303,30 +303,29 @@ export default function GoogleDaily() {
             After making your selection, the results will appear above.{" "}
             <a href={`#${selectedRegions}`}>Click here to see the results</a>.
           </Typography>
-          <RegionSelect
-            values={selectedRegions}
-            googleDailyTrendsByState={
-              useGoogleDailyTrendsByStateHook.data
-                ? useGoogleDailyTrendsByStateHook.data
-                : []
-            }
-            handleChange={handleChange}
-          />
-          <div
-            className={classes.mapContainer}>
-              {isTooltipVisible && (
-                <ReactTooltip html>{tooltipContent}</ReactTooltip>
-              )}
-              <GoogleTrendsMap
-                colorMap={colorMap}
-                handleClick={debouncedHandleMapClick}
-                handleHover={debouncedHandleMapHover}
-                googleDailyTrendsByState={
-                  useGoogleDailyTrendsByStateHook.data
-                    ? useGoogleDailyTrendsByStateHook.data
-                    : []
-                }
-              />
+          <div className={classes.mapContainer}>
+            <RegionSelect
+              values={selectedRegions}
+              googleDailyTrendsByState={
+                useGoogleDailyTrendsByStateHook.data
+                  ? useGoogleDailyTrendsByStateHook.data
+                  : []
+              }
+              handleChange={handleChange}
+            />
+            {isTooltipVisible && (
+              <ReactTooltip html>{tooltipContent}</ReactTooltip>
+            )}
+            <GoogleTrendsMap
+              colorMap={colorMap}
+              handleClick={debouncedHandleMapClick}
+              handleHover={debouncedHandleMapHover}
+              googleDailyTrendsByState={
+                useGoogleDailyTrendsByStateHook.data
+                  ? useGoogleDailyTrendsByStateHook.data
+                  : []
+              }
+            />
           </div>
           <h3>Trending in the United States</h3>
           <Toolbar>
