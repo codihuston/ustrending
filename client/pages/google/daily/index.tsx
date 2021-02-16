@@ -18,6 +18,7 @@ import { Close } from "@material-ui/icons";
 
 import { RegionSelectOptionType } from "../../../types";
 import {
+  useDebouncedCallback,
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
@@ -190,12 +191,13 @@ export default function GoogleDaily() {
       
       setSelectedRegions(temp);
       setSnackbarText(`Region "${regionName}" added for comparison.`);
-      handleOpen();
     } else {
       setSnackbarText(`Region "${regionName}" is already selected!`);
-      handleOpen();
     }
+    handleOpen();
   };
+
+  const debouncedHandleMapClick = useDebouncedCallback(handleMapClick, 250);
 
   const handleMapHover = (
     e: React.MouseEvent<SVGGElement, MouseEvent>,
@@ -341,7 +343,7 @@ export default function GoogleDaily() {
           {isTooltipVisible && <ReactTooltip html>{tooltipContent}</ReactTooltip>}
           <GoogleTrendMap
             colorMap={colorMap}
-            handleClick={handleMapClick}
+            handleClick={debouncedHandleMapClick}
             handleHover={handleMapHover}
             googleDailyTrendsByState={
               useGoogleDailyTrendsByStateHook.data
