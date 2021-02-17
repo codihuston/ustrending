@@ -37,13 +37,13 @@ const Transition = React.forwardRef<unknown, TransitionProps>(
 );
 
 type Props = {
-  googleDailyTrends: GoogleDailyTrend[];
+  googleTrends: GoogleDailyTrend[];
   selectedTrend: string;
   handleCloseDialog();
 };
 
 export function FullScreenDialog({
-  googleDailyTrends,
+  googleTrends,
   handleCloseDialog,
   selectedTrend,
 }: Props) {
@@ -52,16 +52,16 @@ export function FullScreenDialog({
 
   useEffect(() => {
     setOpen(selectedTrend ? true : false);
-  }, [googleDailyTrends, selectedTrend]);
+  }, [googleTrends, selectedTrend]);
 
   const handleClose = () => {
     setOpen(false);
     handleCloseDialog();
   };
 
-  if (!googleDailyTrends) return null;
+  if (!googleTrends) return null;
 
-  const articles = googleDailyTrends
+  const articles = googleTrends
     .filter((trend) => trend.title.query === selectedTrend)
     .map((trend) => {
       return trend.articles.map((article, i) => {

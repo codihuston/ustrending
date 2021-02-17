@@ -8,7 +8,7 @@ type Props = {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void;
-  googleDailyTrends: GoogleDailyTrend[];
+  googleTrends: GoogleDailyTrend[];
   googleDailyTrendsByState: GoogleRegionTrend[];
   colorMap: Map<string, string>;
   sourceMap: Map<string, number>;
@@ -16,7 +16,7 @@ type Props = {
 
 export function GoogleTrendsTableContainer({
   handleTrendClick,
-  googleDailyTrends,
+  googleTrends,
   googleDailyTrendsByState,
   colorMap,
   sourceMap,
@@ -28,7 +28,7 @@ export function GoogleTrendsTableContainer({
     let columns = [{ Header: `Region`, accessor: "region" }];
 
     // all subsequent columns will contain a numbered trend (1..N)
-    googleDailyTrends.forEach((trend, i) => {
+    googleTrends.forEach((trend, i) => {
       columns.push({ Header: `#${i + 1}`, accessor: i.toString() });
     });
 
@@ -63,5 +63,5 @@ export function GoogleTrendsTableContainer({
         />
       </div>
     );
-  }, [googleDailyTrends, googleDailyTrendsByState, colorMap, sourceMap]);
+  }, [googleTrends, googleDailyTrendsByState, colorMap, sourceMap]);
 }

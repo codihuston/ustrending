@@ -81,7 +81,7 @@ export default function GoogleDaily() {
   // data
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
-  const googleDailyTrends = useGoogleDailyTrendsHook.data;
+  const googleTrends = useGoogleDailyTrendsHook.data;
   const googleRegionTrends = useGoogleDailyTrendsByStateHook.data;
 
   useEffect(() => {
@@ -91,9 +91,9 @@ export default function GoogleDaily() {
     // init the color palette
     const palette = getColors(selectedPalette.value, selectedContrast.value);
 
-    if (googleDailyTrends) {
+    if (googleTrends) {
       // NOTE: x.title.query will differ between realtime and daily trends
-      googleDailyTrends.map((x, i) => {
+      googleTrends.map((x, i) => {
         colorMap.set(x.title.query, palette[i]);
         sourceMap.set(x.title.query, i);
       });
@@ -101,7 +101,7 @@ export default function GoogleDaily() {
     setTooltipVisibility(true);
     setColorMap(colorMap);
     setSourceMap(sourceMap);
-  }, [googleDailyTrends, isTooltipVisible, selectedPalette, selectedContrast]);
+  }, [googleTrends, isTooltipVisible, selectedPalette, selectedContrast]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -289,7 +289,7 @@ export default function GoogleDaily() {
       <Head>Google Daily Trends</Head>
       <FullScreenDialog
         selectedTrend={selectedTrend}
-        googleDailyTrends={googleDailyTrends}
+        googleTrends={googleTrends}
         handleCloseDialog={handleCloseDialog}
       ></FullScreenDialog>
       <Snackbar
@@ -372,7 +372,7 @@ export default function GoogleDaily() {
             />
           </Toolbar>
           <GoogleDailyTrendsList
-            googleDailyTrends={
+            googleTrends={
               useGoogleDailyTrendsHook.data ? useGoogleDailyTrendsHook.data : []
             }
             colorMap={colorMap}
@@ -412,10 +412,10 @@ export default function GoogleDaily() {
             Below lists all of the trends for each region in a sortable,
             filterable fashion.
           </Typography>
-          {googleDailyTrends && googleRegionTrends ? (
+          {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleDailyTrends={googleDailyTrends}
+              googleTrends={googleTrends}
               googleDailyTrendsByState={googleRegionTrends}
               colorMap={colorMap}
               sourceMap={sourceMap}

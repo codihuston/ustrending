@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type Props = {
-  googleDailyTrends: GoogleDailyTrend[];
+  googleTrends: GoogleDailyTrend[];
   handleTrendClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
@@ -32,13 +32,13 @@ type Props = {
 
 export function GoogleDailyTrendsList({
   colorMap,
-  googleDailyTrends,
+  googleTrends,
   handleTrendClick,
   withColor,
 }: Props) {
   const classes = useStyles();
 
-  if (!googleDailyTrends || !googleDailyTrends.length) {
+  if (!googleTrends || !googleTrends.length) {
     return <span>Error: no google daily trends are provided!</span>;
   }
 
@@ -58,7 +58,7 @@ export function GoogleDailyTrendsList({
             </ListItemText>
           </ListItem>
           <Divider />
-          {googleDailyTrends.map((trend, i) => {
+          {googleTrends.map((trend, i) => {
             const color = colorMap.get(trend.title.query);
             const background = color ? color : "#000000";
             const textColor = color
