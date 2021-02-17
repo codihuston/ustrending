@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 
 import { GoogleTrendsTable } from "../GoogleTrendsTable";
-import { GoogleRegionTrend, GoogleDailyTrend } from "../../types";
+import { Loading } from "../Loading";
 
-type Row = {
+export type RowProps = {
   region: string;
   [key: string]: any;
 };
@@ -15,7 +15,7 @@ type Props = {
   ): void;
   googleTrendNames: string[];
   colorMap: Map<string, string>;
-  rows: Row[];
+  rows: RowProps[];
   sourceMap: Map<string, number>;
 };
 
@@ -37,6 +37,10 @@ export function GoogleTrendsTableContainer({
       columns.push({ Header: `#${i + 1}`, accessor: i.toString() });
     });
 
+    if (!rows || rows.length <= 0) {
+      return <Loading />;
+    }
+
     return (
       <div>
         <GoogleTrendsTable
@@ -54,5 +58,5 @@ export function GoogleTrendsTableContainer({
         />
       </div>
     );
-  }, [googleTrendNames, colorMap, sourceMap]);
+  }, [googleTrendNames, rows, colorMap, sourceMap]);
 }

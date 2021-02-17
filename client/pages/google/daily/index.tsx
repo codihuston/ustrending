@@ -17,7 +17,10 @@ import {
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 
-import { SelectStringOptionType } from "../../../types";
+import {
+  GoogleDailyTrendArticle,
+  SelectStringOptionType,
+} from "../../../types";
 import {
   useDebouncedCallback,
   useGoogleDailyTrends,
@@ -30,7 +33,10 @@ import { GoogleDailyTrendArticleDialog } from "../../../components/GoogleDailyTr
 import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
 import { GoogleTrendsByRegionList } from "../../../components/GoogleTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
-import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
+import {
+  GoogleTrendsTableContainer,
+  RowProps,
+} from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
 
 const useStyles = makeStyles((theme) => ({
@@ -67,10 +73,8 @@ export default function GoogleDaily() {
     label: defaultContrast,
     value: defaultContrast,
   });
-  const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const [open, setOpen] = useState<boolean>(false);
   const [snackbarText, setSnackbarText] = useState<string>("");
-  const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const [tooltipContent, setTooltipContent] = useState<string>("");
   // stateful data
   const [selectedRegions, setSelectedRegions] = useState<
@@ -83,6 +87,14 @@ export default function GoogleDaily() {
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
   const googleTrends = useGoogleDailyTrendsHook.data;
   const googleRegionTrends = useGoogleDailyTrendsByStateHook.data;
+  // computed stateful data
+  const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
+  const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
+  const [googleTrendsNames, setGoogleTrendsNames] = useState<string[]>([]);
+  const [relatedArticles, setRelatedArticles] = useState<
+    GoogleDailyTrendArticle[]
+  >([]);
+  const [rows, setRows] = useState<RowProps[]>([]);
 
   useEffect(() => {
     const colorMap = new Map<string, string>();
@@ -91,17 +103,50 @@ export default function GoogleDaily() {
     // init the color palette
     const palette = getColors(selectedPalette.value, selectedContrast.value);
 
+    // compute state around googleTrends
     if (googleTrends) {
-      // NOTE: x.title.query will differ between realtime and daily trends
       googleTrends.map((x, i) => {
         colorMap.set(x.title.query, palette[i]);
         sourceMap.set(x.title.query, i);
       });
+
+      setGoogleTrendsNames(googleTrends.map((trends) => trends.title.query));
+
+      setRelatedArticles(
+        selectedTrend
+          ? googleTrends
+              .filter((trend) => trend.title.query === selectedTrend)
+              .map((trend) => {
+                return trend.articles;
+              })
+              .flat(1)
+          : []
+      );
+    }
+
+    // compute state around googleRegionTrends
+    if (googleRegionTrends) {
+      setRows(
+        googleRegionTrends.map((region) => {
+          const topics = region.trends.map((trend) => trend.topic);
+
+          return {
+            region: region.name,
+            ...topics,
+          };
+        })
+      );
     }
     setTooltipVisibility(true);
     setColorMap(colorMap);
     setSourceMap(sourceMap);
-  }, [googleTrends, isTooltipVisible, selectedPalette, selectedContrast]);
+  }, [
+    googleRegionTrends,
+    googleTrends,
+    isTooltipVisible,
+    selectedPalette,
+    selectedContrast,
+  ]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -284,27 +329,6 @@ export default function GoogleDaily() {
     setSelectedRegions(temp);
   };
 
-  // TODO: move to useEffect()?
-  const relatedArticles = googleTrends
-    ? googleTrends
-        .filter((trend) => trend.title.query === selectedTrend)
-        .map((trend) => {
-          return trend.articles;
-        })
-        .flat(1)
-    : [];
-
-  const rows = googleRegionTrends
-    ? googleRegionTrends.map((region) => {
-        const topics = region.trends.map((trend) => trend.topic);
-
-        return {
-          region: region.name,
-          ...topics,
-        };
-      })
-    : [];
-
   return (
     <Layout>
       <Head>Google Daily Trends</Head>
@@ -387,9 +411,7 @@ export default function GoogleDaily() {
             />
           </Toolbar>
           <GoogleTrendsList
-            googleTrendNames={
-              googleTrends ? googleTrends.map((trend) => trend.title.query) : []
-            }
+            googleTrendNames={googleTrendsNames}
             colorMap={colorMap}
             withColor={isWithColors}
             handleTrendClick={handleTrendClick}
@@ -431,11 +453,7 @@ export default function GoogleDaily() {
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleTrendNames={
-                googleTrends
-                  ? googleTrends.map((trends) => trends.title.query)
-                  : []
-              }
+              googleTrendNames={googleTrendsNames}
               rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}

@@ -17,7 +17,10 @@ import {
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 
-import { SelectStringOptionType } from "../../../types";
+import {
+  GoogleRealtimeTrendArticle,
+  SelectStringOptionType,
+} from "../../../types";
 import {
   useDebouncedCallback,
   useGoogleRealtimeTrends,
@@ -30,7 +33,10 @@ import { GoogleRealtimeTrendArticleDialog } from "../../../components/GoogleReal
 import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
 import { GoogleTrendsByRegionList } from "../../../components/GoogleTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
-import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
+import {
+  GoogleTrendsTableContainer,
+  RowProps,
+} from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
 
 const useStyles = makeStyles((theme) => ({
@@ -52,7 +58,7 @@ export default function GoogleRealtime() {
   const ref = useRef(null);
   const hasDuplicates = false;
   const MAX_NUM_TRENDS_TO_SHOW = 10;
-  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
+  const MAX_NUM_GOOGLE_REGION_TRENDS = 10;
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
@@ -70,17 +76,22 @@ export default function GoogleRealtime() {
     label: defaultContrast,
     value: defaultContrast,
   });
-  const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const [open, setOpen] = useState<boolean>(false);
   const [snackbarText, setSnackbarText] = useState<string>("");
-  const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const [tooltipContent, setTooltipContent] = useState<string>("");
   // stateful data
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<SelectStringOptionType, true>
   >([]);
   const [selectedTrend, setSelectedTrend] = useState<string>("");
-
+  // computed stateful data
+  const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
+  const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
+  const [googleTrendsNames, setGoogleTrendsNames] = useState<string[]>([]);
+  const [relatedArticles, setRelatedArticles] = useState<
+    GoogleRealtimeTrendArticle[]
+  >([]);
+  const [rows, setRows] = useState<RowProps[]>([]);
   // data
   const useGoogleRealtimeTrendsHook = useGoogleRealtimeTrends(
     // expand comma-delimited realtime trends
@@ -104,16 +115,55 @@ export default function GoogleRealtime() {
     // init the color palette
     const palette = getColors(selectedPalette.value, selectedContrast.value);
 
+    // compute state around googleTrends
     if (googleTrends) {
       googleTrends.map((x, i) => {
         colorMap.set(x.title, palette[i]);
         sourceMap.set(x.title, i);
       });
+
+      setGoogleTrendsNames(
+        googleTrends
+          .map((trends) => trends.title)
+          .slice(0, MAX_NUM_TRENDS_TO_SHOW)
+      );
+
+      setRelatedArticles(
+        selectedTrend
+          ? googleTrends
+              .filter((trend) => trend.title === selectedTrend)
+              .map((trend) => {
+                return trend.articles;
+              })
+              .flat(1)
+          : []
+      );
     }
+
+    // compute state around googleRegionTrends
+    if (googleRegionTrends) {
+      setRows(
+        googleRegionTrends.map((region) => {
+          const topics = region.trends.map((trend) => trend.topic);
+
+          return {
+            region: region.name,
+            ...topics,
+          };
+        })
+      );
+    }
+
     setTooltipVisibility(true);
     setColorMap(colorMap);
     setSourceMap(sourceMap);
-  }, [googleTrends, isTooltipVisible, selectedPalette, selectedContrast]);
+  }, [
+    googleRegionTrends,
+    googleTrends,
+    isTooltipVisible,
+    selectedPalette,
+    selectedContrast,
+  ]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -296,28 +346,6 @@ export default function GoogleRealtime() {
     setSelectedRegions(temp);
   };
 
-  // TODO: move to useEffect()?
-  const relatedArticles = googleTrends
-    ? googleTrends
-        .filter((trend) => trend.title === selectedTrend)
-        .map((trend) => {
-          return trend.articles;
-        })
-        .flat(1)
-    : [];
-
-  // const rows = googleRegionTrends ? : [];
-  const rows = googleRegionTrends
-    ? googleRegionTrends.map((region) => {
-        const topics = region.trends.map((trend) => trend.topic);
-
-        return {
-          region: region.name,
-          ...topics,
-        };
-      })
-    : [];
-
   return (
     <Layout>
       <Head>Google Daily Trends</Head>
@@ -400,13 +428,7 @@ export default function GoogleRealtime() {
             />
           </Toolbar>
           <GoogleTrendsList
-            googleTrendNames={
-              googleTrends
-                ? googleTrends
-                    .map((trends) => trends.title)
-                    .slice(0, MAX_NUM_TRENDS_TO_SHOW)
-                : []
-            }
+            googleTrendNames={googleTrends ? googleTrendsNames : []}
             colorMap={colorMap}
             withColor={isWithColors}
             handleTrendClick={handleTrendClick}
@@ -448,13 +470,7 @@ export default function GoogleRealtime() {
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleTrendNames={
-                googleTrends
-                  ? googleTrends
-                      .map((trends) => trends.title)
-                      .slice(0, MAX_NUM_TRENDS_TO_SHOW)
-                  : []
-              }
+              googleTrendNames={googleTrends ? googleTrendsNames : []}
               rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}
