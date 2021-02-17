@@ -16,9 +16,12 @@ import {
   Typography,
   Slider,
   Snackbar,
+  TextField,
+  Tooltip,
   makeStyles,
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 import {
   GoogleRealtimeTrendArticle,
@@ -94,6 +97,7 @@ export default function GoogleRealtime() {
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<SelectStringOptionType, true>
   >([]);
+  const [trendNumberToShow, setTrendNumberToShow] = useState<number>(0);
   const [selectedTrend, setSelectedTrend] = useState<string>("");
   // computed stateful data
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
@@ -362,10 +366,36 @@ export default function GoogleRealtime() {
   ) => {
     setMaxNumTrendsToShow(newValue);
   };
-  maxNumTrendsToShow;
+
   const debouncedHandleSliderChangeNumTrendsToShow = useDebouncedCallback(
     handleSliderChangeNumTrendsToShow,
     1000
+  );
+
+  const handleInputChangeTrendNumberToShow = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newValue: number =
+      event.target.value === "" ? 1 : Number(event.target.value);
+    // the slider is 1 indexed
+    if (newValue - 1 < 0) {
+      setTrendNumberToShow(0);
+    } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
+      setTrendNumberToShow(MAX_NUM_GOOGLE_REGION_TRENDS);
+    } else if (
+      googleTrends &&
+      googleTrends.length > 0 &&
+      newValue > googleTrends.length
+    ) {
+      setTrendNumberToShow(googleTrends.length - 1);
+    } else {
+      setTrendNumberToShow(newValue - 1);
+    }
+  };
+
+  const debouncedHandleInputChangeTrendNumberToShow = useDebouncedCallback(
+    handleInputChangeTrendNumberToShow,
+    250
   );
 
   return (
@@ -426,6 +456,51 @@ export default function GoogleRealtime() {
               selectedContrast={selectedContrast}
               selectedPalette={selectedPalette}
             />
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              className={classes.mapContainer}
+            >
+              <Grid item>
+                <Tooltip
+                  title={
+                    <div
+                      style={{
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {
+                        "The trend at this rank for each region will be highlighted on the map. Each color is determined by the trend's rank in your country."
+                      }
+                    </div>
+                  }
+                >
+                  <IconButton aria-label="info">
+                    <AiOutlineInfoCircle />
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+              <Grid item xs>
+                <TextField
+                  defaultValue={1}
+                  id="standard-number"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputProps: { min: 1, max: MAX_NUM_GOOGLE_REGION_TRENDS },
+                  }}
+                  label="Trend #"
+                  onChange={debouncedHandleInputChangeTrendNumberToShow}
+                  style={{
+                    width: "100%",
+                  }}
+                  type="number"
+                  // value={trendNumberToShow}
+                />
+              </Grid>
+            </Grid>
             <div>
               {isTooltipVisible && (
                 <ReactTooltip html>{tooltipContent}</ReactTooltip>
@@ -437,6 +512,7 @@ export default function GoogleRealtime() {
                 googleRegionTrends={
                   googleRegionTrends ? googleRegionTrends : []
                 }
+                trendNumberToShow={trendNumberToShow}
               />
             </div>
           </div>

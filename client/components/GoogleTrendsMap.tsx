@@ -83,6 +83,7 @@ type Props = {
   ): void;
   googleRegionTrends: GoogleRegionTrend[];
   colorMap: Map<string, string>;
+  trendNumberToShow: number;
 };
 
 type GeographyStyle = {
@@ -126,7 +127,13 @@ const defaultAnnotationProps: AnnotationProps = {
 };
 
 export const GoogleTrendsMap = memo(
-  ({ handleClick, handleHover, googleRegionTrends, colorMap }: Props) => {
+  ({
+    handleClick,
+    handleHover,
+    googleRegionTrends,
+    colorMap,
+    trendNumberToShow,
+  }: Props) => {
     // TODO: make this dynamic?
     const projection = "geoAlbersUsa";
 
@@ -134,6 +141,27 @@ export const GoogleTrendsMap = memo(
       return <span>No trends data provided.</span>;
     }
 
+    /**
+     * Gets a trend at the given index. If the index eceeds the number of trends,
+     * return the final trend
+     *
+     * @param index
+     * @param region
+     */
+    function getRegionTrendNameAt(index: number, region: GoogleRegionTrend) {
+      if (index > region.trends.length) {
+        // console.warn(
+        //   "An out-of-bound index was given for accessing regional trends at index:",
+        //   index,
+        //   "of region:",
+        //   region.name,
+        //   ". Displaying the trend at index:",
+        //   region.trends.length - 1
+        // );
+        return region.trends[region.trends.length - 1].topic;
+      }
+      return region.trends[index].topic;
+    }
     /**
      * Will fetch a Google Region Trend with the given name
      *
@@ -177,7 +205,7 @@ export const GoogleTrendsMap = memo(
       }
 
       // get the #1 topic for this region
-      const topicName = region.trends[0].topic;
+      const topicName = getRegionTrendNameAt(trendNumberToShow, region);
 
       // style this region with the color for this #1 topic
       const color = colorMap.get(topicName);
@@ -194,7 +222,7 @@ export const GoogleTrendsMap = memo(
 
       if (region) {
         // get the #1 topic for this region
-        const topicName = region.trends[0].topic;
+        const topicName = getRegionTrendNameAt(trendNumberToShow, region);
         // style it
         const backgroundColor = getTrendingTopicColorByRegion(
           name,
@@ -213,7 +241,7 @@ export const GoogleTrendsMap = memo(
           <div>
             <span style="background-color: ${backgroundColor}; color: ${color}; padding: 0.25rem; width: 0.25rem; border: 1px solid ${color}; border-radius: 2px;">
               <b>
-                #1
+                #${trendNumberToShow + 1 /*account for 0-indexed value*/}
               </b>
             </span>
             <span style="margin-left: 1em;">
