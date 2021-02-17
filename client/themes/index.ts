@@ -22,21 +22,23 @@ import {
   yellow,
 } from "@material-ui/core/colors";
 
-export const defaultPalette = "Red to Blue";
+export const defaultPalette = "Rainbow";
 
 export const palettes = {
-  "Red to Blue": [red, deepPurple, lightBlue],
-  "Red to Green": [pink, indigo, cyan],
-  "Purple to Blue": [purple, blue, teal],
-  "Green to Orange": [green, yellow, deepOrange],
-  "Green to Brown": [lightGreen, amber, brown],
-  "Yellow to Grey": [lime, orange, grey, blueGrey],
-  Reds: [red, pink, purple],
-  Violets: [deepPurple, indigo, blue],
-  Blues: [lightBlue, cyan, teal],
-  Greens: [green, lightGreen, lime],
-  Yellows: [yellow, amber, orange, deepOrange],
-  Darks: [brown, grey, blueGrey],
+  // "Red to Blue": [red, pink, purple, deepPurple, lightBlue, blue],
+  "Rainbow": [red, deepOrange, orange, yellow, lightGreen, green, teal, cyan, blue, indigo, purple, pink],
+  "Reverse Rainbow": [pink, purple, indigo, blue, cyan, teal, green, lightGreen, yellow, orange, deepOrange, red]
+  // "Red to Green": [pink, indigo, cyan],
+  // "Purple to Blue": [purple, blue, teal],
+  // "Green to Orange": [green, yellow, deepOrange],
+  // "Green to Brown": [lightGreen, amber, brown],
+  // "Yellow to Grey": [lime, orange, grey, blueGrey],
+  // Reds: [red, pink, purple],
+  // Violets: [deepPurple, indigo, blue],
+  // Blues: [lightBlue, cyan, teal],
+  // Greens: [green, lightGreen, lime],
+  // Yellows: [yellow, amber, orange, deepOrange],
+  // Darks: [brown, grey, blueGrey],
 };
 
 export const defaultContrast = "Very Dark";

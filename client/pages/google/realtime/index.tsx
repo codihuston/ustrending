@@ -9,7 +9,6 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
-  Input,
   Paper,
   Switch,
   Toolbar,
