@@ -27,7 +27,7 @@ import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import { Layout } from "../../../components/Layout";
 import { ColorPalette } from "../../../components/ColorPalette";
 import { FullScreenDialog } from "../../../components/FullScreenDialog";
-import { GoogleDailyTrendsList } from "../../../components/GoogleDailyTrendsList";
+import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
 import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
 import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
@@ -365,8 +365,10 @@ export default function GoogleDaily() {
               label={`Show colors`}
             />
           </Toolbar>
-          <GoogleDailyTrendsList
-            googleTrends={googleTrends ? googleTrends : []}
+          <GoogleTrendsList
+            googleTrendNames={
+              googleTrends ? googleTrends.map((trend) => trend.title.query) : []
+            }
             colorMap={colorMap}
             withColor={isWithColors}
             handleTrendClick={handleTrendClick}
