@@ -10,7 +10,7 @@ import {
   Link,
 } from "@material-ui/core";
 
-import { GoogleTrendArticle } from "../types";
+import { GoogleDailyTrendArticle } from "../types";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type Props = {
-  article: GoogleTrendArticle;
+  article: GoogleDailyTrendArticle;
 };
 
 export function ArticleDetailCard({ article }: Props) {

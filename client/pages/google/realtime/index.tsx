@@ -26,7 +26,7 @@ import {
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import { Layout } from "../../../components/Layout";
 import { ColorPalette } from "../../../components/ColorPalette";
-import { FullScreenDialog } from "../../../components/FullScreenDialog";
+import { GoogleRealtimeTrendArticleDialog } from "../../../components/GoogleRealtimeTrendArticleDialog";
 import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
 import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
@@ -47,10 +47,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function GoogleDaily() {
+export default function GoogleRealtime() {
   const classes = useStyles();
   const ref = useRef(null);
-  const MAX_NUM_GOOGLE_REGION_TRENDS = 10;
+  const MAX_NUM_GOOGLE_REGION_TRENDS = 20;
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
@@ -287,15 +287,23 @@ export default function GoogleDaily() {
     setSelectedRegions(temp);
   };
 
+  const relatedArticles = googleTrends
+    ? googleTrends
+        .filter((trend) => trend.title === selectedTrend)
+        .map((trend) => {
+          return trend.articles;
+        })
+        .flat(1)
+    : [];
+
   return (
     <Layout>
       <Head>Google Daily Trends</Head>
-      {/* TODO: reimplement me */}
-      {/* <FullScreenDialog
+      <GoogleRealtimeTrendArticleDialog
         selectedTrend={selectedTrend}
-        googleTrends={googleTrends}
+        relatedArticles={relatedArticles}
         handleCloseDialog={handleCloseDialog}
-      ></FullScreenDialog> */}
+      ></GoogleRealtimeTrendArticleDialog>
       <Snackbar
         anchorOrigin={{
           vertical: "bottom",

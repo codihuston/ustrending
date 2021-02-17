@@ -37,8 +37,10 @@ export async function fetchGoogleRealtimeTrends(
         temp = temp.concat(curatedTrend);
       }
     }
+    console.log("QQQ", expand, maxNumTrends, temp);
     return temp;
   }
+  console.log("QQQ", expand, maxNumTrends, data);
   return data;
 }
 

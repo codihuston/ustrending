@@ -15,7 +15,7 @@ export interface GoogleDailyTrend {
   };
   formattedTraffic: string;
   image: GoogleTrendImage;
-  articles: GoogleTrendArticle[];
+  articles: GoogleDailyTrendArticle[];
 }
 
 export interface GoogleTrendImage {
@@ -23,7 +23,7 @@ export interface GoogleTrendImage {
   source: string;
   imageUrl: string;
 }
-export interface GoogleTrendArticle {
+export interface GoogleDailyTrendArticle {
   title: string;
   timeAgo: string;
   source: string;
@@ -35,7 +35,15 @@ export interface GoogleTrendArticle {
 export interface GoogleRealtimeTrend {
   title: string;
   image: GoogleTrendImage;
-  articles: GoogleTrendArticle[];
+  articles: GoogleRealtimeTrendArticle[];
+}
+
+export interface GoogleRealtimeTrendArticle {
+  articleTitle: string;
+  source: string;
+  snippet: string;
+  time: string;
+  url: string;
 }
 
 export interface Place {

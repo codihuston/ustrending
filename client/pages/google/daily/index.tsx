@@ -26,7 +26,7 @@ import {
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import { Layout } from "../../../components/Layout";
 import { ColorPalette } from "../../../components/ColorPalette";
-import { FullScreenDialog } from "../../../components/FullScreenDialog";
+import { GoogleDailyTrendArticleDialog } from "../../../components/GoogleDailyTrendArticleDialog";
 import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
 import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
@@ -284,14 +284,25 @@ export default function GoogleDaily() {
     setSelectedRegions(temp);
   };
 
+  const relatedArticles = googleTrends
+    ? googleTrends
+        .filter((trend) => trend.title.query === selectedTrend)
+        .map((trend) => {
+          return trend.articles;
+        })
+        .flat(1)
+    : [];
+
+  console.log("ra", relatedArticles);
+
   return (
     <Layout>
       <Head>Google Daily Trends</Head>
-      <FullScreenDialog
+      <GoogleDailyTrendArticleDialog
         selectedTrend={selectedTrend}
-        googleTrends={googleTrends}
+        relatedArticles={relatedArticles}
         handleCloseDialog={handleCloseDialog}
-      ></FullScreenDialog>
+      ></GoogleDailyTrendArticleDialog>
       <Snackbar
         anchorOrigin={{
           vertical: "bottom",

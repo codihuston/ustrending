@@ -17,8 +17,8 @@ import {
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 
-import { GoogleDailyTrend } from "../types";
-import { ArticleDetailCard } from "./ArticleDetailCard";
+import { GoogleRealtimeTrendArticle } from "../types";
+import { GoogleRealtimeTrendArticleCard } from "./GoogleRealtimeTrendArticleCard";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -37,13 +37,13 @@ const Transition = React.forwardRef<unknown, TransitionProps>(
 );
 
 type Props = {
-  googleTrends: GoogleDailyTrend[];
+  relatedArticles: GoogleRealtimeTrendArticle[];
   selectedTrend: string;
   handleCloseDialog();
 };
 
-export function FullScreenDialog({
-  googleTrends,
+export function GoogleRealtimeTrendArticleDialog({
+  relatedArticles,
   handleCloseDialog,
   selectedTrend,
 }: Props) {
@@ -52,26 +52,22 @@ export function FullScreenDialog({
 
   useEffect(() => {
     setOpen(selectedTrend ? true : false);
-  }, [googleTrends, selectedTrend]);
+  }, [relatedArticles, selectedTrend]);
 
   const handleClose = () => {
     setOpen(false);
     handleCloseDialog();
   };
 
-  if (!googleTrends) return null;
+  if (!relatedArticles) return null;
 
-  const articles = googleTrends
-    .filter((trend) => trend.title.query === selectedTrend)
-    .map((trend) => {
-      return trend.articles.map((article, i) => {
-        return (
-          <ListItem key={i}>
-            <ArticleDetailCard article={article} />
-          </ListItem>
-        );
-      });
-    });
+  const articles = relatedArticles.map((article, i) => {
+    return (
+      <ListItem key={i}>
+        <GoogleRealtimeTrendArticleCard article={article} />
+      </ListItem>
+    );
+  });
 
   return (
     <div>
@@ -102,7 +98,6 @@ export function FullScreenDialog({
           </Toolbar>
         </AppBar>
         <List>
-          {/* TODO: if given googleRealtimeTrends, need to parse those differently! */}
           {articles.length > 0 ? (
             articles
           ) : (
