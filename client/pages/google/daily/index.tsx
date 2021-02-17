@@ -51,7 +51,7 @@ export default function GoogleDaily() {
   const classes = useStyles();
   const ref = useRef(null);
   const MAX_NUM_SELECTED_REGIONS = 10;
-  // visual settings
+  // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
   const [isWithColors, setIsWithColors] = useState<boolean>(true);
