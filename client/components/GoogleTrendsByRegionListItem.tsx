@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ValueType } from "react-select";
 import invert from "invert-color";
 import { Box, makeStyles } from "@material-ui/core";
@@ -8,7 +8,11 @@ import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import { GoogleRegionTrend, SelectStringOptionType } from "../types";
+import {
+  GoogleRegionTrend,
+  RegionTrend,
+  SelectStringOptionType,
+} from "../types";
 import { getListPositionChange, getSelectedRegionOption } from "../lib";
 import { PositionChangeIndicator } from "./PositionChangeIndicator";
 
@@ -52,11 +56,25 @@ export function GoogleTrendsByRegionListItem({
 }: Props) {
   const classes = useStyles();
   const defaultFontColor = "#FFFFFF";
+  const [trends, setTrends] = useState<RegionTrend[]>([]);
 
-  const trends = maxNumTrendsToShow
-    ? region.trends.slice(0, maxNumTrendsToShow)
-    : region.trends;
-
+  useEffect(() => {
+    if (region && maxNumTrendsToShow) {
+      setTrends(region.trends.slice(0, maxNumTrendsToShow));
+    } else {
+      setTrends(region.trends);
+    }
+  }, [
+    colorMap,
+    handleClick,
+    handleTrendClick,
+    maxNumTrendsToShow,
+    region,
+    selectedRegions,
+    sourceMap,
+    withColor,
+    withTitle,
+  ]);
   return (
     <>
       {withTitle ? (

@@ -7,11 +7,14 @@ import {
   Box,
   Button,
   FormControlLabel,
+  Grid,
   IconButton,
+  Input,
   Paper,
   Switch,
   Toolbar,
   Typography,
+  Slider,
   Snackbar,
   makeStyles,
 } from "@material-ui/core";
@@ -51,14 +54,19 @@ const useStyles = makeStyles((theme) => ({
       margin: "auto",
     },
   },
+  input: {},
 }));
 
 export default function GoogleRealtime() {
   const classes = useStyles();
   const ref = useRef(null);
   const hasDuplicates = false;
-  const MAX_NUM_TRENDS_TO_SHOW = 10;
-  const MAX_NUM_GOOGLE_REGION_TRENDS = 10;
+  // overridden by maxNumTrendsToShow
+  // total # trends per region to render (up to the total)
+  const DEFAULT_NUM_TRENDS_TO_SHOW = 10;
+  // max # of trends per region, total
+  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
+  // max # of regions that can be compared
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
@@ -80,6 +88,9 @@ export default function GoogleRealtime() {
   const [snackbarText, setSnackbarText] = useState<string>("");
   const [tooltipContent, setTooltipContent] = useState<string>("");
   // stateful data
+  const [maxNumTrendsToShow, setMaxNumTrendsToShow] = useState<number>(
+    DEFAULT_NUM_TRENDS_TO_SHOW
+  );
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<SelectStringOptionType, true>
   >([]);
@@ -123,9 +134,7 @@ export default function GoogleRealtime() {
       });
 
       setGoogleTrendsNames(
-        googleTrends
-          .map((trends) => trends.title)
-          .slice(0, MAX_NUM_TRENDS_TO_SHOW)
+        googleTrends.map((trends) => trends.title).slice(0, maxNumTrendsToShow)
       );
 
       setRelatedArticles(
@@ -161,6 +170,7 @@ export default function GoogleRealtime() {
     googleRegionTrends,
     googleTrends,
     isTooltipVisible,
+    maxNumTrendsToShow,
     selectedPalette,
     selectedContrast,
   ]);
@@ -346,9 +356,21 @@ export default function GoogleRealtime() {
     setSelectedRegions(temp);
   };
 
+  const handleSliderChangeNumTrendsToShow = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    newValue: number
+  ) => {
+    setMaxNumTrendsToShow(newValue);
+  };
+  maxNumTrendsToShow;
+  const debouncedHandleSliderChangeNumTrendsToShow = useDebouncedCallback(
+    handleSliderChangeNumTrendsToShow,
+    1000
+  );
+
   return (
     <Layout>
-      <Head>Google Daily Trends</Head>
+      <Head>Google Realtime Trends</Head>
       <GoogleRealtimeTrendArticleDialog
         selectedTrend={selectedTrend}
         relatedArticles={relatedArticles}
@@ -419,23 +441,49 @@ export default function GoogleRealtime() {
             </div>
           </div>
           <h3>Trending in the United States</h3>
-          <Toolbar>
-            <FormControlLabel
-              control={
-                <Switch checked={isWithColors} onChange={toggleListColors} />
-              }
-              label={`Show colors`}
-            />
-          </Toolbar>
+          <Grid
+            container
+            spacing={2}
+            alignItems="center"
+            className={classes.mapContainer}
+          >
+            <Grid item>
+              <Typography id="discrete-slider" gutterBottom>
+                Number of Trends to Display
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <Slider
+                aria-labelledby="discrete-slider"
+                defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
+                marks
+                max={MAX_NUM_GOOGLE_REGION_TRENDS}
+                min={1}
+                onChange={debouncedHandleSliderChangeNumTrendsToShow}
+                step={1}
+                valueLabelDisplay="auto"
+                value={
+                  typeof maxNumTrendsToShow === "number"
+                    ? maxNumTrendsToShow
+                    : 0
+                }
+              />
+            </Grid>
+            <Grid item>
+              <Typography>
+                {maxNumTrendsToShow} / {MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
+              </Typography>
+            </Grid>
+          </Grid>
           <GoogleTrendsList
             googleTrendNames={googleTrends ? googleTrendsNames : []}
             colorMap={colorMap}
             withColor={isWithColors}
             handleTrendClick={handleTrendClick}
           />
-          <h3 id={"selectedRegions"} ref={ref}>
+          <h4 id={"selectedRegions"} ref={ref}>
             Trending in Your Selected Region(s)
-          </h3>
+          </h4>
           <Toolbar>
             <FormControlLabel
               control={
@@ -456,7 +504,7 @@ export default function GoogleRealtime() {
             isAlphabetical={isAlphabetical}
             sourceMap={sourceMap}
             googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
-            maxNumTrendsToShow={MAX_NUM_TRENDS_TO_SHOW}
+            maxNumTrendsToShow={maxNumTrendsToShow}
             selectedRegions={selectedRegions}
             colorMap={colorMap}
             withColor={isWithColors}
@@ -470,7 +518,9 @@ export default function GoogleRealtime() {
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleTrendNames={googleTrends ? googleTrendsNames : []}
+              googleTrendNames={
+                googleTrends ? googleTrendsNames.slice(0, 10) : []
+              }
               rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}
