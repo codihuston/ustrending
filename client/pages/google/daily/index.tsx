@@ -162,8 +162,9 @@ export default function GoogleDaily() {
     googleTrends,
     isTooltipVisible,
     maxNumTrendsToShow,
-    selectedPalette,
     selectedContrast,
+    selectedPalette,
+    selectedTrend
   ]);
 
   /**
@@ -220,7 +221,7 @@ export default function GoogleDaily() {
   ): void => {
     // to save on performance, only allow a max number of comparisons
     if (option.length > MAX_NUM_SELECTED_REGIONS) {
-      console.log(option);
+
       setSnackbarText(
         `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
       );
