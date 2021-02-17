@@ -7,15 +7,20 @@ import {
   Box,
   Button,
   FormControlLabel,
+  Grid,
   IconButton,
   Paper,
+  Slider,
   Switch,
+  TextField,
   Toolbar,
+  Tooltip,
   Typography,
   Snackbar,
   makeStyles,
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 import {
   GoogleDailyTrendArticle,
@@ -56,6 +61,12 @@ const useStyles = makeStyles((theme) => ({
 export default function GoogleDaily() {
   const classes = useStyles();
   const ref = useRef(null);
+  // overridden by maxNumTrendsToShow
+  // total # trends per region to render (up to the total)
+  const DEFAULT_NUM_TRENDS_TO_SHOW = 10;
+  // max # of trends per region, total
+  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
+  // max # of regions that can be compared
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
@@ -77,10 +88,14 @@ export default function GoogleDaily() {
   const [snackbarText, setSnackbarText] = useState<string>("");
   const [tooltipContent, setTooltipContent] = useState<string>("");
   // stateful data
+  const [maxNumTrendsToShow, setMaxNumTrendsToShow] = useState<number>(
+    DEFAULT_NUM_TRENDS_TO_SHOW
+  );
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<SelectStringOptionType, true>
   >([]);
   const [selectedTrend, setSelectedTrend] = useState<string>("");
+  const [trendNumberToShow, setTrendNumberToShow] = useState<number>(0);
 
   // data
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
@@ -110,7 +125,9 @@ export default function GoogleDaily() {
         sourceMap.set(x.title.query, i);
       });
 
-      setGoogleTrendsNames(googleTrends.map((trends) => trends.title.query));
+      setGoogleTrendsNames(
+        googleTrends.map((trends) => trends.title.query).slice(0, maxNumTrendsToShow)
+      );
 
       setRelatedArticles(
         selectedTrend
@@ -144,6 +161,7 @@ export default function GoogleDaily() {
     googleRegionTrends,
     googleTrends,
     isTooltipVisible,
+    maxNumTrendsToShow,
     selectedPalette,
     selectedContrast,
   ]);
@@ -329,6 +347,45 @@ export default function GoogleDaily() {
     setSelectedRegions(temp);
   };
 
+  const handleSliderChangeNumTrendsToShow = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    newValue: number
+  ) => {
+    setMaxNumTrendsToShow(newValue);
+  };
+
+  const debouncedHandleSliderChangeNumTrendsToShow = useDebouncedCallback(
+    handleSliderChangeNumTrendsToShow,
+    1000
+  );
+
+  const handleInputChangeTrendNumberToShow = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newValue: number =
+      event.target.value === "" ? 1 : Number(event.target.value);
+    // the slider is 1 indexed
+    if (newValue - 1 < 0) {
+      setTrendNumberToShow(0);
+    } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
+      setTrendNumberToShow(MAX_NUM_GOOGLE_REGION_TRENDS);
+    } else if (
+      googleTrends &&
+      googleTrends.length > 0 &&
+      newValue > googleTrends.length
+    ) {
+      setTrendNumberToShow(googleTrends.length - 1);
+    } else {
+      setTrendNumberToShow(newValue - 1);
+    }
+  };
+
+  const debouncedHandleInputChangeTrendNumberToShow = useDebouncedCallback(
+    handleInputChangeTrendNumberToShow,
+    250
+  );
+
+
   return (
     <Layout>
       <Head>Google Daily Trends</Head>
@@ -387,6 +444,51 @@ export default function GoogleDaily() {
               selectedContrast={selectedContrast}
               selectedPalette={selectedPalette}
             />
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              className={classes.mapContainer}
+            >
+              <Grid item>
+                <Tooltip
+                  title={
+                    <div
+                      style={{
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {
+                        "The trend at this rank for each region will be highlighted on the map. Each color is determined by the trend's rank in your country."
+                      }
+                    </div>
+                  }
+                >
+                  <IconButton aria-label="info">
+                    <AiOutlineInfoCircle />
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+              <Grid item xs>
+                <TextField
+                  defaultValue={1}
+                  id="standard-number"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputProps: { min: 1, max: MAX_NUM_GOOGLE_REGION_TRENDS },
+                  }}
+                  label="Trend #"
+                  onChange={debouncedHandleInputChangeTrendNumberToShow}
+                  style={{
+                    width: "100%",
+                  }}
+                  type="number"
+                  // value={trendNumberToShow}
+                />
+              </Grid>
+            </Grid>
             <div>
               {isTooltipVisible && (
                 <ReactTooltip html>{tooltipContent}</ReactTooltip>
@@ -398,18 +500,45 @@ export default function GoogleDaily() {
                 googleRegionTrends={
                   googleRegionTrends ? googleRegionTrends : []
                 }
+                trendNumberToShow={trendNumberToShow}
               />
             </div>
           </div>
           <h3>Trending in the United States</h3>
-          <Toolbar>
-            <FormControlLabel
-              control={
-                <Switch checked={isWithColors} onChange={toggleListColors} />
-              }
-              label={`Show colors`}
-            />
-          </Toolbar>
+          <Grid
+            container
+            spacing={2}
+            alignItems="center"
+            className={classes.mapContainer}
+          >
+            <Grid item>
+              <Typography id="discrete-slider" gutterBottom>
+                Number of Trends to Display
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <Slider
+                aria-labelledby="discrete-slider"
+                defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
+                marks
+                max={googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }
+                min={1}
+                onChange={debouncedHandleSliderChangeNumTrendsToShow}
+                step={1}
+                valueLabelDisplay="auto"
+                value={
+                  typeof maxNumTrendsToShow === "number"
+                    ? maxNumTrendsToShow
+                    : 0
+                }
+              />
+            </Grid>
+            <Grid item>
+              <Typography>
+                {maxNumTrendsToShow} / {googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
+              </Typography>
+            </Grid>
+          </Grid>
           <GoogleTrendsList
             googleTrendNames={googleTrendsNames}
             colorMap={colorMap}
@@ -438,7 +567,7 @@ export default function GoogleDaily() {
             handleClick={handleListDelete}
             handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}
-            maxNumTrendsToShow={googleTrends ? googleTrends.length : 0}
+            maxNumTrendsToShow={maxNumTrendsToShow}
             sourceMap={sourceMap}
             selectedRegions={selectedRegions}
             colorMap={colorMap}
