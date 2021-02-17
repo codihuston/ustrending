@@ -19,6 +19,7 @@ type Props = {
     name: string
   ): void;
   isAlphabetical: boolean;
+  maxNumTrendsToShow: number;
   selectedRegions: ValueType<SelectStringOptionType, true>;
   sourceMap: Map<string, number>;
   withTitle?: boolean;
@@ -31,6 +32,7 @@ export function GoogleTrendsByRegionList({
   handleClick,
   handleTrendClick,
   isAlphabetical,
+  maxNumTrendsToShow,
   selectedRegions,
   sourceMap,
   withColor,
@@ -87,6 +89,7 @@ export function GoogleTrendsByRegionList({
                 colorMap={colorMap}
                 handleClick={handleClick}
                 handleTrendClick={handleTrendClick}
+                maxNumTrendsToShow={maxNumTrendsToShow}
                 region={region}
                 selectedRegions={selectedRegions}
                 sourceMap={sourceMap}
@@ -103,6 +106,7 @@ export function GoogleTrendsByRegionList({
     googleRegionTrends,
     handleClick,
     isAlphabetical,
+    maxNumTrendsToShow,
     selectedRegions,
     sourceMap,
     withColor,

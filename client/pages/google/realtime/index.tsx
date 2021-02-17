@@ -51,6 +51,7 @@ export default function GoogleRealtime() {
   const classes = useStyles();
   const ref = useRef(null);
   const hasDuplicates = false;
+  const MAX_NUM_TRENDS_TO_SHOW = 10;
   const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings
@@ -295,6 +296,7 @@ export default function GoogleRealtime() {
     setSelectedRegions(temp);
   };
 
+  // TODO: move to useEffect()?
   const relatedArticles = googleTrends
     ? googleTrends
         .filter((trend) => trend.title === selectedTrend)
@@ -302,6 +304,18 @@ export default function GoogleRealtime() {
           return trend.articles;
         })
         .flat(1)
+    : [];
+
+  // const rows = googleRegionTrends ? : [];
+  const rows = googleRegionTrends
+    ? googleRegionTrends.map((region) => {
+        const topics = region.trends.map((trend) => trend.topic);
+
+        return {
+          region: region.name,
+          ...topics,
+        };
+      })
     : [];
 
   return (
@@ -387,7 +401,11 @@ export default function GoogleRealtime() {
           </Toolbar>
           <GoogleTrendsList
             googleTrendNames={
-              googleTrends ? googleTrends.map((trends) => trends.title) : []
+              googleTrends
+                ? googleTrends
+                    .map((trends) => trends.title)
+                    .slice(0, MAX_NUM_TRENDS_TO_SHOW)
+                : []
             }
             colorMap={colorMap}
             withColor={isWithColors}
@@ -416,6 +434,7 @@ export default function GoogleRealtime() {
             isAlphabetical={isAlphabetical}
             sourceMap={sourceMap}
             googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
+            maxNumTrendsToShow={MAX_NUM_TRENDS_TO_SHOW}
             selectedRegions={selectedRegions}
             colorMap={colorMap}
             withColor={isWithColors}
@@ -426,16 +445,21 @@ export default function GoogleRealtime() {
             Below lists all of the trends for each region in a sortable,
             filterable fashion.
           </Typography>
-          {/* TODO: reimplement me */}
-          {/* {googleTrends && googleRegionTrends ? (
+          {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleTrends={googleTrends}
-              googleRegionTrends={googleRegionTrends}
+              googleTrendNames={
+                googleTrends
+                  ? googleTrends
+                      .map((trends) => trends.title)
+                      .slice(0, MAX_NUM_TRENDS_TO_SHOW)
+                  : []
+              }
+              rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}
             />
-          ) : null} */}
+          ) : null}
         </Paper>
       </Box>
     </Layout>

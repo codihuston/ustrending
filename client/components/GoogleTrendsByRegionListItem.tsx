@@ -32,6 +32,7 @@ type Props = {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void;
+  maxNumTrendsToShow: number;
   selectedRegions: ValueType<SelectStringOptionType, true>;
   sourceMap: Map<string, number>;
   withTitle?: boolean;
@@ -42,6 +43,7 @@ export function GoogleTrendsByRegionListItem({
   colorMap,
   handleClick,
   handleTrendClick,
+  maxNumTrendsToShow,
   region,
   selectedRegions,
   sourceMap,
@@ -50,6 +52,10 @@ export function GoogleTrendsByRegionListItem({
 }: Props) {
   const classes = useStyles();
   const defaultFontColor = "#FFFFFF";
+
+  const trends = maxNumTrendsToShow
+    ? region.trends.slice(0, maxNumTrendsToShow)
+    : region.trends;
 
   return (
     <>
@@ -79,7 +85,7 @@ export function GoogleTrendsByRegionListItem({
           <Divider />
         </>
       ) : null}
-      {region.trends.map((trend, i) => {
+      {trends.map((trend, i) => {
         // add +1 to account for the first column that contains the region name (non-trending data)
         const positionChange = getListPositionChange(trend.topic, i, sourceMap);
         const color = colorMap.get(trend.topic);

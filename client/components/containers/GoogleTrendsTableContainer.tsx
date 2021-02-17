@@ -3,47 +3,38 @@ import React, { useMemo } from "react";
 import { GoogleTrendsTable } from "../GoogleTrendsTable";
 import { GoogleRegionTrend, GoogleDailyTrend } from "../../types";
 
+type Row = {
+  region: string;
+  [key: string]: any;
+};
+
 type Props = {
   handleTrendClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void;
-  googleTrends: GoogleDailyTrend[];
-  googleRegionTrends: GoogleRegionTrend[];
+  googleTrendNames: string[];
   colorMap: Map<string, string>;
+  rows: Row[];
   sourceMap: Map<string, number>;
 };
 
 export function GoogleTrendsTableContainer({
   handleTrendClick,
-  googleTrends,
-  googleRegionTrends,
+  googleTrendNames,
   colorMap,
+  rows,
   sourceMap,
 }: Props) {
   return useMemo(() => {
     const DEFAULT_MAX_ROW_LENGTH = 25;
-    const rows = [];
+    // const rows = [];
     // the first column will contain the region name
     let columns = [{ Header: `Region`, accessor: "region" }];
 
     // all subsequent columns will contain a numbered trend (1..N)
-    googleTrends.forEach((trend, i) => {
+    googleTrendNames.forEach((trend, i) => {
       columns.push({ Header: `#${i + 1}`, accessor: i.toString() });
-    });
-
-    // build out the rows, mapped to each of the columns
-    googleRegionTrends.forEach((region, key) => {
-      const topics = [];
-
-      region.trends.forEach((topic) => {
-        topics.push(topic.topic);
-      });
-
-      rows.push({
-        region: region.name,
-        ...topics,
-      });
     });
 
     return (
@@ -63,5 +54,5 @@ export function GoogleTrendsTableContainer({
         />
       </div>
     );
-  }, [googleTrends, googleRegionTrends, colorMap, sourceMap]);
+  }, [googleTrendNames, colorMap, sourceMap]);
 }

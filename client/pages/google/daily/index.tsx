@@ -284,6 +284,7 @@ export default function GoogleDaily() {
     setSelectedRegions(temp);
   };
 
+  // TODO: move to useEffect()?
   const relatedArticles = googleTrends
     ? googleTrends
         .filter((trend) => trend.title.query === selectedTrend)
@@ -293,7 +294,16 @@ export default function GoogleDaily() {
         .flat(1)
     : [];
 
-  console.log("ra", relatedArticles);
+  const rows = googleRegionTrends
+    ? googleRegionTrends.map((region) => {
+        const topics = region.trends.map((trend) => trend.topic);
+
+        return {
+          region: region.name,
+          ...topics,
+        };
+      })
+    : [];
 
   return (
     <Layout>
@@ -402,11 +412,12 @@ export default function GoogleDaily() {
             />
           </Toolbar>
           <GoogleTrendsByRegionList
+            googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
             handleClick={handleListDelete}
             handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}
+            maxNumTrendsToShow={googleTrends ? googleTrends.length : 0}
             sourceMap={sourceMap}
-            googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
             selectedRegions={selectedRegions}
             colorMap={colorMap}
             withColor={isWithColors}
@@ -420,8 +431,12 @@ export default function GoogleDaily() {
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleTrends={googleTrends}
-              googleRegionTrends={googleRegionTrends}
+              googleTrendNames={
+                googleTrends
+                  ? googleTrends.map((trends) => trends.title.query)
+                  : []
+              }
+              rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}
             />
