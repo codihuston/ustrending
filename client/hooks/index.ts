@@ -72,17 +72,21 @@ export function useGoogleDailyTrendsByState() {
   );
 }
 
-export function useGoogleRealtimeTrends(expand: boolean, maxNumTrends: number) {
+export function useGoogleRealtimeTrends(
+  expand: boolean,
+  hasDuplicates: boolean,
+  maxNumTrends: number
+) {
   // ref: https://github.com/tannerlinsley/react-query/discussions/442
   return useQuery<GoogleRealtimeTrend[], Error>(["googleRealtimeTrends"], () =>
-    fetchGoogleRealtimeTrends(expand, maxNumTrends)
+    fetchGoogleRealtimeTrends(expand, hasDuplicates, maxNumTrends)
   );
 }
 
-export function useGooleRealtimeTrendsByState() {
+export function useGooleRealtimeTrendsByState(hasDuplicates: boolean) {
   return useQuery<GoogleRegionTrend[], Error>(
     "googleRealtimeTrendsByState",
-    fetchGoogleRealtimeTrendsByState
+    () => fetchGoogleRealtimeTrendsByState(hasDuplicates)
   );
 }
 

@@ -1,6 +1,6 @@
 import { http } from "../services";
 
-import { GoogleRealtimeTrend } from "../types";
+import { GoogleRealtimeTrend, GoogleRegionTrend } from "../types";
 
 export async function fetchGoogleDailyTrends() {
   const { data } = await http.get("/api/google/trends/daily");
@@ -19,11 +19,32 @@ export async function fetchGoogleDailyTrendsByState() {
  */
 export async function fetchGoogleRealtimeTrends(
   expand: boolean,
+  hasDuplicates: boolean,
   maxNumTrends: number
 ) {
   const { data } = await http.get<GoogleRealtimeTrend[]>(
     "/api/google/trends/realtime"
   );
+
+  /**
+   * Removes duplicate trending items (based on the title)
+   * @param items
+   */
+  const removeDuplicates = (
+    items: GoogleRealtimeTrend[]
+  ): GoogleRealtimeTrend[] => {
+    const cache = new Map<string, boolean>();
+    let result: GoogleRealtimeTrend[] = [];
+
+    for (const item of items) {
+      if (!cache.get(item.title)) {
+        result = result.concat(item);
+      }
+      cache.set(item.title, true);
+    }
+    return result;
+  };
+
   // expand list based on comma-delimited trending topics
   if (expand) {
     let temp: GoogleRealtimeTrend[] = [];
@@ -42,18 +63,37 @@ export async function fetchGoogleRealtimeTrends(
         temp = temp.concat(curatedTrend);
       }
     }
-    return temp;
+    return hasDuplicates ? temp : removeDuplicates(temp);
   }
-  return data;
+  return hasDuplicates ? data : removeDuplicates(data);
 }
 
-/**
- * TODO: remove duplicates?
- *
- */
-export async function fetchGoogleRealtimeTrendsByState() {
+export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
   const { data } = await http.get("/api/google/trends/realtime/states");
-  return data;
+
+  /**
+   * Removes duplicate trending items for each region (based on the title)
+   * @param items
+   */
+  const removeDuplicates = (items: GoogleRegionTrend[]) => {
+    let result: GoogleRegionTrend[] = [];
+
+    for (const item of items) {
+      let dedupedTrends = [];
+      const cache = new Map<string, boolean>();
+      for (const trends of item.trends) {
+        if (!cache.get(trends.topic)) {
+          dedupedTrends = dedupedTrends.concat(trends);
+        }
+        cache.set(trends.topic, true);
+      }
+      item.trends = dedupedTrends;
+      result = result.concat(item);
+    }
+    return result;
+  };
+
+  return hasDuplicates ? data : removeDuplicates(data);
 }
 
 export async function fetchTwitterRealtimeTrends() {

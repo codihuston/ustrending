@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
 export default function GoogleRealtime() {
   const classes = useStyles();
   const ref = useRef(null);
+  const hasDuplicates = false;
   const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings
@@ -81,10 +82,17 @@ export default function GoogleRealtime() {
 
   // data
   const useGoogleRealtimeTrendsHook = useGoogleRealtimeTrends(
+    // expand comma-delimited realtime trends
     true,
+    // remove duplicates
+    hasDuplicates,
+    // total limit
     MAX_NUM_GOOGLE_REGION_TRENDS
   );
-  const useGoogleRealtimeTrendsByStateHook = useGooleRealtimeTrendsByState();
+  const useGoogleRealtimeTrendsByStateHook = useGooleRealtimeTrendsByState(
+    // remove duplicates
+    hasDuplicates
+  );
   const googleTrends = useGoogleRealtimeTrendsHook.data;
   const googleRegionTrends = useGoogleRealtimeTrendsByStateHook.data;
 
