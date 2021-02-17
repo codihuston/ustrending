@@ -38,7 +38,7 @@ type Props = {
   withColor?: boolean;
 };
 
-export function GoogleDailyTrendsByRegionListItem({
+export function GoogleTrendsByRegionListItem({
   colorMap,
   handleClick,
   handleTrendClick,
@@ -49,6 +49,7 @@ export function GoogleDailyTrendsByRegionListItem({
   withTitle,
 }: Props) {
   const classes = useStyles();
+  const defaultFontColor = "#FFFFFF";
 
   return (
     <>
@@ -81,6 +82,8 @@ export function GoogleDailyTrendsByRegionListItem({
       {region.trends.map((trend, i) => {
         // add +1 to account for the first column that contains the region name (non-trending data)
         const positionChange = getListPositionChange(trend.topic, i, sourceMap);
+        const color = colorMap.get(trend.topic);
+        const fontColor = color ? color : defaultFontColor;
 
         return (
           <ListItem key={i} button>
@@ -93,7 +96,7 @@ export function GoogleDailyTrendsByRegionListItem({
                   className={classes.trendingRank}
                   style={{
                     background: colorMap.get(trend.topic),
-                    color: invert(colorMap.get(trend.topic), true),
+                    color: invert(fontColor, true),
                   }}
                 >
                   <ListItemText>

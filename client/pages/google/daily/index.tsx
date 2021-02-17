@@ -28,7 +28,7 @@ import { Layout } from "../../../components/Layout";
 import { ColorPalette } from "../../../components/ColorPalette";
 import { GoogleDailyTrendArticleDialog } from "../../../components/GoogleDailyTrendArticleDialog";
 import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
-import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
+import { GoogleTrendsByRegionList } from "../../../components/GoogleTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
 import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
@@ -401,7 +401,7 @@ export default function GoogleDaily() {
               label={`Show colors`}
             />
           </Toolbar>
-          <GoogleDailyTrendsByRegionList
+          <GoogleTrendsByRegionList
             handleClick={handleListDelete}
             handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}

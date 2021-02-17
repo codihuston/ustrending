@@ -12,6 +12,11 @@ export async function fetchGoogleDailyTrendsByState() {
   return data;
 }
 
+/**
+ * TODO: remove duplicates?
+ * @param expand
+ * @param maxNumTrends
+ */
 export async function fetchGoogleRealtimeTrends(
   expand: boolean,
   maxNumTrends: number
@@ -37,20 +42,22 @@ export async function fetchGoogleRealtimeTrends(
         temp = temp.concat(curatedTrend);
       }
     }
-    console.log("QQQ", expand, maxNumTrends, temp);
     return temp;
   }
-  console.log("QQQ", expand, maxNumTrends, data);
+  return data;
+}
+
+/**
+ * TODO: remove duplicates?
+ *
+ */
+export async function fetchGoogleRealtimeTrendsByState() {
+  const { data } = await http.get("/api/google/trends/realtime/states");
   return data;
 }
 
 export async function fetchTwitterRealtimeTrends() {
   const { data } = await http.get("/api/twitter/trends");
-  return data;
-}
-
-export async function fetchGoogleRealtimeTrendsByState() {
-  const { data } = await http.get("/api/google/trends/realtime/states");
   return data;
 }
 

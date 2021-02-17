@@ -5,7 +5,7 @@ import List from "@material-ui/core/List";
 
 import { GoogleRegionTrend, SelectStringOptionType } from "../types";
 import { getSelectedRegionOption } from "../lib";
-import { GoogleDailyTrendsByRegionListItem } from "./GoogleDailyTrendsByRegionListItem";
+import { GoogleTrendsByRegionListItem } from "./GoogleTrendsByRegionListItem";
 
 type Props = {
   colorMap: Map<string, string>;
@@ -25,7 +25,7 @@ type Props = {
   withColor?: boolean;
 };
 
-export function GoogleDailyTrendsByRegionList({
+export function GoogleTrendsByRegionList({
   colorMap,
   googleRegionTrends,
   handleClick,
@@ -83,7 +83,7 @@ export function GoogleDailyTrendsByRegionList({
         >
           {regions.map((region, i) => (
             <List key={i}>
-              <GoogleDailyTrendsByRegionListItem
+              <GoogleTrendsByRegionListItem
                 colorMap={colorMap}
                 handleClick={handleClick}
                 handleTrendClick={handleTrendClick}

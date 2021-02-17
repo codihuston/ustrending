@@ -28,7 +28,7 @@ import { Layout } from "../../../components/Layout";
 import { ColorPalette } from "../../../components/ColorPalette";
 import { GoogleRealtimeTrendArticleDialog } from "../../../components/GoogleRealtimeTrendArticleDialog";
 import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
-import { GoogleDailyTrendsByRegionList } from "../../../components/GoogleDailyTrendsByRegionList";
+import { GoogleTrendsByRegionList } from "../../../components/GoogleTrendsByRegionList";
 import { RegionSelect } from "../../../components/RegionSelect";
 import { GoogleTrendsTableContainer } from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 export default function GoogleRealtime() {
   const classes = useStyles();
   const ref = useRef(null);
-  const MAX_NUM_GOOGLE_REGION_TRENDS = 20;
+  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
@@ -402,7 +402,7 @@ export default function GoogleRealtime() {
               label={`Show colors`}
             />
           </Toolbar>
-          <GoogleDailyTrendsByRegionList
+          <GoogleTrendsByRegionList
             handleClick={handleListDelete}
             handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}
