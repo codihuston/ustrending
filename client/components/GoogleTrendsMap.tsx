@@ -81,7 +81,7 @@ type Props = {
     e: React.MouseEvent<SVGGElement, MouseEvent>,
     regionName: string
   ): void;
-  googleDailyTrendsByState: GoogleRegionTrend[];
+  googleRegionTrends: GoogleRegionTrend[];
   colorMap: Map<string, string>;
 };
 
@@ -126,11 +126,11 @@ const defaultAnnotationProps: AnnotationProps = {
 };
 
 export const GoogleTrendsMap = memo(
-  ({ handleClick, handleHover, googleDailyTrendsByState, colorMap }: Props) => {
+  ({ handleClick, handleHover, googleRegionTrends, colorMap }: Props) => {
     // TODO: make this dynamic?
     const projection = "geoAlbersUsa";
 
-    if (!googleDailyTrendsByState || !googleDailyTrendsByState.length) {
+    if (!googleRegionTrends || !googleRegionTrends.length) {
       return <span>No trends data provided.</span>;
     }
 
@@ -149,7 +149,7 @@ export const GoogleTrendsMap = memo(
       }
 
       // handle region not found
-      const region = googleDailyTrendsByState.find((x) => x.name === name);
+      const region = googleRegionTrends.find((x) => x.name === name);
       if (!region) {
         // console.warn(
         //   `No trends found for region named: ${name}, using default styles.`

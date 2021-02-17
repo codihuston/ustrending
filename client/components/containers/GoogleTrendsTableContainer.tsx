@@ -9,7 +9,7 @@ type Props = {
     name: string
   ): void;
   googleTrends: GoogleDailyTrend[];
-  googleDailyTrendsByState: GoogleRegionTrend[];
+  googleRegionTrends: GoogleRegionTrend[];
   colorMap: Map<string, string>;
   sourceMap: Map<string, number>;
 };
@@ -17,7 +17,7 @@ type Props = {
 export function GoogleTrendsTableContainer({
   handleTrendClick,
   googleTrends,
-  googleDailyTrendsByState,
+  googleRegionTrends,
   colorMap,
   sourceMap,
 }: Props) {
@@ -33,7 +33,7 @@ export function GoogleTrendsTableContainer({
     });
 
     // build out the rows, mapped to each of the columns
-    googleDailyTrendsByState.forEach((region, key) => {
+    googleRegionTrends.forEach((region, key) => {
       const topics = [];
 
       region.trends.forEach((topic) => {
@@ -63,5 +63,5 @@ export function GoogleTrendsTableContainer({
         />
       </div>
     );
-  }, [googleTrends, googleDailyTrendsByState, colorMap, sourceMap]);
+  }, [googleTrends, googleRegionTrends, colorMap, sourceMap]);
 }

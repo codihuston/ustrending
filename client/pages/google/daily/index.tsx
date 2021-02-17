@@ -333,11 +333,7 @@ export default function GoogleDaily() {
           <div className={classes.mapContainer}>
             <RegionSelect
               values={selectedRegions}
-              googleDailyTrendsByState={
-                useGoogleDailyTrendsByStateHook.data
-                  ? useGoogleDailyTrendsByStateHook.data
-                  : []
-              }
+              googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
               handleChange={handleChange}
             />
             <ColorPalette
@@ -354,10 +350,8 @@ export default function GoogleDaily() {
                 colorMap={colorMap}
                 handleClick={debouncedHandleMapClick}
                 handleHover={debouncedHandleMapHover}
-                googleDailyTrendsByState={
-                  useGoogleDailyTrendsByStateHook.data
-                    ? useGoogleDailyTrendsByStateHook.data
-                    : []
+                googleRegionTrends={
+                  googleRegionTrends ? googleRegionTrends : []
                 }
               />
             </div>
@@ -372,9 +366,7 @@ export default function GoogleDaily() {
             />
           </Toolbar>
           <GoogleDailyTrendsList
-            googleTrends={
-              useGoogleDailyTrendsHook.data ? useGoogleDailyTrendsHook.data : []
-            }
+            googleTrends={googleTrends ? googleTrends : []}
             colorMap={colorMap}
             withColor={isWithColors}
             handleTrendClick={handleTrendClick}
@@ -416,7 +408,7 @@ export default function GoogleDaily() {
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
               googleTrends={googleTrends}
-              googleDailyTrendsByState={googleRegionTrends}
+              googleRegionTrends={googleRegionTrends}
               colorMap={colorMap}
               sourceMap={sourceMap}
             />

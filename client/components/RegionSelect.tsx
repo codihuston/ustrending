@@ -4,20 +4,20 @@ import { GoogleRegionTrend, SelectStringOptionType } from "../types";
 
 type Props = {
   values: ValueType<SelectStringOptionType, true>;
-  googleDailyTrendsByState: GoogleRegionTrend[];
+  googleRegionTrends: GoogleRegionTrend[];
   handleChange(option: ValueType<SelectStringOptionType, true>): void;
 };
 
 export function RegionSelect({
   values,
-  googleDailyTrendsByState,
+  googleRegionTrends,
   handleChange,
 }: Props) {
-  if (!googleDailyTrendsByState || !googleDailyTrendsByState.length) {
+  if (!googleRegionTrends || !googleRegionTrends.length) {
     return <span>Error: no google daily trends are provided!</span>;
   }
 
-  const options: SelectStringOptionType[] = googleDailyTrendsByState
+  const options: SelectStringOptionType[] = googleRegionTrends
     .sort((a, b) => {
       const x = a.name.toUpperCase();
       const y = b.name.toUpperCase();
