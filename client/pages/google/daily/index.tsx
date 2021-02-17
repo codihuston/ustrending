@@ -345,19 +345,21 @@ export default function GoogleDaily() {
               selectedContrast={selectedContrast}
               selectedPalette={selectedPalette}
             />
-            {isTooltipVisible && (
-              <ReactTooltip html>{tooltipContent}</ReactTooltip>
-            )}
-            <GoogleTrendsMap
-              colorMap={colorMap}
-              handleClick={debouncedHandleMapClick}
-              handleHover={debouncedHandleMapHover}
-              googleDailyTrendsByState={
-                useGoogleDailyTrendsByStateHook.data
-                  ? useGoogleDailyTrendsByStateHook.data
-                  : []
-              }
-            />
+            <div>
+              {isTooltipVisible && (
+                <ReactTooltip html>{tooltipContent}</ReactTooltip>
+              )}
+              <GoogleTrendsMap
+                colorMap={colorMap}
+                handleClick={debouncedHandleMapClick}
+                handleHover={debouncedHandleMapHover}
+                googleDailyTrendsByState={
+                  useGoogleDailyTrendsByStateHook.data
+                    ? useGoogleDailyTrendsByStateHook.data
+                    : []
+                }
+              />
+            </div>
           </div>
           <h3>Trending in the United States</h3>
           <Toolbar>

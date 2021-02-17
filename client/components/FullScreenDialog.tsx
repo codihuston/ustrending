@@ -64,9 +64,9 @@ export function FullScreenDialog({
   const articles = googleDailyTrends
     .filter((trend) => trend.title.query === selectedTrend)
     .map((trend) => {
-      return trend.articles.map((article) => {
+      return trend.articles.map((article, i) => {
         return (
-          <ListItem>
+          <ListItem key={i}>
             <ArticleDetailCard article={article} />
           </ListItem>
         );
