@@ -82,6 +82,7 @@ export default function GoogleDaily() {
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
   const googleDailyTrends = useGoogleDailyTrendsHook.data;
+  const googleRegionTrends = useGoogleDailyTrendsByStateHook.data;
 
   useEffect(() => {
     const colorMap = new Map<string, string>();
@@ -400,11 +401,7 @@ export default function GoogleDaily() {
             handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}
             sourceMap={sourceMap}
-            googleRegionTrends={
-              useGoogleDailyTrendsByStateHook.data
-                ? useGoogleDailyTrendsByStateHook.data
-                : []
-            }
+            googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
             selectedRegions={selectedRegions}
             colorMap={colorMap}
             withColor={isWithColors}
@@ -415,12 +412,11 @@ export default function GoogleDaily() {
             Below lists all of the trends for each region in a sortable,
             filterable fashion.
           </Typography>
-          {useGoogleDailyTrendsHook.data &&
-          useGoogleDailyTrendsByStateHook.data ? (
+          {googleDailyTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleDailyTrends={useGoogleDailyTrendsHook.data}
-              googleDailyTrendsByState={useGoogleDailyTrendsByStateHook.data}
+              googleDailyTrends={googleDailyTrends}
+              googleDailyTrendsByState={googleRegionTrends}
               colorMap={colorMap}
               sourceMap={sourceMap}
             />
