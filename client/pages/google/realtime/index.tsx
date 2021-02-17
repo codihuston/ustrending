@@ -532,7 +532,7 @@ export default function GoogleRealtime() {
                 aria-labelledby="discrete-slider"
                 defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
                 marks
-                max={MAX_NUM_GOOGLE_REGION_TRENDS}
+                max={googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }
                 min={1}
                 onChange={debouncedHandleSliderChangeNumTrendsToShow}
                 step={1}
@@ -546,7 +546,7 @@ export default function GoogleRealtime() {
             </Grid>
             <Grid item>
               <Typography>
-                {maxNumTrendsToShow} / {MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
+                {maxNumTrendsToShow} / {googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }{" "}
               </Typography>
             </Grid>
           </Grid>
