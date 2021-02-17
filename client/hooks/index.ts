@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect } from "react";
 import { useQuery } from "react-query";
 
 import {
@@ -19,10 +19,10 @@ import {
 
 /**
  * Executes a callback in a debounced manner
- * 
+ *
  * Ref: bingles @ https://stackoverflow.com/questions/56283920/how-to-debounce-a-callback-in-functional-component-using-hooks
- * @param callback 
- * @param wait 
+ * @param callback
+ * @param wait
  */
 export function useDebouncedCallback<A extends any[]>(
   callback: (...args: A) => void,
@@ -33,7 +33,7 @@ export function useDebouncedCallback<A extends any[]>(
   const timeout = useRef<ReturnType<typeof setTimeout>>();
 
   function cleanup() {
-    if(timeout.current) {
+    if (timeout.current) {
       clearTimeout(timeout.current);
     }
   }
@@ -42,9 +42,7 @@ export function useDebouncedCallback<A extends any[]>(
   // our consuming component gets unmounted
   useEffect(() => cleanup, []);
 
-  return function debouncedCallback(
-    ...args: A
-  ) {
+  return function debouncedCallback(...args: A) {
     // capture latest args
     argsRef.current = args;
 
@@ -53,7 +51,7 @@ export function useDebouncedCallback<A extends any[]>(
 
     // start waiting again
     timeout.current = setTimeout(() => {
-      if(argsRef.current) {
+      if (argsRef.current) {
         callback(...argsRef.current);
       }
     }, wait);
@@ -74,10 +72,10 @@ export function useGoogleDailyTrendsByState() {
   );
 }
 
-export function useGoogleRealtimeTrends() {
-  return useQuery<GoogleRealtimeTrend[], Error>(
-    "googleRealtimeTrends",
-    fetchGoogleRealtimeTrends
+export function useGoogleRealtimeTrends(expand: boolean, maxNumTrends: number) {
+  // ref: https://github.com/tannerlinsley/react-query/discussions/442
+  return useQuery<GoogleRealtimeTrend[], Error>(["googleRealtimeTrends"], () =>
+    fetchGoogleRealtimeTrends(expand, maxNumTrends)
   );
 }
 
