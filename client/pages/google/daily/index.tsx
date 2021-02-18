@@ -126,18 +126,9 @@ export default function GoogleDaily() {
       });
 
       setGoogleTrendsNames(
-        googleTrends.map((trends) => trends.title.query).slice(0, maxNumTrendsToShow)
-      );
-
-      setRelatedArticles(
-        selectedTrend
-          ? googleTrends
-              .filter((trend) => trend.title.query === selectedTrend)
-              .map((trend) => {
-                return trend.articles;
-              })
-              .flat(1)
-          : []
+        googleTrends
+          .map((trends) => trends.title.query)
+          .slice(0, maxNumTrendsToShow)
       );
     }
 
@@ -164,8 +155,22 @@ export default function GoogleDaily() {
     maxNumTrendsToShow,
     selectedContrast,
     selectedPalette,
-    selectedTrend
   ]);
+
+  useEffect(() => {
+    if (googleTrends) {
+      setRelatedArticles(
+        selectedTrend
+          ? googleTrends
+              .filter((trend) => trend.title.query === selectedTrend)
+              .map((trend) => {
+                return trend.articles;
+              })
+              .flat(1)
+          : []
+      );
+    }
+  }, [selectedTrend]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -221,7 +226,6 @@ export default function GoogleDaily() {
   ): void => {
     // to save on performance, only allow a max number of comparisons
     if (option.length > MAX_NUM_SELECTED_REGIONS) {
-
       setSnackbarText(
         `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
       );
@@ -386,7 +390,6 @@ export default function GoogleDaily() {
     250
   );
 
-
   return (
     <Layout>
       <Head>Google Daily Trends</Head>
@@ -522,7 +525,13 @@ export default function GoogleDaily() {
                 aria-labelledby="discrete-slider"
                 defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
                 marks
-                max={googleTrends && googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }
+                max={
+                  googleTrends &&
+                  googleTrends.length &&
+                  googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                    ? googleTrends.length
+                    : MAX_NUM_GOOGLE_REGION_TRENDS
+                }
                 min={1}
                 onChange={debouncedHandleSliderChangeNumTrendsToShow}
                 step={1}
@@ -536,7 +545,12 @@ export default function GoogleDaily() {
             </Grid>
             <Grid item>
               <Typography>
-                {maxNumTrendsToShow} / {googleTrends && googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
+                {maxNumTrendsToShow} /{" "}
+                {googleTrends &&
+                googleTrends.length &&
+                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                  ? googleTrends.length
+                  : MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
               </Typography>
             </Grid>
           </Grid>
@@ -583,7 +597,9 @@ export default function GoogleDaily() {
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleTrendNames={googleTrendsNames}
+              googleTrendNames={
+                googleTrends ? googleTrendsNames.slice(0, 10) : []
+              }
               rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}

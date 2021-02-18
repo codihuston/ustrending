@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/codihuston/ustrending/trends-api/database"
@@ -16,9 +18,10 @@ import (
 )
 
 const (
-	locUS  = "US"
-	catAll = "all"
-	langEn = "EN"
+	locUS                           = "US"
+	catAll                          = "all"
+	langEn                          = "EN"
+	DEFAULT_MAX_GOOGLE_DAILY_TRENDS = 10
 )
 
 type GoogleTrend struct{}
@@ -74,10 +77,19 @@ func PrintGogTrends(items interface{}) {
 
 // GetDailyTrends returns an array of gogtrends.TrendingSearch.
 func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
-	var maxTrends = 10
+	var maxTrends int
 	// TODO: rename me
 	var cacheKey = "daily-trends"
 	ctx := context.Background()
+
+	maxTrends, err := strconv.Atoi(os.Getenv("DEFAULT_MAX_GOOGLE_DAILY_TRENDS"))
+
+	if err != nil {
+		log.Warn("Cound not convert 'DEFAULT_MAX_GOOGLE_DAILY_TRENDS' to integer:", os.Getenv("DEFAULT_MAX_GOOGLE_DAILY_TRENDS"), ". Defaulting to: ", DEFAULT_MAX_GOOGLE_DAILY_TRENDS)
+		maxTrends = DEFAULT_MAX_GOOGLE_DAILY_TRENDS
+	}
+
+	log.Info("QQQQ DEFAULT_MAX_GOOGLE_DAILY_TRENDS", maxTrends)
 
 	// otherwise fetch from api
 	var results []*gogtrends.TrendingSearch
