@@ -32,6 +32,8 @@ export function GoogleTrendsTableContainer({
     // the first column will contain the region name
     let columns = [{ Header: `Region`, accessor: "region" }];
 
+    console.log("is rerendering");
+
     // all subsequent columns will contain a numbered trend (1..N)
     googleTrendNames.forEach((trend, i) => {
       columns.push({ Header: `#${i + 1}`, accessor: i.toString() });
@@ -58,5 +60,5 @@ export function GoogleTrendsTableContainer({
         />
       </div>
     );
-  }, [googleTrendNames, rows, colorMap, sourceMap]);
+  }, [rows]);
 }
