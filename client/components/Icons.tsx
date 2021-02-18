@@ -14,8 +14,18 @@ const styles = ({ palette }: Theme) =>
     },
   });
 
+  interface Props {
+    foo: number;
+    bar: boolean;
+    number: number;
+    color: string;
+    classes: {
+      root: string;
+    };
+  }
+
 export const StyledUpArrow = withStyles(styles)(
-  ({ classes, color, number, ...other }) => (
+  ({ classes, color, number, ...other }: Props) => (
     <>
       <AiOutlineArrowUp className={classes.root} {...other} /> {number}
     </>
@@ -23,7 +33,7 @@ export const StyledUpArrow = withStyles(styles)(
 );
 
 export const StyledDownArrow = withStyles(styles)(
-  ({ classes, color, number, ...other }) => (
+  ({ classes, color, number, ...other }: Props) => (
     <>
       <AiOutlineArrowDown className={classes.root} {...other} /> {number}
     </>
