@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { QueryClient } from "react-query";
+import { dehydrate } from "react-query/hydration";
 import { isEqual, clone } from "lodash";
 import { ValueType } from "react-select";
 import Head from "next/head";
@@ -27,6 +29,10 @@ import {
   SelectStringOptionType,
 } from "../../../types";
 import {
+  fetchGoogleRealtimeTrends,
+  fetchGoogleRealtimeTrendsByState,
+} from "../../../queries";
+import {
   useDebouncedCallback,
   useGoogleRealtimeTrends,
   useGooleRealtimeTrendsByState,
@@ -44,6 +50,9 @@ import {
 } from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
 
+// max # of trends per region, total
+const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
+
 const useStyles = makeStyles((theme) => ({
   root: {},
   mapContainer: {
@@ -59,6 +68,22 @@ const useStyles = makeStyles((theme) => ({
   input: {},
 }));
 
+export async function getServerSideProps() {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery("googleRealtimeTrends", () => fetchGoogleRealtimeTrends(true, false, MAX_NUM_GOOGLE_REGION_TRENDS));
+  await queryClient.prefetchQuery(
+    "googleRealtimeTrendsByState",
+    fetchGoogleRealtimeTrendsByState
+  );
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
+
 export default function GoogleRealtime() {
   const classes = useStyles();
   const ref = useRef(null);
@@ -66,8 +91,6 @@ export default function GoogleRealtime() {
   // overridden by maxNumTrendsToShow
   // total # trends per region to render (up to the total)
   const DEFAULT_NUM_TRENDS_TO_SHOW = 10;
-  // max # of trends per region, total
-  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   // max # of regions that can be compared
   const MAX_NUM_SELECTED_REGIONS = 10;
   // stateful visual settings

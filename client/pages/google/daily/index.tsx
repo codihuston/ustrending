@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { QueryClient, useQuery } from "react-query";
+import { QueryClient } from "react-query";
 import { dehydrate } from "react-query/hydration";
 import { isEqual, clone } from "lodash";
 import { ValueType } from "react-select";
