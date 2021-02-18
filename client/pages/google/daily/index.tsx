@@ -625,7 +625,7 @@ export default function GoogleDaily() {
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
               googleTrendNames={
-                googleTrendsNames ? googleTrendsNames.slice(0, 10) : []
+                googleTrendsNames ? googleTrendsNames : []
               }
               rows={rows}
               colorMap={colorMap}

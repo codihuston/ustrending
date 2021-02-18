@@ -638,7 +638,7 @@ export default function GoogleRealtime() {
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
               googleTrendNames={
-                googleTrendsNames ? googleTrendsNames.slice(0, 10) : []
+                googleTrendsNames ? googleTrendsNames : []
               }
               rows={rows}
               colorMap={colorMap}

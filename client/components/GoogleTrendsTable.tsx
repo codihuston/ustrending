@@ -14,6 +14,7 @@ import {
 import {
   Box,
   FormControlLabel,
+  makeStyles,
   Table,
   Switch,
   TableBody,
@@ -28,6 +29,7 @@ import {
 import TablePaginationActions from "./TablePaginationActions";
 
 import { getListPositionChange } from "../lib";
+import { useDebouncedCallback } from "../hooks";
 import { TableToolbar } from "./TableToolbar";
 import { PositionChangeIndicator } from "./PositionChangeIndicator";
 function fuzzyTextFilterFn(rows: Row[], id, filterValue) {
@@ -45,22 +47,55 @@ const Filter = ({ column }) => {
   );
 };
 
-// Define a default UI for filtering
+/**
+ * Define a default UI for filtering. Leverage debouncing for filter changes.
+ * This prevents the table from rapidly updating upon 100% of each character entry. If
+ * one types quickly, it could impact table performance noticibly. Now, it will only
+ * execute the filter after the debounce timeframe has passed.
+ * 
+ * Ref: https://spectrum.chat/react-table/general/v7-how-to-debounce-the-filter-columns~3800ccc3-c6a7-40fa-8786-5e9fa044e8dd?m=MTU2ODM4OTUxMTM2Mw==
+ * @param param0 
+ */
 function DefaultColumnFilter({
-  column: { filterValue, preFilteredRows, setFilter },
+  column: { preFilteredRows, setFilter },
 }) {
   const count = preFilteredRows.length;
+  const [localFilterValue, setlocalFilterValue] = React.useState("")
+
+  const debouncedSetFilter = useDebouncedCallback(setFilter, 250);
+
+  const handleChange = (e) => {
+    setlocalFilterValue(e.target.value || undefined)
+    debouncedSetFilter(e.target.value)
+  }
 
   return (
     <input
-      value={filterValue || ""}
-      onChange={(e) => {
-        setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-      }}
+      value={localFilterValue || ""}
+      onChange={handleChange}
       placeholder={`Search ${count} records...`}
     />
   );
 }
+
+const useStyles = makeStyles(theme => ({
+  root: {},
+  flex: {
+    display: "flex"
+  },
+  trendLabel: {
+    width: "8rem", 
+    whiteSpace: "nowrap"
+  },
+  overflow: {
+    textOverflow:"ellipsis",
+    overflow: "hidden",
+  },
+  paginator: {
+    display: "flex",
+    width: "100vh",
+  }
+}));
 
 interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
   defaultPageSize: number;
@@ -76,6 +111,7 @@ interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
 export function GoogleTrendsTable<T extends Record<string, unknown>>(
   props: PropsWithChildren<Props<T>>
 ): ReactElement {
+  const classes = useStyles();
   const {
     colorMap,
     columns,
@@ -218,6 +254,13 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
                     sourceMap
                   );
 
+                  // do nothing special for the first column
+                  if(j === 0){
+                    return <TableCell>
+                      {cell.value}
+                    </TableCell>
+                  }
+
                   return (
                     <TableCell
                       {...cell.getCellProps()}
@@ -234,33 +277,30 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
                         return {};
                       })()}
                     >
-                      <Box display="flex" justifyContent="flex-start">
-                        <Box>
-                          <div style={{ width: "9rem", whiteSpace: "nowrap" }}>
-                            <Box
+                      <div className={classes.flex}>
+                        <div>
+                          <div className={classes.trendLabel}>
+                            <div
                               onClick={(
                                 event: React.MouseEvent<
                                   HTMLDivElement,
                                   MouseEvent
                                 >
                               ) => handleTrendClick(event, cell.value)}
-                              component="div"
-                              textOverflow="ellipsis"
-                              overflow="hidden"
                               title={cell.value}
-                              className="cursor-pointer"
+                              className={`${classes.overflow} cursor-pointer`}
                             >
                               <b>{cell.value}</b>
-                            </Box>
+                            </div>
                           </div>
-                        </Box>
+                        </div>
                         {/* do not show indicators on the first column (region name) */}
                         {j === 0 ? null : (
-                          <Box>
+                          <div>
                             <PositionChangeIndicator index={positionChange} />
-                          </Box>
+                          </div>
                         )}
-                      </Box>
+                      </div>
                     </TableCell>
                   );
                 })}
@@ -271,10 +311,7 @@ export function GoogleTrendsTable<T extends Record<string, unknown>>(
       </Table>
       <TablePagination
         component="div"
-        style={{
-          display: "flex",
-          width: "100vh",
-        }}
+        className={classes.paginator}
         rowsPerPageOptions={[5, 10, 25, { label: "All", value: data.length }]}
         count={data.length}
         rowsPerPage={pageSize}
