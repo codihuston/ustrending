@@ -89,8 +89,6 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 		maxTrends = DEFAULT_MAX_GOOGLE_DAILY_TRENDS
 	}
 
-	log.Info("QQQQ DEFAULT_MAX_GOOGLE_DAILY_TRENDS", maxTrends)
-
 	// otherwise fetch from api
 	var results []*gogtrends.TrendingSearch
 
