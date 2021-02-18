@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { QueryClient, useQuery } from "react-query";
+import { dehydrate } from "react-query/hydration";
 import { isEqual, clone } from "lodash";
 import { ValueType } from "react-select";
 import Head from "next/head";
@@ -26,6 +28,10 @@ import {
   GoogleDailyTrendArticle,
   SelectStringOptionType,
 } from "../../../types";
+import {
+  fetchGoogleDailyTrends,
+  fetchGoogleDailyTrendsByState,
+} from "../../../queries";
 import {
   useDebouncedCallback,
   useGoogleDailyTrends,
@@ -57,6 +63,22 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
+export async function getServerSideProps() {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery("googleDailyTrends", fetchGoogleDailyTrends);
+  await queryClient.prefetchQuery(
+    "googleDailyTrendsByState",
+    fetchGoogleDailyTrendsByState
+  );
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
 
 export default function GoogleDaily() {
   const classes = useStyles();
@@ -119,7 +141,11 @@ export default function GoogleDaily() {
     if (googleTrends) {
       // init the color palette
       // const palette = getColors(selectedPalette.value, selectedContrast.value, maxNumTrendsToShow);
-      const palette = getColors(selectedPalette.value, selectedContrast.value, googleTrends.length);
+      const palette = getColors(
+        selectedPalette.value,
+        selectedContrast.value,
+        googleTrends.length
+      );
 
       googleTrends.map((x, i) => {
         colorMap.set(x.title.query, palette[i]);
@@ -599,7 +625,7 @@ export default function GoogleDaily() {
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
               googleTrendNames={
-                googleTrends ? googleTrendsNames.slice(0, 10) : []
+                googleTrendsNames ? googleTrendsNames.slice(0, 10) : []
               }
               rows={rows}
               colorMap={colorMap}

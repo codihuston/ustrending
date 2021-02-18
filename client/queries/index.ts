@@ -3,12 +3,12 @@ import { http } from "../services";
 import { GoogleRealtimeTrend, GoogleRegionTrend } from "../types";
 
 export async function fetchGoogleDailyTrends() {
-  const { data } = await http.get("/api/google/trends/daily");
+  const { data } = await http.get("/google/trends/daily");
   return data;
 }
 
 export async function fetchGoogleDailyTrendsByState() {
-  const { data } = await http.get("/api/google/trends/daily/states");
+  const { data } = await http.get("/google/trends/daily/states");
   return data;
 }
 
@@ -23,7 +23,7 @@ export async function fetchGoogleRealtimeTrends(
   maxNumTrends: number
 ) {
   const { data } = await http.get<GoogleRealtimeTrend[]>(
-    "/api/google/trends/realtime"
+    "/google/trends/realtime"
   );
 
   /**
@@ -69,7 +69,7 @@ export async function fetchGoogleRealtimeTrends(
 }
 
 export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
-  const { data } = await http.get("/api/google/trends/realtime/states");
+  const { data } = await http.get("/google/trends/realtime/states");
 
   /**
    * Removes duplicate trending items for each region (based on the title)
@@ -97,11 +97,11 @@ export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
 }
 
 export async function fetchTwitterRealtimeTrends() {
-  const { data } = await http.get("/api/twitter/trends");
+  const { data } = await http.get("/twitter/trends");
   return data;
 }
 
 export async function fetchUSPlaces() {
-  const { data } = await http.get("/api/places/US");
+  const { data } = await http.get("/places/US");
   return data;
 }

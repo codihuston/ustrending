@@ -17,6 +17,11 @@ import {
   fetchUSPlaces,
 } from "../queries";
 
+const DEFAULT_REACT_QUERY_OPTIONS = {
+  staleTime: 60000,
+  refetchOnMount: false,
+};
+
 /**
  * Executes a callback in a debounced manner
  *
@@ -61,14 +66,16 @@ export function useDebouncedCallback<A extends any[]>(
 export function useGoogleDailyTrends() {
   return useQuery<GoogleDailyTrend[], Error>(
     "googleDailyTrends",
-    fetchGoogleDailyTrends
+    fetchGoogleDailyTrends,
+    DEFAULT_REACT_QUERY_OPTIONS
   );
 }
 
 export function useGoogleDailyTrendsByState() {
   return useQuery<GoogleRegionTrend[], Error>(
     "googleDailyTrendsByState",
-    fetchGoogleDailyTrendsByState
+    fetchGoogleDailyTrendsByState,
+    DEFAULT_REACT_QUERY_OPTIONS
   );
 }
 
@@ -78,25 +85,33 @@ export function useGoogleRealtimeTrends(
   maxNumTrends: number
 ) {
   // ref: https://github.com/tannerlinsley/react-query/discussions/442
-  return useQuery<GoogleRealtimeTrend[], Error>(["googleRealtimeTrends"], () =>
-    fetchGoogleRealtimeTrends(expand, hasDuplicates, maxNumTrends)
+  return useQuery<GoogleRealtimeTrend[], Error>(
+    "googleRealtimeTrends",
+    () => fetchGoogleRealtimeTrends(expand, hasDuplicates, maxNumTrends),
+    DEFAULT_REACT_QUERY_OPTIONS
   );
 }
 
 export function useGooleRealtimeTrendsByState(hasDuplicates: boolean) {
   return useQuery<GoogleRegionTrend[], Error>(
     "googleRealtimeTrendsByState",
-    () => fetchGoogleRealtimeTrendsByState(hasDuplicates)
+    () => fetchGoogleRealtimeTrendsByState(hasDuplicates),
+    DEFAULT_REACT_QUERY_OPTIONS
   );
 }
 
 export function useTwitterRealtimeTrends() {
   return useQuery<TwitterTrendsMap, Error>(
     "twitterRealtimeTrends",
-    fetchTwitterRealtimeTrends
+    fetchTwitterRealtimeTrends,
+    DEFAULT_REACT_QUERY_OPTIONS
   );
 }
 
 export function useUSPlaces() {
-  return useQuery<Place[], Error>("USPlaces", fetchUSPlaces);
+  return useQuery<Place[], Error>(
+    "USPlaces",
+    fetchUSPlaces,
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
 }

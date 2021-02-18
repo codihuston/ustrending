@@ -130,8 +130,12 @@ export default function GoogleRealtime() {
     if (googleTrends) {
       // init the color palette
       // const palette = getColors(selectedPalette.value, selectedContrast.value, maxNumTrendsToShow);
-      const palette = getColors(selectedPalette.value, selectedContrast.value, googleTrends.length);
-      
+      const palette = getColors(
+        selectedPalette.value,
+        selectedContrast.value,
+        googleTrends.length
+      );
+
       googleTrends.map((x, i) => {
         colorMap.set(x.title, palette[i]);
         sourceMap.set(x.title, i);
@@ -441,7 +445,7 @@ export default function GoogleRealtime() {
       />
       <Box>
         <Paper>
-          <h2>Trending Today on Google</h2>
+          <h2>Trending Right Now on Google</h2>
           <h3>Select a Region to Compare</h3>
           <Typography>
             To see trends for a particular region, please choose the region by
@@ -611,7 +615,7 @@ export default function GoogleRealtime() {
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
               googleTrendNames={
-                googleTrends ? googleTrendsNames.slice(0, 10) : []
+                googleTrendsNames ? googleTrendsNames.slice(0, 10) : []
               }
               rows={rows}
               colorMap={colorMap}
