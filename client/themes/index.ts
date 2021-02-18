@@ -26,8 +26,8 @@ export const defaultPalette = "Rainbow";
 
 export const palettes = {
   // "Red to Blue": [red, pink, purple, deepPurple, lightBlue, blue],
-  "Rainbow": [red, deepOrange, orange, yellow, lightGreen, green, teal, cyan, blue, indigo, purple, pink],
-  "Reverse Rainbow": [pink, purple, indigo, blue, cyan, teal, green, lightGreen, yellow, orange, deepOrange, red]
+  "Rainbow": [red, orange, yellow, green, teal, cyan, blue, indigo, purple, pink, brown, grey],
+  "Reverse Rainbow": [grey, brown, pink, purple, indigo, blue, cyan, teal, green, yellow, orange, deepOrange, red]
   // "Red to Green": [pink, indigo, cyan],
   // "Purple to Blue": [purple, blue, teal],
   // "Green to Orange": [green, yellow, deepOrange],
@@ -44,11 +44,11 @@ export const palettes = {
 export const defaultContrast = "Very Dark";
 
 export const contrasts = {
-  "Very Dark": ["900", "800", "700", "600"],
-  Dark: ["700", "500", "300", "100"],
-  Medium: ["A200", "300", "500", "900"],
-  Light: ["A100", "A200", "A400", "A700"],
-  "Very Light": ["50", "100", "200", "300"],
+  "Very Dark": ["900", "700", "500", "300"],
+  Dark: ["A200", "300", "500", "900"],
+  Medium: ["A100", "A200", "A400", "A700"],
+  Light: ["700", "500", "300", "100"],
+  "Very Light": ["100", "200", "300", "400"],
 };
 
 export const theme = createMuiTheme({
@@ -80,6 +80,7 @@ export function getColors(
 
   // generate colors from this palette
   for (const color of selectedPalette) {
+    // TODO: add less variants dynamically
     for (const variant of selectedContrast) {
       result.push(color[variant]);
     }
