@@ -23,6 +23,12 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "2px",
     textAlign: "center",
   },
+  trendingName: {
+    width: "99%",
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+  },
 }));
 
 type Props = {
@@ -140,7 +146,9 @@ export function GoogleTrendsByRegionListItem({
                     event: React.MouseEvent<HTMLDivElement, MouseEvent>
                   ) => handleTrendClick(event, trend.topic)}
                 >
-                  {trend.topic}
+                  <Box className={classes.trendingName} title={trend.topic}>
+                    {trend.topic}
+                  </Box>
                 </ListItemText>
               </Box>
               <Box>

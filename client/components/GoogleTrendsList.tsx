@@ -16,6 +16,12 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     width: "3rem",
   },
+  trendingName: {
+    width: "99%",
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+  },
 }));
 
 type Props = {
@@ -94,7 +100,9 @@ export function GoogleTrendsList({
                         event: React.MouseEvent<HTMLDivElement, MouseEvent>
                       ) => handleTrendClick(event, trend)}
                     >
-                      {trend}
+                      <Box className={classes.trendingName} title={trend}>
+                        {trend}
+                      </Box>
                     </ListItemText>
                   </Box>
                 </Box>
