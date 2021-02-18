@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ValueType } from "react-select";
 import invert from "invert-color";
-import { Box, makeStyles } from "@material-ui/core";
+import { Box, makeStyles, Theme } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Divider from "@material-ui/core/Divider";
@@ -16,7 +16,7 @@ import {
 import { getListPositionChange, getSelectedRegionOption } from "../lib";
 import { PositionChangeIndicator } from "./PositionChangeIndicator";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   topRight: { position: "absolute", top: 0, right: 0 },
   trendingRank: {

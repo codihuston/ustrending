@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
+  makeStyles,
   Paper,
   Switch,
   Toolbar,
@@ -18,8 +19,8 @@ import {
   Slider,
   Snackbar,
   TextField,
+  Theme,
   Tooltip,
-  makeStyles,
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 import { AiOutlineInfoCircle } from "react-icons/ai";
@@ -53,7 +54,7 @@ import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
 // max # of trends per region, total
 const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   mapContainer: {
     [theme.breakpoints.down("xs")]: {

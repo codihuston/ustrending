@@ -11,6 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Theme,
   Toolbar,
   Typography,
   Slide,
@@ -20,7 +21,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import { GoogleRealtimeTrendArticle } from "../types";
 import { GoogleRealtimeTrendArticleCard } from "./GoogleRealtimeTrendArticleCard";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   appBar: {
     position: "relative",
   },

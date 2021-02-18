@@ -25,6 +25,7 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  Theme,
 } from "@material-ui/core";
 import TablePaginationActions from "./TablePaginationActions";
 
@@ -78,7 +79,7 @@ function DefaultColumnFilter({
   );
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   flex: {
     display: "flex"

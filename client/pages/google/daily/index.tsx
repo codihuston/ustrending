@@ -11,15 +11,16 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
+  makeStyles,
   Paper,
   Slider,
   Switch,
   TextField,
+  Theme,
   Toolbar,
   Tooltip,
   Typography,
   Snackbar,
-  makeStyles,
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 import { AiOutlineInfoCircle } from "react-icons/ai";
@@ -50,7 +51,7 @@ import {
 } from "../../../components/containers/GoogleTrendsTableContainer";
 import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   mapContainer: {
     [theme.breakpoints.down("xs")]: {

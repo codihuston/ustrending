@@ -9,9 +9,10 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  Theme
 } from "@material-ui/core";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   trendingRank: {
     borderRadius: "2px",

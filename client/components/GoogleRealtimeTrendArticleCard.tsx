@@ -6,13 +6,14 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Typography,
   Link,
+  Theme,
+  Typography
 } from "@material-ui/core";
 
 import { GoogleRealtimeTrendArticle } from "../types";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: "flex",
   },
