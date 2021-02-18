@@ -139,17 +139,6 @@ export default function GoogleRealtime() {
       setGoogleTrendsNames(
         googleTrends.map((trends) => trends.title).slice(0, maxNumTrendsToShow)
       );
-
-      setRelatedArticles(
-        selectedTrend
-          ? googleTrends
-              .filter((trend) => trend.title === selectedTrend)
-              .map((trend) => {
-                return trend.articles;
-              })
-              .flat(1)
-          : []
-      );
     }
 
     // compute state around googleRegionTrends
@@ -176,8 +165,22 @@ export default function GoogleRealtime() {
     maxNumTrendsToShow,
     selectedContrast,
     selectedPalette,
-    selectedTrend
   ]);
+
+  useEffect(() => {
+    if (googleTrends) {
+      setRelatedArticles(
+        selectedTrend
+          ? googleTrends
+              .filter((trend) => trend.title === selectedTrend)
+              .map((trend) => {
+                return trend.articles;
+              })
+              .flat(1)
+          : []
+      );
+    }
+  }, [selectedTrend]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -323,6 +326,8 @@ export default function GoogleRealtime() {
   ): void => {
     setSelectedTrend(name);
   };
+
+  const debouncedHandleTrendClick = useDebouncedCallback(handleTrendClick, 250);
 
   /**
    * Toggles the sort method for the regions' trends list
@@ -532,7 +537,13 @@ export default function GoogleRealtime() {
                 aria-labelledby="discrete-slider"
                 defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
                 marks
-                max={googleTrends && googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }
+                max={
+                  googleTrends &&
+                  googleTrends.length &&
+                  googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                    ? googleTrends.length
+                    : MAX_NUM_GOOGLE_REGION_TRENDS
+                }
                 min={1}
                 onChange={debouncedHandleSliderChangeNumTrendsToShow}
                 step={1}
@@ -546,7 +557,12 @@ export default function GoogleRealtime() {
             </Grid>
             <Grid item>
               <Typography>
-                {maxNumTrendsToShow} / {googleTrends && googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }{" "}
+                {maxNumTrendsToShow} /{" "}
+                {googleTrends &&
+                googleTrends.length &&
+                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                  ? googleTrends.length
+                  : MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
               </Typography>
             </Grid>
           </Grid>
@@ -554,7 +570,7 @@ export default function GoogleRealtime() {
             googleTrendNames={googleTrends ? googleTrendsNames : []}
             colorMap={colorMap}
             withColor={isWithColors}
-            handleTrendClick={handleTrendClick}
+            handleTrendClick={debouncedHandleTrendClick}
           />
           <h4 id={"selectedRegions"} ref={ref}>
             Trending in Your Selected Region(s)
@@ -575,7 +591,7 @@ export default function GoogleRealtime() {
           </Toolbar>
           <GoogleTrendsByRegionList
             handleClick={handleListDelete}
-            handleTrendClick={handleTrendClick}
+            handleTrendClick={debouncedHandleTrendClick}
             isAlphabetical={isAlphabetical}
             sourceMap={sourceMap}
             googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
