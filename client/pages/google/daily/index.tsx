@@ -115,11 +115,12 @@ export default function GoogleDaily() {
     const colorMap = new Map<string, string>();
     const sourceMap = new Map<string, number>();
 
-    // init the color palette
-    const palette = getColors(selectedPalette.value, selectedContrast.value);
-
     // compute state around googleTrends
     if (googleTrends) {
+      // init the color palette
+      // const palette = getColors(selectedPalette.value, selectedContrast.value, maxNumTrendsToShow);
+      const palette = getColors(selectedPalette.value, selectedContrast.value, googleTrends.length);
+
       googleTrends.map((x, i) => {
         colorMap.set(x.title.query, palette[i]);
         sourceMap.set(x.title.query, i);

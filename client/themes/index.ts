@@ -23,32 +23,30 @@ import {
 } from "@material-ui/core/colors";
 
 export const defaultPalette = "Rainbow";
+const greyscale = "Greyscale";
+const spectrum = "Spectrum"
 
 export const palettes = {
-  // "Red to Blue": [red, pink, purple, deepPurple, lightBlue, blue],
-  "Rainbow": [red, orange, yellow, green, teal, cyan, blue, indigo, purple, pink, brown, grey],
-  "Reverse Rainbow": [grey, brown, pink, purple, indigo, blue, cyan, teal, green, yellow, orange, deepOrange, red]
-  // "Red to Green": [pink, indigo, cyan],
-  // "Purple to Blue": [purple, blue, teal],
-  // "Green to Orange": [green, yellow, deepOrange],
-  // "Green to Brown": [lightGreen, amber, brown],
-  // "Yellow to Grey": [lime, orange, grey, blueGrey],
-  // Reds: [red, pink, purple],
-  // Violets: [deepPurple, indigo, blue],
-  // Blues: [lightBlue, cyan, teal],
-  // Greens: [green, lightGreen, lime],
-  // Yellows: [yellow, amber, orange, deepOrange],
-  // Darks: [brown, grey, blueGrey],
+  // requirement: each entry should have 12
+  "Rainbow": [red, orange, yellow, green, teal, cyan, blue, indigo, deepPurple, pink, brown, grey],
+  "Reverse Rainbow": [grey, brown, pink, deepPurple, indigo, blue, cyan, teal, green, yellow, orange, red],
+  [greyscale]: [grey]
 };
 
-export const defaultContrast = "Very Dark";
+export const defaultContrast = "Very High";
 
 export const contrasts = {
-  "Very Dark": ["900", "700", "500", "300"],
-  Dark: ["A200", "300", "500", "900"],
-  Medium: ["A100", "A200", "A400", "A700"],
-  Light: ["700", "500", "300", "100"],
-  "Very Light": ["100", "200", "300", "400"],
+  // alternate high/lows, wider range
+  "Very High": ["900", "400", "200", "100"],
+  // "Very High": ["900", "100", "400", "200"],
+  "High": ["700", "200", "400", "300",],
+  // consistently close, medium range
+  "Medium": ["500", "300", "400", "200"],
+  // consistently closer, smaller range
+  "Low": ["700", "500", "400", "300"],
+  "Very Low": ["900", "700", "800", "600"],
+  [`${spectrum} (dark to light)`]: ["900", "800", "700", "A700", "600", "500", "400", "A400", "300", "A200", "200", "100", "A100", "50"],
+  [`${spectrum} (light to dark)`]: ["50", "A100", "100", "200", "A200", "300", "A400", "400", "500", "600", "A700", "700", "800", "900"],
 };
 
 export const theme = createMuiTheme({
@@ -63,12 +61,14 @@ export const theme = createMuiTheme({
 });
 
 export function getColors(
-  paletteName: number | string,
-  contrast: number | string
+  paletteName: string,
+  contrast: string,
+  numColorsNeeded: number
 ) {
   let result = [];
   let selectedPalette = palettes[defaultPalette];
   let selectedContrast = contrasts[defaultContrast];
+  let numVariantsToUse = 1;
 
   if (palettes[paletteName] && palettes[paletteName].length > 0) {
     // handle palette found
@@ -78,13 +78,36 @@ export function getColors(
     selectedContrast = contrasts[contrast];
   }
 
+  // increment numVariantsToUse * selectedPalette.length will generate enough colors
+  while(selectedPalette.length * numVariantsToUse < numColorsNeeded){
+    numVariantsToUse += 1;
+  }
+
   // generate colors from this palette
-  for (const color of selectedPalette) {
-    // TODO: add less variants dynamically
-    for (const variant of selectedContrast) {
-      result.push(color[variant]);
+  // if using greyscale, order colors by contrast, then by colors
+  if(paletteName === greyscale && contrast.match(spectrum)){
+    console.log("variant", numVariantsToUse);
+    // use less variants dynamically, based on the given numColorsNeeded
+    for(let i=0; i < numVariantsToUse; i++){
+      // use final variant, if index out of bounds
+      const variant = selectedContrast[i] ? selectedContrast[i] : selectedContrast[selectedContrast.length - 1]
+      for (const color of selectedPalette) {
+        result.push(color[variant]);
+      }
     }
   }
+  // if not using greyscale, order colors by colors, then by contrast
+  else{
+    for (const color of selectedPalette) {
+      // use less variants dynamically, based on the given numColorsNeeded
+      for(let i=0; i < numVariantsToUse; i++){
+        // use final variant, if index out of bounds
+        const variant = selectedContrast[i] ? selectedContrast[i] : selectedContrast[selectedContrast.length - 1]
+        result.push(color[variant]);
+      }
+    }
+  }
+
 
   return result;
 }
