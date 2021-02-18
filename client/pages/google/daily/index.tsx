@@ -522,7 +522,7 @@ export default function GoogleDaily() {
                 aria-labelledby="discrete-slider"
                 defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
                 marks
-                max={googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }
+                max={googleTrends && googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS }
                 min={1}
                 onChange={debouncedHandleSliderChangeNumTrendsToShow}
                 step={1}
@@ -536,7 +536,7 @@ export default function GoogleDaily() {
             </Grid>
             <Grid item>
               <Typography>
-                {maxNumTrendsToShow} / {googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
+                {maxNumTrendsToShow} / {googleTrends && googleTrends.length && googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS ? googleTrends.length : MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
               </Typography>
             </Grid>
           </Grid>
