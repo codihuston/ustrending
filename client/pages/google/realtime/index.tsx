@@ -39,17 +39,16 @@ import {
   useGooleRealtimeTrendsByState,
 } from "../../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
-import { Layout } from "../../../components/Layout";
-import { ColorPalette } from "../../../components/ColorPalette";
-import { GoogleRealtimeTrendArticleDialog } from "../../../components/GoogleRealtimeTrendArticleDialog";
-import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
-import { GoogleTrendsByRegionList } from "../../../components/GoogleTrendsByRegionList";
-import { RegionSelect } from "../../../components/RegionSelect";
-import {
-  GoogleTrendsTableContainer,
+import Layout from "../../../components/Layout";
+import ColorPalette from "../../../components/ColorPalette";
+import GoogleRealtimeTrendArticleDialog from "../../../components/GoogleRealtimeTrendArticleDialog";
+import GoogleTrendsList from "../../../components/GoogleTrendsList";
+import GoogleTrendsByRegionList from "../../../components/GoogleTrendsByRegionList";
+import RegionSelect from "../../../components/RegionSelect";
+import GoogleTrendsTableContainer, {
   RowProps,
 } from "../../../components/containers/GoogleTrendsTableContainer";
-import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
+import GoogleTrendsMap from "../../../components/GoogleTrendsMap";
 
 // max # of trends per region, total
 const MAX_NUM_GOOGLE_REGION_TRENDS = 50;

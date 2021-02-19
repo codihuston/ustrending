@@ -8,7 +8,7 @@ type Props = {
   handleChange(option: ValueType<SelectStringOptionType, true>): void;
 };
 
-export function RegionSelect({
+export default function RegionSelect({
   values,
   googleRegionTrends,
   handleChange,

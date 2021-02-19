@@ -4,7 +4,7 @@ type Props = {
   googleRealtimeTrendsByState: GoogleRegionTrend[];
 };
 
-export function GoogleRealtimeTrendsByStateList({
+export default function GoogleRealtimeTrendsByStateList({
   googleRealtimeTrendsByState,
 }: Props) {
   if (!googleRealtimeTrendsByState || !googleRealtimeTrendsByState.length) {

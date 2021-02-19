@@ -19,7 +19,7 @@ import {
 import CloseIcon from "@material-ui/icons/Close";
 
 import { GoogleRealtimeTrendArticle } from "../types";
-import { GoogleRealtimeTrendArticleCard } from "./GoogleRealtimeTrendArticleCard";
+import GoogleRealtimeTrendArticleCard from "./GoogleRealtimeTrendArticleCard";
 
 const useStyles = makeStyles((theme: Theme) => ({
   appBar: {
@@ -43,7 +43,7 @@ type Props = {
   handleCloseDialog();
 };
 
-export function GoogleRealtimeTrendArticleDialog({
+export default function GoogleRealtimeTrendArticleDialog({
   relatedArticles,
   handleCloseDialog,
   selectedTrend,

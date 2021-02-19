@@ -39,17 +39,16 @@ import {
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
-import { Layout } from "../../../components/Layout";
-import { ColorPalette } from "../../../components/ColorPalette";
-import { GoogleDailyTrendArticleDialog } from "../../../components/GoogleDailyTrendArticleDialog";
-import { GoogleTrendsList } from "../../../components/GoogleTrendsList";
-import { GoogleTrendsByRegionList } from "../../../components/GoogleTrendsByRegionList";
-import { RegionSelect } from "../../../components/RegionSelect";
-import {
-  GoogleTrendsTableContainer,
+import Layout from "../../../components/Layout";
+import ColorPalette from "../../../components/ColorPalette";
+import GoogleDailyTrendArticleDialog from "../../../components/GoogleDailyTrendArticleDialog";
+import GoogleTrendsList from "../../../components/GoogleTrendsList";
+import GoogleTrendsByRegionList from "../../../components/GoogleTrendsByRegionList";
+import RegionSelect from "../../../components/RegionSelect";
+import GoogleTrendsTableContainer, {
   RowProps,
 } from "../../../components/containers/GoogleTrendsTableContainer";
-import { GoogleTrendsMap } from "../../../components/GoogleTrendsMap";
+import GoogleTrendsMap from "../../../components/GoogleTrendsMap";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},

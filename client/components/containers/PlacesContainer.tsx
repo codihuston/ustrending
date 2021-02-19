@@ -1,8 +1,8 @@
 import React from "react";
-import { Loading } from "../Loading";
+import Loading from "../Loading";
 import { useUSPlaces } from "../../hooks";
 
-export function PlacesContainer({ children, ...rest }) {
+export default function PlacesContainer({ children, ...rest }) {
   const { status, data, error } = useUSPlaces();
 
   if (status === "error") {

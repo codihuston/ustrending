@@ -2,7 +2,7 @@ import { BsDash } from "react-icons/bs";
 
 import { StyledUpArrow, StyledDownArrow } from "./Icons";
 
-export function PositionChangeIndicator({ index }) {
+export default function PositionChangeIndicator({ index }) {
   const description = `This trend has changed ${
     index > 0 ? `+${index}` : index
   } positions relative to the trends for this country.`;

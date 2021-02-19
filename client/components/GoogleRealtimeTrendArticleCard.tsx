@@ -39,7 +39,7 @@ type Props = {
   article: GoogleRealtimeTrendArticle;
 };
 
-export function GoogleRealtimeTrendArticleCard({ article }: Props) {
+export default function GoogleRealtimeTrendArticleCard({ article }: Props) {
   const classes = useStyles();
 
   return (

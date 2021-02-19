@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ValueType } from "react-select";
+import ValueType from "react-select";
 import invert from "invert-color";
 import { Box, makeStyles, Theme } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
@@ -14,7 +14,7 @@ import {
   SelectStringOptionType,
 } from "../types";
 import { getListPositionChange, getSelectedRegionOption } from "../lib";
-import { PositionChangeIndicator } from "./PositionChangeIndicator";
+import PositionChangeIndicator from "./PositionChangeIndicator";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
@@ -49,7 +49,7 @@ type Props = {
   withColor?: boolean;
 };
 
-export function GoogleTrendsByRegionListItem({
+export default function GoogleTrendsByRegionListItem({
   colorMap,
   handleClick,
   handleTrendClick,

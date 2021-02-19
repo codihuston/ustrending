@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 
-import { GoogleTrendsTable } from "../GoogleTrendsTable";
-import { Loading } from "../Loading";
+import GoogleTrendsTable from "../GoogleTrendsTable";
+import Loading from "../Loading";
 
 export type RowProps = {
   region: string;
@@ -19,7 +19,7 @@ type Props = {
   sourceMap: Map<string, number>;
 };
 
-export function GoogleTrendsTableContainer({
+export default function GoogleTrendsTableContainer({
   handleTrendClick,
   googleTrendNames,
   colorMap,
@@ -28,7 +28,6 @@ export function GoogleTrendsTableContainer({
 }: Props) {
   return useMemo(() => {
     const DEFAULT_MAX_ROW_LENGTH = 25;
-    // const rows = [];
     // the first column will contain the region name
     let columns = [{ Header: `Region`, accessor: "region" }];
 

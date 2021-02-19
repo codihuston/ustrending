@@ -31,8 +31,8 @@ import TablePaginationActions from "./TablePaginationActions";
 
 import { getListPositionChange } from "../lib";
 import { useDebouncedCallback } from "../hooks";
-import { TableToolbar } from "./TableToolbar";
-import { PositionChangeIndicator } from "./PositionChangeIndicator";
+import TableToolbar from "./TableToolbar";
+import PositionChangeIndicator from "./PositionChangeIndicator";
 function fuzzyTextFilterFn(rows: Row[], id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
 }
@@ -109,7 +109,7 @@ interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
   sourceMap: Map<string, number>;
 }
 
-export function GoogleTrendsTable<T extends Record<string, unknown>>(
+export default function GoogleTrendsTable<T extends Record<string, unknown>>(
   props: PropsWithChildren<Props<T>>
 ): ReactElement {
   const classes = useStyles();

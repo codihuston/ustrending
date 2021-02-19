@@ -23,7 +23,7 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
-export const TableToolbar = (props) => {
+export default (props) => {
   const classes = useToolbarStyles();
   return <Toolbar>{props.children}</Toolbar>;
 };

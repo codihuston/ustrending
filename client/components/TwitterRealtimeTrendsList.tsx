@@ -5,7 +5,7 @@ type Props = {
   twitterRealtimeTrends: TwitterTrendsMap;
 };
 
-export function TwitterRealtimeTrendsList({
+export default function TwitterRealtimeTrendsList({
   places,
   twitterRealtimeTrends,
 }: Props) {

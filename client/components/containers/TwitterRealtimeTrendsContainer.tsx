@@ -1,8 +1,8 @@
 import React from "react";
-import { Loading } from "../Loading";
+import Loading from "../Loading";
 import { useTwitterRealtimeTrends } from "../../hooks";
 
-export function TwitterRealtimeTrendsContainer({ children, ...rest }) {
+export default function TwitterRealtimeTrendsContainer({ children, ...rest }) {
   const { status, data, error } = useTwitterRealtimeTrends();
 
   if (status === "error") {

@@ -10,7 +10,7 @@ type Props = {
   selectedPalette: ValueType<SelectStringOptionType, false>;
 };
 
-export function ColorPalette({
+export default function ColorPalette({
   handleChangePalette,
   handleChangeContrast,
   selectedContrast,

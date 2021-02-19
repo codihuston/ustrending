@@ -35,7 +35,7 @@ type Props = {
   withColor: boolean;
 };
 
-export function GoogleTrendsList({
+export default function GoogleTrendsList({
   colorMap,
   googleTrendNames,
   handleTrendClick,
