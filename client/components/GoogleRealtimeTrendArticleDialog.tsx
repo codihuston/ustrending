@@ -99,17 +99,7 @@ export function GoogleRealtimeTrendArticleDialog({
           </Toolbar>
         </AppBar>
         <List>
-          {articles.length > 0 ? (
-            articles
-          ) : (
-            <ListItem button onClick={handleClose}>
-              <ListItemText>
-                <Box textAlign="center">No articles found!</Box>
-              </ListItemText>
-            </ListItem>
-          )}
-          <Divider />
-          <ListItem>
+          <ListItem key={"attribution"}>
             <ListItemText>
               <Box textAlign="center">
                 Articles are sourced from{" "}
@@ -117,6 +107,16 @@ export function GoogleRealtimeTrendArticleDialog({
               </Box>
             </ListItemText>
           </ListItem>
+          <Divider />
+          {articles.length > 0 ? (
+            articles
+          ) : (
+            <ListItem button onClick={handleClose} key={"no data"}>
+              <ListItemText>
+                <Box textAlign="center">No articles found!</Box>
+              </ListItemText>
+            </ListItem>
+          )}
         </List>
       </Dialog>
     </div>
