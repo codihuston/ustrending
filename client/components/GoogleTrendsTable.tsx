@@ -53,22 +53,20 @@ const Filter = ({ column }) => {
  * This prevents the table from rapidly updating upon 100% of each character entry. If
  * one types quickly, it could impact table performance noticibly. Now, it will only
  * execute the filter after the debounce timeframe has passed.
- * 
+ *
  * Ref: https://spectrum.chat/react-table/general/v7-how-to-debounce-the-filter-columns~3800ccc3-c6a7-40fa-8786-5e9fa044e8dd?m=MTU2ODM4OTUxMTM2Mw==
- * @param param0 
+ * @param param0
  */
-function DefaultColumnFilter({
-  column: { preFilteredRows, setFilter },
-}) {
+function DefaultColumnFilter({ column: { preFilteredRows, setFilter } }) {
   const count = preFilteredRows.length;
-  const [localFilterValue, setlocalFilterValue] = React.useState("")
+  const [localFilterValue, setlocalFilterValue] = React.useState("");
 
   const debouncedSetFilter = useDebouncedCallback(setFilter, 250);
 
   const handleChange = (e) => {
-    setlocalFilterValue(e.target.value || undefined)
-    debouncedSetFilter(e.target.value)
-  }
+    setlocalFilterValue(e.target.value || undefined);
+    debouncedSetFilter(e.target.value);
+  };
 
   return (
     <input
@@ -82,20 +80,20 @@ function DefaultColumnFilter({
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   flex: {
-    display: "flex"
+    display: "flex",
   },
   trendLabel: {
-    width: "8rem", 
-    whiteSpace: "nowrap"
+    width: "8rem",
+    whiteSpace: "nowrap",
   },
   overflow: {
-    textOverflow:"ellipsis",
+    textOverflow: "ellipsis",
     overflow: "hidden",
   },
   paginator: {
     display: "flex",
     width: "100vh",
-  }
+  },
 }));
 
 interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
@@ -256,10 +254,8 @@ export default function GoogleTrendsTable<T extends Record<string, unknown>>(
                   );
 
                   // do nothing special for the first column
-                  if(j === 0){
-                    return <TableCell>
-                      {cell.value}
-                    </TableCell>
+                  if (j === 0) {
+                    return <TableCell>{cell.value}</TableCell>;
                   }
 
                   return (
