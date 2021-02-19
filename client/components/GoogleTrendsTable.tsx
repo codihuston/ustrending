@@ -81,6 +81,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   flex: {
     display: "flex",
+    justifyContent: "space-between"
   },
   trendLabel: {
     width: "8rem",
@@ -103,6 +104,7 @@ interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
     name: string
   ): void;
   colorMap: Map<string, string>;
+  isWithColors: boolean;
   skipPageReset: boolean;
   sourceMap: Map<string, number>;
 }
@@ -117,11 +119,10 @@ export default function GoogleTrendsTable<T extends Record<string, unknown>>(
     data,
     defaultPageSize,
     handleTrendClick,
+    isWithColors,
     skipPageReset,
     sourceMap,
   } = props;
-  const [dense, setDense] = React.useState(true);
-  const [isBackgroundColored, setIsBackgroundColored] = React.useState(true);
   const defaultColumn = React.useMemo(
     () => ({
       // Let's set up our default Filter UI
@@ -178,14 +179,6 @@ export default function GoogleTrendsTable<T extends Record<string, unknown>>(
     state: { pageIndex, pageSize },
   } = instance;
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
-
-  function handleChangeIsBackgroundColored(event) {
-    setIsBackgroundColored(event.target.checked);
-  }
-
   const handleChangePage = (event, newPage) => {
     gotoPage(newPage);
   };
@@ -194,25 +187,23 @@ export default function GoogleTrendsTable<T extends Record<string, unknown>>(
     setPageSize(Number(event.target.value));
   };
 
+  const getTableCellStyle = (cell) => {
+    // handle coloring of cells
+    const backgroundColor = colorMap.get(cell.value);
+
+    if (isWithColors && backgroundColor) {
+      return {
+        backgroundColor,
+        color: invert(backgroundColor, true),
+      };
+    }
+    return {};
+  }
+
   // Render the UI for your table
   return (
     <TableContainer>
-      <TableToolbar>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={isBackgroundColored}
-              onChange={handleChangeIsBackgroundColored}
-            />
-          }
-          label="Show colors"
-        />
-        <FormControlLabel
-          control={<Switch checked={dense} onChange={handleChangeDense} />}
-          label="Dense padding"
-        />
-      </TableToolbar>
-      <Table size={dense ? "small" : "medium"} {...getTableProps()}>
+      <Table size={"small"} {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
@@ -255,24 +246,14 @@ export default function GoogleTrendsTable<T extends Record<string, unknown>>(
 
                   // do nothing special for the first column
                   if (j === 0) {
-                    return <TableCell>{cell.value}</TableCell>;
+                    return <TableCell key={j}>{cell.value}</TableCell>;
                   }
 
                   return (
                     <TableCell
                       {...cell.getCellProps()}
-                      style={(function () {
-                        // handle coloring of cells
-                        const backgroundColor = colorMap.get(cell.value);
-
-                        if (isBackgroundColored && backgroundColor) {
-                          return {
-                            backgroundColor,
-                            color: invert(backgroundColor, true),
-                          };
-                        }
-                        return {};
-                      })()}
+                      style={getTableCellStyle(cell)}
+                      key={j}
                     >
                       <div className={classes.flex}>
                         <div>

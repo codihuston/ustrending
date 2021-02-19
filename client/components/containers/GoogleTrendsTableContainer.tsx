@@ -15,6 +15,7 @@ type Props = {
   ): void;
   googleTrendNames: string[];
   colorMap: Map<string, string>;
+  isWithColors: boolean;
   rows: RowProps[];
   sourceMap: Map<string, number>;
 };
@@ -23,6 +24,7 @@ export default function GoogleTrendsTableContainer({
   handleTrendClick,
   googleTrendNames,
   colorMap,
+  isWithColors,
   rows,
   sourceMap,
 }: Props) {
@@ -54,10 +56,11 @@ export default function GoogleTrendsTableContainer({
               : rows.length
           }
           colorMap={colorMap}
+          isWithColors={isWithColors}
           sourceMap={sourceMap}
           handleTrendClick={handleTrendClick}
         />
       </div>
     );
-  }, [rows]);
+  }, [googleTrendNames, colorMap, isWithColors, rows, sourceMap]);
 }

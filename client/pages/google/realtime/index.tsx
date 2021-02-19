@@ -634,6 +634,55 @@ export default function GoogleRealtime() {
             Below lists all of the trends for each region in a sortable,
             filterable fashion.
           </Typography>
+          <Grid
+            container
+            spacing={2}
+            alignItems="center"
+            className={classes.mapContainer}
+          >
+            <Grid item xs={12} md={3}>
+              <Typography id="discrete-slider" gutterBottom>
+                Number of Trends ({maxNumTrendsToShow}/
+                {googleTrends &&
+                googleTrends.length &&
+                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                  ? googleTrends.length
+                  : MAX_NUM_GOOGLE_REGION_TRENDS}
+                )
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={8}>
+              <Slider
+                aria-labelledby="discrete-slider"
+                defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
+                marks
+                max={
+                  googleTrends &&
+                  googleTrends.length &&
+                  googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                    ? googleTrends.length
+                    : MAX_NUM_GOOGLE_REGION_TRENDS
+                }
+                min={1}
+                onChange={debouncedHandleSliderChangeNumTrendsToShow}
+                step={1}
+                valueLabelDisplay="auto"
+                value={
+                  typeof maxNumTrendsToShow === "number"
+                    ? maxNumTrendsToShow
+                    : 0
+                }
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch checked={isWithColors} onChange={toggleListColors} />
+                }
+                label={`Show colors`}
+              />
+            </Grid>
+          </Grid>
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
@@ -641,6 +690,7 @@ export default function GoogleRealtime() {
               rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}
+              isWithColors={isWithColors}
             />
           ) : null}
         </Paper>
