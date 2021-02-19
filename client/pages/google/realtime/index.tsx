@@ -71,7 +71,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 export async function getServerSideProps() {
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery("googleRealtimeTrends", () => fetchGoogleRealtimeTrends(true, false, MAX_NUM_GOOGLE_REGION_TRENDS));
+  await queryClient.prefetchQuery("googleRealtimeTrends", () =>
+    fetchGoogleRealtimeTrends(true, false, MAX_NUM_GOOGLE_REGION_TRENDS)
+  );
   await queryClient.prefetchQuery(
     "googleRealtimeTrendsByState",
     fetchGoogleRealtimeTrendsByState
@@ -555,12 +557,18 @@ export default function GoogleRealtime() {
             alignItems="center"
             className={classes.mapContainer}
           >
-            <Grid item>
+            <Grid item xs={12} md={3}>
               <Typography id="discrete-slider" gutterBottom>
-                Number of Trends to Display
+                Number of Trends ({maxNumTrendsToShow}/
+                {googleTrends &&
+                googleTrends.length &&
+                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                  ? googleTrends.length
+                  : MAX_NUM_GOOGLE_REGION_TRENDS}
+                )
               </Typography>
             </Grid>
-            <Grid item xs>
+            <Grid item xs={12} md={8}>
               <Slider
                 aria-labelledby="discrete-slider"
                 defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
@@ -583,15 +591,13 @@ export default function GoogleRealtime() {
                 }
               />
             </Grid>
-            <Grid item>
-              <Typography>
-                {maxNumTrendsToShow} /{" "}
-                {googleTrends &&
-                googleTrends.length &&
-                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                  ? googleTrends.length
-                  : MAX_NUM_GOOGLE_REGION_TRENDS}{" "}
-              </Typography>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch checked={isWithColors} onChange={toggleListColors} />
+                }
+                label={`Show colors`}
+              />
             </Grid>
           </Grid>
           <GoogleTrendsList
@@ -609,12 +615,6 @@ export default function GoogleRealtime() {
                 <Switch checked={isAlphabetical} onChange={toggleListSort} />
               }
               label={`Sort regions alphabetically`}
-            />
-            <FormControlLabel
-              control={
-                <Switch checked={isWithColors} onChange={toggleListColors} />
-              }
-              label={`Show colors`}
             />
           </Toolbar>
           <GoogleTrendsByRegionList
@@ -637,9 +637,7 @@ export default function GoogleRealtime() {
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
-              googleTrendNames={
-                googleTrendsNames ? googleTrendsNames : []
-              }
+              googleTrendNames={googleTrendsNames ? googleTrendsNames : []}
               rows={rows}
               colorMap={colorMap}
               sourceMap={sourceMap}
