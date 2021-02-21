@@ -11,6 +11,7 @@ import {
 } from "react-simple-maps";
 import debugLib from "debug";
 import invert from "invert-color";
+import { fade } from "@material-ui/core";
 
 // TODO: modularize this by country?
 import allStates from "../data/regions.json";
@@ -72,6 +73,16 @@ const labelStyle = {
   },
 };
 
+/**
+ * The map can be colored in different ways
+ */
+export enum MapColorMode {
+  // highlight all number X trends (shows popularity of all trends in a country)
+  All,
+  // highlight only 1 trend (shows popularity of a single trend in a country)
+  One,
+}
+
 type Props = {
   handleClick(
     e: React.MouseEvent<SVGGElement, MouseEvent>,
@@ -83,7 +94,9 @@ type Props = {
   ): void;
   googleRegionTrends: GoogleRegionTrend[];
   colorMap: Map<string, string>;
+  mapColorMode: MapColorMode;
   trendNumberToShow: number;
+  countryTrendName: string;
 };
 
 type GeographyStyle = {
@@ -131,6 +144,8 @@ const GoogleTrendsMap = ({
   handleHover,
   googleRegionTrends,
   colorMap,
+  countryTrendName,
+  mapColorMode,
   trendNumberToShow,
 }: Props) => {
   // TODO: make this dynamic?
@@ -188,7 +203,7 @@ const GoogleTrendsMap = ({
   }
 
   /**
-   * Determines a background color to use for a given topic an region
+   * Determines a background color to use for a given topic and region
    *
    * @param name
    * @param defaultColor
@@ -198,18 +213,46 @@ const GoogleTrendsMap = ({
     defaultColor: string
   ): string {
     const region = getRegionByGeoName(name);
+    let color = defaultColor;
 
     if (!region) {
       return defaultColor;
     }
 
-    // get the #1 topic for this region
-    const topicName = getRegionTrendNameAt(trendNumberToShow, region);
+    // in "one" mode
+    // TODO: clean this up
+    if (mapColorMode === MapColorMode.One) {
+      // get the color of the trend of interest
+      color = colorMap.get(countryTrendName);
+      // find its popularity rank for this region
+      const rank = getTrendAtRankForRegion(name);
+      // calculate the opacity
+      const val = Number(Math.abs(rank / googleRegionTrends.length - 1).toFixed(2));
+      // change the color's opacity accordingly
+      color = fade(color ? color : defaultColor, val);
+      console.log("Get trend color for:", countryTrendName, rank, val, color);
+    } else {
+      // get the #1 topic for this region
+      const topicName = getRegionTrendNameAt(trendNumberToShow, region);
 
-    // style this region with the color for this #1 topic
-    const color = colorMap.get(topicName);
+      // style this region with the color for this #1 topic
+      color = colorMap.get(topicName);
+    }
 
     return color ? color : defaultColor;
+  }
+
+  function getTrendAtRankForRegion(name: string) {
+    const region = getRegionByGeoName(name);
+
+    // find the rank of 'countryTrendName'
+    if (!region) {
+      return null;
+    }
+
+    const rank = region.trends.findIndex((x) => x.topic === countryTrendName);
+
+    return rank;
   }
 
   /**
@@ -220,14 +263,23 @@ const GoogleTrendsMap = ({
     const region = getRegionByGeoName(name);
 
     if (region) {
+      let rank = trendNumberToShow;
       // get the #1 topic for this region
-      const topicName = getRegionTrendNameAt(trendNumberToShow, region);
+      let topicName = getRegionTrendNameAt(trendNumberToShow, region);
       // style it
       const backgroundColor = getTrendingTopicColorByRegion(
         name,
         defaultRegionStyle.default.fill
       );
-      const color = invert(backgroundColor, true);
+      // TODO: re-implement me
+      // const color = invert(backgroundColor, true);
+      const color = "#FFFFFF";
+
+      // TODO: clean this up
+      if (mapColorMode === MapColorMode.One) {
+        rank = getTrendAtRankForRegion(name);
+        topicName = countryTrendName;
+      }
 
       if (topicName) {
         const html = `
@@ -240,7 +292,7 @@ const GoogleTrendsMap = ({
           <div>
             <span style="background-color: ${backgroundColor}; color: ${color}; padding: 0.25rem; width: 0.25rem; border: 1px solid ${color}; border-radius: 2px;">
               <b>
-                #${trendNumberToShow + 1 /*account for 0-indexed value*/}
+                #${rank + 1 /*account for 0-indexed value*/}
               </b>
             </span>
             <span style="margin-left: 1em;">
@@ -322,13 +374,14 @@ const GoogleTrendsMap = ({
                           <Marker coordinates={centroid} style={labelStyle}>
                             <text
                               x={5}
-                              fill={invert(
-                                getTrendingTopicColorByRegion(
-                                  geo?.properties?.name,
-                                  defaultRegionStyle.default.fill
-                                ),
-                                true
-                              )}
+                              // TODO: re-implement me
+                              // fill={invert(
+                              //   getTrendingTopicColorByRegion(
+                              //     geo?.properties?.name,
+                              //     defaultRegionStyle.default.fill
+                              //   ),
+                              //   true
+                              // )}
                               fontSize={tooltipFontSize}
                               textAnchor="middle"
                               onClick={(event) =>
@@ -376,6 +429,7 @@ const GoogleTrendsMap = ({
                               alignmentBaseline="middle"
                             >
                               {cur.id}
+                              <text>test</text>
                             </text>
                           </Annotation>
                         ))}

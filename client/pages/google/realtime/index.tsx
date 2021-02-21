@@ -48,7 +48,9 @@ import RegionSelect from "../../../components/RegionSelect";
 import GoogleTrendsTableContainer, {
   RowProps,
 } from "../../../components/containers/GoogleTrendsTableContainer";
-import GoogleTrendsMap from "../../../components/GoogleTrendsMap";
+import GoogleTrendsMap, {
+  MapColorMode,
+} from "../../../components/GoogleTrendsMap";
 
 // max # of trends per region, total
 const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
@@ -115,6 +117,9 @@ export default function GoogleRealtime() {
   const [snackbarText, setSnackbarText] = useState<string>("");
   const [tooltipContent, setTooltipContent] = useState<string>("");
   // stateful data
+  const [mapColorMode, setMapColorMode] = useState<MapColorMode>(
+    MapColorMode.All
+  );
   const [maxNumTrendsToShow, setMaxNumTrendsToShow] = useState<number>(
     DEFAULT_NUM_TRENDS_TO_SHOW
   );
@@ -376,6 +381,18 @@ export default function GoogleRealtime() {
   };
 
   /**
+   * If checked, map color mode is "All", otherwise it is "One"
+   * @param event
+   */
+  const toggleMapColorMode = (event) => {
+    if (event.target.checked) {
+      setMapColorMode(MapColorMode.All);
+    } else {
+      setMapColorMode(MapColorMode.One);
+    }
+  };
+
+  /**
    * Handles click event for deleting a list from the regions' trends list
    * @param e
    * @param selectedRegion
@@ -411,19 +428,27 @@ export default function GoogleRealtime() {
   ) => {
     const newValue: number =
       event.target.value === "" ? 1 : Number(event.target.value);
-    // the slider is 1 indexed
+
+    /**
+     * Cases:
+     * - newValue > MAX
+     * - newValue > googleTrends.length
+     * - 0 < newValue < googleTrends.length < MAX
+     * - newValue < 0
+     */
     if (newValue - 1 < 0) {
       setTrendNumberToShow(0);
-    } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
-      setTrendNumberToShow(MAX_NUM_GOOGLE_REGION_TRENDS);
-    } else if (
-      googleTrends &&
-      googleTrends.length > 0 &&
-      newValue > googleTrends.length
-    ) {
-      setTrendNumberToShow(googleTrends.length - 1);
+    } else if (googleTrends && googleTrends.length > 0) {
+      if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
+        setTrendNumberToShow(googleTrends.length - 1);
+      } else if (
+        newValue < MAX_NUM_GOOGLE_REGION_TRENDS &&
+        newValue < googleTrends.length
+      ) {
+        setTrendNumberToShow(newValue - 1);
+      }
     } else {
-      setTrendNumberToShow(newValue - 1);
+      // do nothing
     }
   };
 
@@ -435,7 +460,9 @@ export default function GoogleRealtime() {
   return (
     <Layout>
       <Head>
-        <title>Google Realtime Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
+        <title>
+          Google Realtime Trends | {process.env.NEXT_PUBLIC_APP_NAME}
+        </title>
       </Head>
       <GoogleRealtimeTrendArticleDialog
         selectedTrend={selectedTrend}
@@ -518,6 +545,29 @@ export default function GoogleRealtime() {
                 </Tooltip>
               </Grid>
               <Grid item xs>
+                {googleTrends && googleTrends.length ? (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={
+                          mapColorMode === MapColorMode.All ? true : false
+                        }
+                        onChange={toggleMapColorMode}
+                      />
+                    }
+                    label={`${
+                      mapColorMode === MapColorMode.All
+                        ? `Color #${
+                            trendNumberToShow + 1
+                          } trends in each region`
+                        : `Showing popularity of #${
+                            trendNumberToShow + 1
+                          } trend in the country (${
+                            googleTrends[trendNumberToShow].title
+                          })`
+                    }`}
+                  />
+                ) : null}
                 <TextField
                   defaultValue={1}
                   id="standard-number"
@@ -548,7 +598,9 @@ export default function GoogleRealtime() {
                 googleRegionTrends={
                   googleRegionTrends ? googleRegionTrends : []
                 }
+                mapColorMode={mapColorMode}
                 trendNumberToShow={trendNumberToShow}
+                countryTrendName={googleTrends[trendNumberToShow].title}
               />
             </div>
           </div>

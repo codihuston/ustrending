@@ -48,7 +48,7 @@ import RegionSelect from "../../../components/RegionSelect";
 import GoogleTrendsTableContainer, {
   RowProps,
 } from "../../../components/containers/GoogleTrendsTableContainer";
-import GoogleTrendsMap from "../../../components/GoogleTrendsMap";
+import GoogleTrendsMap, { MapColorMode } from "../../../components/GoogleTrendsMap";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
@@ -110,6 +110,10 @@ export default function GoogleDaily() {
   const [snackbarText, setSnackbarText] = useState<string>("");
   const [tooltipContent, setTooltipContent] = useState<string>("");
   // stateful data
+  MapColorMode;
+  const [mapColorMode, setMapColorMode] = useState<MapColorMode>(
+    MapColorMode.All
+  );
   const [maxNumTrendsToShow, setMaxNumTrendsToShow] = useState<number>(
     DEFAULT_NUM_TRENDS_TO_SHOW
   );
@@ -118,7 +122,6 @@ export default function GoogleDaily() {
   >([]);
   const [selectedTrend, setSelectedTrend] = useState<string>("");
   const [trendNumberToShow, setTrendNumberToShow] = useState<number>(0);
-
   // data
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
   const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
@@ -361,6 +364,18 @@ export default function GoogleDaily() {
   };
 
   /**
+   * If checked, map color mode is "All", otherwise it is "One"
+   * @param event
+   */
+  const toggleMapColorMode = (event) => {
+    if (event.target.checked) {
+      setMapColorMode(MapColorMode.All);
+    } else {
+      setMapColorMode(MapColorMode.One);
+    }
+  };
+
+  /**
    * Handles click event for deleting a list from the regions' trends list
    * @param e
    * @param selectedRegion
@@ -503,6 +518,27 @@ export default function GoogleDaily() {
                 </Tooltip>
               </Grid>
               <Grid item xs>
+                {googleTrends && googleTrends.length ? (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={
+                          mapColorMode === MapColorMode.All ? true : false
+                        }
+                        onChange={toggleMapColorMode}
+                      />
+                    }
+                    label={`${
+                      mapColorMode === MapColorMode.All
+                        ? `Color #${
+                            trendNumberToShow + 1
+                          } trends in each region`
+                        : `Showing popularity of #${
+                          trendNumberToShow + 1
+                        } trend in the country (${googleTrends[trendNumberToShow].title.query})`
+                    }`}
+                  />
+                ) : null}
                 <TextField
                   defaultValue={1}
                   id="standard-number"
@@ -533,7 +569,9 @@ export default function GoogleDaily() {
                 googleRegionTrends={
                   googleRegionTrends ? googleRegionTrends : []
                 }
+                mapColorMode={mapColorMode}
                 trendNumberToShow={trendNumberToShow}
+                countryTrendName={googleTrends[trendNumberToShow].title.query}
               />
             </div>
           </div>
