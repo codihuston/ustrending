@@ -551,6 +551,9 @@ export default function GoogleRealtime() {
             </div>
           </div>
           <h3>Trending in the United States</h3>
+          <Typography>
+            Click on a trend to view related news articles.
+          </Typography>
           <Grid
             container
             spacing={2}
@@ -609,37 +612,44 @@ export default function GoogleRealtime() {
           <h4 id={"selectedRegions"} ref={ref}>
             Trending in Your Selected Region(s)
           </h4>
-          <Toolbar>
-            <Grid
-              container
-              spacing={2}
-              alignItems="center"
-              className={classes.mapContainer}
-            >
-              <Grid item xs={12} md={4}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={isWithColors}
-                      onChange={toggleListColors}
+          {selectedRegions && selectedRegions.length > 0 ? (
+            <>
+              <Typography>
+                Click on a trend to view related news articles.
+              </Typography>
+              <Toolbar>
+                <Grid
+                  container
+                  spacing={2}
+                  alignItems="center"
+                  className={classes.mapContainer}
+                >
+                  <Grid item xs={12} md={4}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={isWithColors}
+                          onChange={toggleListColors}
+                        />
+                      }
+                      label={`Show colors`}
                     />
-                  }
-                  label={`Show colors`}
-                />
-              </Grid>
-              <Grid item xs={12} md={8}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={isAlphabetical}
-                      onChange={toggleListSort}
+                  </Grid>
+                  <Grid item xs={12} md={8}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={isAlphabetical}
+                          onChange={toggleListSort}
+                        />
+                      }
+                      label={`Sort regions alphabetically`}
                     />
-                  }
-                  label={`Sort regions alphabetically`}
-                />
-              </Grid>
-            </Grid>
-          </Toolbar>
+                  </Grid>
+                </Grid>
+              </Toolbar>
+            </>
+          ) : null}
           <GoogleTrendsByRegionList
             handleClick={handleListDelete}
             handleTrendClick={debouncedHandleTrendClick}
