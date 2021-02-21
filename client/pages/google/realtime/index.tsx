@@ -610,12 +610,35 @@ export default function GoogleRealtime() {
             Trending in Your Selected Region(s)
           </h4>
           <Toolbar>
-            <FormControlLabel
-              control={
-                <Switch checked={isAlphabetical} onChange={toggleListSort} />
-              }
-              label={`Sort regions alphabetically`}
-            />
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              className={classes.mapContainer}
+            >
+              <Grid item xs={12} md={4}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isWithColors}
+                      onChange={toggleListColors}
+                    />
+                  }
+                  label={`Show colors`}
+                />
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isAlphabetical}
+                      onChange={toggleListSort}
+                    />
+                  }
+                  label={`Sort regions alphabetically`}
+                />
+              </Grid>
+            </Grid>
           </Toolbar>
           <GoogleTrendsByRegionList
             handleClick={handleListDelete}

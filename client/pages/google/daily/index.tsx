@@ -595,12 +595,35 @@ export default function GoogleDaily() {
             Trending in Your Selected Region(s)
           </h3>
           <Toolbar>
-            <FormControlLabel
-              control={
-                <Switch checked={isAlphabetical} onChange={toggleListSort} />
-              }
-              label={`Sort regions alphabetically`}
-            />
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              className={classes.mapContainer}
+            >
+              <Grid item xs={12} md={4}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isWithColors}
+                      onChange={toggleListColors}
+                    />
+                  }
+                  label={`Show colors`}
+                />
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isAlphabetical}
+                      onChange={toggleListSort}
+                    />
+                  }
+                  label={`Sort regions alphabetically`}
+                />
+              </Grid>
+            </Grid>
           </Toolbar>
           <GoogleTrendsByRegionList
             googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
@@ -619,55 +642,60 @@ export default function GoogleDaily() {
             Below lists all of the trends for each region in a sortable,
             filterable fashion.
           </Typography>
-          <Grid
-            container
-            spacing={2}
-            alignItems="center"
-            className={classes.mapContainer}
-          >
-            <Grid item xs={12} md={3}>
-              <Typography id="discrete-slider" gutterBottom>
-                Number of Trends ({maxNumTrendsToShow}/
-                {googleTrends &&
-                googleTrends.length &&
-                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                  ? googleTrends.length
-                  : MAX_NUM_GOOGLE_REGION_TRENDS}
-                )
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Slider
-                aria-labelledby="discrete-slider"
-                defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
-                marks
-                max={
-                  googleTrends &&
+          <Toolbar>
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              className={classes.mapContainer}
+            >
+              <Grid item xs={12} md={3}>
+                <Typography id="discrete-slider" gutterBottom>
+                  Number of Trends ({maxNumTrendsToShow}/
+                  {googleTrends &&
                   googleTrends.length &&
                   googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
                     ? googleTrends.length
-                    : MAX_NUM_GOOGLE_REGION_TRENDS
-                }
-                min={1}
-                onChange={debouncedHandleSliderChangeNumTrendsToShow}
-                step={1}
-                valueLabelDisplay="auto"
-                value={
-                  typeof maxNumTrendsToShow === "number"
-                    ? maxNumTrendsToShow
-                    : 0
-                }
-              />
+                    : MAX_NUM_GOOGLE_REGION_TRENDS}
+                  )
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <Slider
+                  aria-labelledby="discrete-slider"
+                  defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
+                  marks
+                  max={
+                    googleTrends &&
+                    googleTrends.length &&
+                    googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                      ? googleTrends.length
+                      : MAX_NUM_GOOGLE_REGION_TRENDS
+                  }
+                  min={1}
+                  onChange={debouncedHandleSliderChangeNumTrendsToShow}
+                  step={1}
+                  valueLabelDisplay="auto"
+                  value={
+                    typeof maxNumTrendsToShow === "number"
+                      ? maxNumTrendsToShow
+                      : 0
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isWithColors}
+                      onChange={toggleListColors}
+                    />
+                  }
+                  label={`Show colors`}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Switch checked={isWithColors} onChange={toggleListColors} />
-                }
-                label={`Show colors`}
-              />
-            </Grid>
-          </Grid>
+          </Toolbar>
           {googleTrends && googleRegionTrends ? (
             <GoogleTrendsTableContainer
               handleTrendClick={handleTrendClick}
