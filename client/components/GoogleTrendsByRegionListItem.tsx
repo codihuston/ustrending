@@ -17,6 +17,9 @@ import { getListPositionChange, getSelectedRegionOption } from "../lib";
 import PositionChangeIndicator from "./PositionChangeIndicator";
 
 const useStyles = makeStyles((theme: Theme) => ({
+  positionInidicator: {
+    minWidth: "3rem"
+  },
   root: {},
   topRight: { position: "absolute", top: 0, right: 0 },
   trendingRank: {
@@ -28,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     textOverflow: "ellipsis",
     overflow: "hidden",
     whiteSpace: "nowrap",
-  },
+  }
 }));
 
 type Props = {
@@ -151,7 +154,7 @@ export default function GoogleTrendsByRegionListItem({
                   </Box>
                 </ListItemText>
               </Box>
-              <Box>
+              <Box className={classes.positionInidicator}>
                 <ListItemText>
                   <PositionChangeIndicator index={positionChange} />
                 </ListItemText>

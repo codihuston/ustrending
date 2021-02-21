@@ -13,14 +13,11 @@ import {
 } from "react-table";
 import {
   Box,
-  FormControlLabel,
   makeStyles,
   Table,
-  Switch,
   TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHead,
   TablePagination,
   TableRow,
@@ -31,7 +28,6 @@ import TablePaginationActions from "./TablePaginationActions";
 
 import { getListPositionChange } from "../lib";
 import { useDebouncedCallback } from "../hooks";
-import TableToolbar from "./TableToolbar";
 import PositionChangeIndicator from "./PositionChangeIndicator";
 function fuzzyTextFilterFn(rows: Row[], id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
@@ -95,6 +91,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     width: "100vh",
   },
+  positionInidicator: {
+    minWidth: "3rem"
+  }
 }));
 
 interface Props<T extends Record<string, unknown>> extends TableOptions<T> {
@@ -274,7 +273,7 @@ export default function GoogleTrendsTable<T extends Record<string, unknown>>(
                         </div>
                         {/* do not show indicators on the first column (region name) */}
                         {j === 0 ? null : (
-                          <div>
+                          <div className={classes.positionInidicator}>
                             <PositionChangeIndicator index={positionChange} />
                           </div>
                         )}
