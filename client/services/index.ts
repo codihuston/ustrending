@@ -16,8 +16,8 @@ import axios from "axios";
  */
 const baseURL =
   typeof window === "undefined"
-    ? "http://public-api-cluster-ip-service:3000"
-    : "http://localhost:8080/api";
+    ? process.env.API_URI
+    : process.env.NEXT_PUBLIC_API_URI;
 
 export const http = axios.create({
   baseURL,
