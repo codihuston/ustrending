@@ -419,7 +419,9 @@ export default function GoogleDaily() {
 
   return (
     <Layout>
-      <Head>Google Daily Trends</Head>
+      <Head>
+        <title>Google Daily Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
+      </Head>
       <GoogleDailyTrendArticleDialog
         selectedTrend={selectedTrend}
         relatedArticles={relatedArticles}

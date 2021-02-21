@@ -434,7 +434,9 @@ export default function GoogleRealtime() {
 
   return (
     <Layout>
-      <Head>Google Realtime Trends</Head>
+      <Head>
+        <title>Google Realtime Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
+      </Head>
       <GoogleRealtimeTrendArticleDialog
         selectedTrend={selectedTrend}
         relatedArticles={relatedArticles}
