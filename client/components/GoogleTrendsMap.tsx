@@ -10,8 +10,8 @@ import {
   AnnotationProps,
 } from "react-simple-maps";
 import debugLib from "debug";
-import invert from "invert-color";
-import { fade } from "@material-ui/core";
+import invert, { HexColor, RgbArray } from "invert-color";
+import { fade, decomposeColor } from "@material-ui/core";
 
 // TODO: modularize this by country?
 import allStates from "../data/regions.json";
@@ -219,20 +219,22 @@ const GoogleTrendsMap = ({
       return defaultColor;
     }
 
-    // in "one" mode
-    // TODO: clean this up
+    // if coloring only ONE trend for the entire country
     if (mapColorMode === MapColorMode.One) {
       // get the color of the trend of interest
       color = colorMap.get(countryTrendName);
       // find its popularity rank for this region
       const rank = getTrendAtRankForRegion(name);
-      // calculate the opacity
-      const val = Number(Math.abs(rank / googleRegionTrends.length - 1).toFixed(2));
+      // calculate the opacity (more popular = darker)
+      const val = Number(
+        Math.abs(rank / googleRegionTrends.length - 1).toFixed(2)
+      );
       // change the color's opacity accordingly
       color = fade(color ? color : defaultColor, val);
-      console.log("Get trend color for:", countryTrendName, rank, val, color);
-    } else {
-      // get the #1 topic for this region
+    }
+    // otherwise, we are coloring ALL trends
+    else {
+      //get the #1 topic for this region
       const topicName = getRegionTrendNameAt(trendNumberToShow, region);
 
       // style this region with the color for this #1 topic
@@ -256,29 +258,81 @@ const GoogleTrendsMap = ({
   }
 
   /**
+   * Takes a given color string (#FFFFFF, rgb(...), rgba(...)), and converts it into a hex.
+   * Optionally inverts the resulting color according to the invert-color library. You may
+   * specify a default color to fall back onto, if the given string is not hex/rgb/rgba.
+   *
+   * @param color
+   * @param shouldInvert
+   * @param defaultColor
+   */
+  function getColorAsHex(
+    color: string,
+    shouldInvert: boolean,
+    defaultColor: string
+  ): string {
+    let result: HexColor | RgbArray;
+    const white = "#FFFFFF";
+
+    // if color is rbg an string
+    if (color && color.toLowerCase().startsWith("rgb")) {
+      // process into acceptable input for invert()
+      const values = decomposeColor(color);
+      const rgb: RgbArray = [
+        values.values[0],
+        values.values[1],
+        values.values[2],
+      ];
+      result = rgb;
+    }
+    // otherwise, color is a hex value
+    else if (color && color.toLowerCase().startsWith("#")) {
+      result = color;
+    }
+    // otherwise it is an undefined color value
+    else {
+      // use given default color
+      if (defaultColor) {
+        result = defaultColor;
+      }
+      // default to white if no default given
+      else {
+        result = white;
+      }
+    }
+    return invert(result, shouldInvert);
+  }
+
+  /**
    * Renders an HTML string to be used for the tooltip content
    * @param name
    */
   function getTooltipContent(name: string) {
     const region = getRegionByGeoName(name);
+    // deterime bg color
+    const backgroundColor = getTrendingTopicColorByRegion(
+      name,
+      defaultRegionStyle.default.fill
+    );
+    const color = getColorAsHex(backgroundColor, true, null);
 
     if (region) {
+      // the rank of this trend, defaults to the prop value when showing ALL trends on the map
       let rank = trendNumberToShow;
-      // get the #1 topic for this region
-      let topicName = getRegionTrendNameAt(trendNumberToShow, region);
-      // style it
-      const backgroundColor = getTrendingTopicColorByRegion(
-        name,
-        defaultRegionStyle.default.fill
-      );
-      // TODO: re-implement me
-      // const color = invert(backgroundColor, true);
-      const color = "#FFFFFF";
+      // get trend name, given its rank and region
+      let topicName: string;
 
-      // TODO: clean this up
+      // if we are showing ONE trend on the map
       if (mapColorMode === MapColorMode.One) {
+        // re-calibrate the rank based on the trend name for this region
         rank = getTrendAtRankForRegion(name);
+        // use the topic name passed in as props, rather than the trend
         topicName = countryTrendName;
+      }
+      // otherwise, we are showing ALL trends on the map
+      else {
+        // get the name of the trend for this region at the given rank
+        topicName = getRegionTrendNameAt(trendNumberToShow, region);
       }
 
       if (topicName) {
@@ -374,14 +428,14 @@ const GoogleTrendsMap = ({
                           <Marker coordinates={centroid} style={labelStyle}>
                             <text
                               x={5}
-                              // TODO: re-implement me
-                              // fill={invert(
-                              //   getTrendingTopicColorByRegion(
-                              //     geo?.properties?.name,
-                              //     defaultRegionStyle.default.fill
-                              //   ),
-                              //   true
-                              // )}
+                              fill={getColorAsHex(
+                                getTrendingTopicColorByRegion(
+                                  geo?.properties?.name,
+                                  defaultRegionStyle.default.fill
+                                ),
+                                true,
+                                null
+                              )}
                               fontSize={tooltipFontSize}
                               textAnchor="middle"
                               onClick={(event) =>
