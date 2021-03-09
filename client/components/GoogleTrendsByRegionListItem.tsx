@@ -7,7 +7,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import { FaGoogle } from "react-icons/fa";
 
 import {
   GoogleRegionTrend,
@@ -38,8 +37,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 type Props = {
   colorMap: Map<string, string>;
   region: GoogleRegionTrend;
-  googleTrendsUrl: string;
-  googleTrendsUrlQueryToken: string;
   handleClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<SelectStringOptionType, true>
@@ -59,8 +56,6 @@ export default function GoogleTrendsByRegionListItem({
   colorMap,
   handleClick,
   handleTrendClick,
-  googleTrendsUrl,
-  googleTrendsUrlQueryToken,
   maxNumTrendsToShow,
   region,
   selectedRegions,
@@ -156,24 +151,6 @@ export default function GoogleTrendsByRegionListItem({
                   ) => handleTrendClick(event, trend.topic)}
                 >
                   <Box className={classes.trendingName}>{trend.topic}</Box>
-                </ListItemText>
-              </Box>
-
-              <Box
-                title={`Click to view "${trend.topic}" on Google Trends`}
-                alignSelf="baseline"
-                ml={2}
-                mr={2}
-              >
-                <ListItemText>
-                  <a
-                    href={googleTrendsUrl.replace(
-                      googleTrendsUrlQueryToken,
-                      trend.topic
-                    )}
-                  >
-                    <FaGoogle />
-                  </a>
                 </ListItemText>
               </Box>
               <Box className={classes.positionInidicator}>

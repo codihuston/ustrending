@@ -48,7 +48,9 @@ import RegionSelect from "../../../components/RegionSelect";
 import GoogleTrendsTableContainer, {
   RowProps,
 } from "../../../components/containers/GoogleTrendsTableContainer";
-import GoogleTrendsMap, { MapColorMode } from "../../../components/GoogleTrendsMap";
+import GoogleTrendsMap, {
+  MapColorMode,
+} from "../../../components/GoogleTrendsMap";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
@@ -440,9 +442,11 @@ export default function GoogleDaily() {
         <title>Google Daily Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
       </Head>
       <GoogleDailyTrendArticleDialog
-        selectedTrend={selectedTrend}
-        relatedArticles={relatedArticles}
+        googleTrendsUrl={googleTrendsUrl}
+        googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
         handleCloseDialog={handleCloseDialog}
+        relatedArticles={relatedArticles}
+        selectedTrend={selectedTrend}
       ></GoogleDailyTrendArticleDialog>
       <Snackbar
         anchorOrigin={{
@@ -536,8 +540,10 @@ export default function GoogleDaily() {
                             trendNumberToShow + 1
                           } trends in each region`
                         : `Showing popularity of #${
-                          trendNumberToShow + 1
-                        } trend in the country (${googleTrends[trendNumberToShow].title.query})`
+                            trendNumberToShow + 1
+                          } trend in the country (${
+                            googleTrends[trendNumberToShow].title.query
+                          })`
                     }`}
                   />
                 ) : null}
@@ -628,8 +634,6 @@ export default function GoogleDaily() {
             </Grid>
           </Grid>
           <GoogleTrendsList
-            googleTrendsUrl={googleTrendsUrl}
-            googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
             googleTrendNames={googleTrendsNames}
             colorMap={colorMap}
             withColor={isWithColors}
@@ -678,8 +682,6 @@ export default function GoogleDaily() {
           ) : null}
           <GoogleTrendsByRegionList
             googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
-            googleTrendsUrl={googleTrendsUrl}
-            googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
             handleClick={handleListDelete}
             handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}

@@ -89,6 +89,8 @@ export async function getServerSideProps() {
 }
 
 export default function GoogleRealtime() {
+  const googleTrendsUrlQueryToken = "QUERY";
+  const googleTrendsUrl = `https://trends.google.com/trends/explore?q=${googleTrendsUrlQueryToken}&date=now%201-d&geo=US`;
   const classes = useStyles();
   const ref = useRef(null);
   const hasDuplicates = false;
@@ -465,6 +467,8 @@ export default function GoogleRealtime() {
         </title>
       </Head>
       <GoogleRealtimeTrendArticleDialog
+        googleTrendsUrl={googleTrendsUrl}
+        googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
         selectedTrend={selectedTrend}
         relatedArticles={relatedArticles}
         handleCloseDialog={handleCloseDialog}

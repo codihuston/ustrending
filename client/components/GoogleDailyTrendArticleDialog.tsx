@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { TransitionProps } from "@material-ui/core/transitions";
 import { makeStyles } from "@material-ui/core/styles";
+import { Alert } from "@material-ui/lab";
 import {
   AppBar,
   Box,
@@ -8,6 +9,7 @@ import {
   Dialog,
   Divider,
   IconButton,
+  Link,
   List,
   ListItem,
   ListItemText,
@@ -37,22 +39,31 @@ const Transition = React.forwardRef<unknown, TransitionProps>(
 );
 
 type Props = {
-  relatedArticles: GoogleDailyTrendArticle[];
-  selectedTrend: string;
+  googleTrendsUrl: string;
+  googleTrendsUrlQueryToken: string;
   handleCloseDialog();
+  selectedTrend: string;
+  relatedArticles: GoogleDailyTrendArticle[];
 };
 
 export default function GoogleDailyTrendArticleDialog({
-  relatedArticles,
+  googleTrendsUrl,
+  googleTrendsUrlQueryToken,
   handleCloseDialog,
   selectedTrend,
+  relatedArticles,
 }: Props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(selectedTrend ? true : false);
 
   useEffect(() => {
     setOpen(selectedTrend ? true : false);
-  }, [relatedArticles, selectedTrend]);
+  }, [
+    relatedArticles,
+    selectedTrend,
+    googleTrendsUrl,
+    googleTrendsUrlQueryToken,
+  ]);
 
   const handleClose = () => {
     setOpen(false);
@@ -97,12 +108,22 @@ export default function GoogleDailyTrendArticleDialog({
             </Button>
           </Toolbar>
         </AppBar>
+        <Alert severity="info">
+          All trend and article data are sourced from{" "}
+          <Link href="https://trends.google.com/">Google Trends</Link>.
+        </Alert>
         <List>
-          <ListItem key={"attribution"}>
+          <ListItem key={"trend-attribution"}>
             <ListItemText>
               <Box textAlign="center">
-                Articles are sourced from{" "}
-                <a href="https://trends.google.com/">Google Trends</a>
+                <Link
+                  href={googleTrendsUrl.replace(
+                    googleTrendsUrlQueryToken,
+                    selectedTrend
+                  )}
+                >
+                  {`Click here to view "${selectedTrend}" on Google Trends`}
+                </Link>
               </Box>
             </ListItemText>
           </ListItem>
