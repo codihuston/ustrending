@@ -1,4 +1,5 @@
 import invert from "invert-color";
+import { FaGoogle } from "react-icons/fa";
 import {
   Box,
   Divider,
@@ -12,6 +13,9 @@ import {
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
+  list: {
+    minWidth: "20rem",
+  },
   trendingRank: {
     borderRadius: "2px",
     textAlign: "center",
@@ -26,6 +30,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 type Props = {
+  googleTrendsUrl: string;
+  googleTrendsUrlQueryToken: string;
   googleTrendNames: string[];
   handleTrendClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -37,6 +43,8 @@ type Props = {
 
 export default function GoogleTrendsList({
   colorMap,
+  googleTrendsUrl,
+  googleTrendsUrlQueryToken,
   googleTrendNames,
   handleTrendClick,
   withColor,
@@ -56,7 +64,7 @@ export default function GoogleTrendsList({
         alignItems="center"
         spacing={3}
       >
-        <List>
+        <List className={classes.list}>
           <ListItem>
             <ListItemText>
               <Box textAlign="center">United States</Box>
@@ -101,9 +109,16 @@ export default function GoogleTrendsList({
                         event: React.MouseEvent<HTMLDivElement, MouseEvent>
                       ) => handleTrendClick(event, trend)}
                     >
-                      <Box className={classes.trendingName} title={trend}>
+                      <Box className={classes.trendingName} title={`Click to view news about "${trend}"`}>
                         {trend}
                       </Box>
+                    </ListItemText>
+                  </Box>
+                  <Box title={`Click to view "${trend}" on Google Trends`} alignSelf="baseline">
+                    <ListItemText>
+                      <a href={googleTrendsUrl.replace(googleTrendsUrlQueryToken, trend)}>
+                        <FaGoogle />
+                      </a>
                     </ListItemText>
                   </Box>
                 </Box>

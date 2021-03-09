@@ -7,6 +7,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+import { FaGoogle } from "react-icons/fa";
 
 import {
   GoogleRegionTrend,
@@ -18,7 +19,7 @@ import PositionChangeIndicator from "./PositionChangeIndicator";
 
 const useStyles = makeStyles((theme: Theme) => ({
   positionInidicator: {
-    minWidth: "3rem"
+    minWidth: "3rem",
   },
   root: {},
   topRight: { position: "absolute", top: 0, right: 0 },
@@ -31,12 +32,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     textOverflow: "ellipsis",
     overflow: "hidden",
     whiteSpace: "nowrap",
-  }
+  },
 }));
 
 type Props = {
   colorMap: Map<string, string>;
   region: GoogleRegionTrend;
+  googleTrendsUrl: string;
+  googleTrendsUrlQueryToken: string;
   handleClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<SelectStringOptionType, true>
@@ -56,6 +59,8 @@ export default function GoogleTrendsByRegionListItem({
   colorMap,
   handleClick,
   handleTrendClick,
+  googleTrendsUrl,
+  googleTrendsUrlQueryToken,
   maxNumTrendsToShow,
   region,
   selectedRegions,
@@ -145,13 +150,30 @@ export default function GoogleTrendsByRegionListItem({
               )}
               <Box ml={2} flexGrow={1}>
                 <ListItemText
+                  title={`Click to view news about "${trend.topic}"`}
                   onClick={(
                     event: React.MouseEvent<HTMLDivElement, MouseEvent>
                   ) => handleTrendClick(event, trend.topic)}
                 >
-                  <Box className={classes.trendingName} title={trend.topic}>
-                    {trend.topic}
-                  </Box>
+                  <Box className={classes.trendingName}>{trend.topic}</Box>
+                </ListItemText>
+              </Box>
+
+              <Box
+                title={`Click to view "${trend.topic}" on Google Trends`}
+                alignSelf="baseline"
+                ml={2}
+                mr={2}
+              >
+                <ListItemText>
+                  <a
+                    href={googleTrendsUrl.replace(
+                      googleTrendsUrlQueryToken,
+                      trend.topic
+                    )}
+                  >
+                    <FaGoogle />
+                  </a>
                 </ListItemText>
               </Box>
               <Box className={classes.positionInidicator}>

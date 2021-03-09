@@ -10,6 +10,8 @@ import GoogleTrendsByRegionListItem from "./GoogleTrendsByRegionListItem";
 type Props = {
   colorMap: Map<string, string>;
   googleRegionTrends: GoogleRegionTrend[];
+  googleTrendsUrl: string;
+  googleTrendsUrlQueryToken: string;
   handleClick(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<SelectStringOptionType, true>
@@ -29,6 +31,8 @@ type Props = {
 export default function GoogleTrendsByRegionList({
   colorMap,
   googleRegionTrends,
+  googleTrendsUrl,
+  googleTrendsUrlQueryToken,
   handleClick,
   handleTrendClick,
   isAlphabetical,
@@ -89,6 +93,8 @@ export default function GoogleTrendsByRegionList({
                 colorMap={colorMap}
                 handleClick={handleClick}
                 handleTrendClick={handleTrendClick}
+                googleTrendsUrl={googleTrendsUrl}
+                googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
                 maxNumTrendsToShow={maxNumTrendsToShow}
                 region={region}
                 selectedRegions={selectedRegions}

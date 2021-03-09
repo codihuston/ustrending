@@ -81,6 +81,8 @@ export async function getServerSideProps() {
 }
 
 export default function GoogleDaily() {
+  const googleTrendsUrlQueryToken = "QUERY";
+  const googleTrendsUrl = `https://trends.google.com/trends/explore?q=${googleTrendsUrlQueryToken}&date=now%201-d&geo=US`;
   const classes = useStyles();
   const ref = useRef(null);
   // overridden by maxNumTrendsToShow
@@ -626,6 +628,8 @@ export default function GoogleDaily() {
             </Grid>
           </Grid>
           <GoogleTrendsList
+            googleTrendsUrl={googleTrendsUrl}
+            googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
             googleTrendNames={googleTrendsNames}
             colorMap={colorMap}
             withColor={isWithColors}
@@ -674,6 +678,8 @@ export default function GoogleDaily() {
           ) : null}
           <GoogleTrendsByRegionList
             googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
+            googleTrendsUrl={googleTrendsUrl}
+            googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
             handleClick={handleListDelete}
             handleTrendClick={handleTrendClick}
             isAlphabetical={isAlphabetical}
