@@ -25,6 +25,9 @@ spec:
           ports:
             - containerPort: 3000
           env:
+            # google config
+            - name: DEFAULT_MAX_GOOGLE_DAILY_TRENDS
+              value: "50"
             # redis config
             - name: REDIS_HOST
               value: redis-cluster-ip-service
@@ -45,3 +48,14 @@ spec:
               value: ""
             - name: MONGO_DB
               value: ustrending
+            # twitter api config
+            - name: TWITTER_API_KEY
+              value: ""
+            - name: TWITTER_API_SECRET_KEY
+              value: ""
+            - name: TWITTER_API_BEARER_TOKEN
+              value: ""
+            - name: TWITTER_API_ACCESS_TOKEN
+              value: ""
+            - name: TWITTER_API_ACCESS_TOKEN_SECRET
+              value: ""

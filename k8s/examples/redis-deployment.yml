@@ -17,10 +17,10 @@ spec:
           image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-redis
           resources:
             requests:
-              memory: "24Mi"
+              memory: "48Mi"
               cpu: "0.1"
             limits:
-              memory: "24Mi"
+              memory: "48Mi"
               cpu: "0.1"
           ports:
             - containerPort: 6379

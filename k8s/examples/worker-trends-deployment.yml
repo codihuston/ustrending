@@ -25,8 +25,25 @@ spec:
           ports:
             - containerPort: 3000
           env:
+            # google config
+            - name: IS_GOOGLE_ENABLED
+              value: "1"
+            - name: MAX_GOOGLE_REALTIME_TRENDS
+              value: "50"
+            # twitter config
+            - name: IS_TWITTER_ENABLED
+              value: "1"
             # redis config
             - name: TRENDS_API_HOST
               value: trends-api-cluster-ip-service
             - name: TRENDS_API_PORT
               value: "3000"
+            # redis config
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_RECONNECT_ATTEMPTS
+              value: "10"

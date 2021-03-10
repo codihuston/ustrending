@@ -28,3 +28,12 @@ spec:
             # build config
             - name: CI
               value: "true"
+            - name: NEXT_PUBLIC_APP_NAME
+              value: "US Trending"
+            # used on the server-side
+            - name: API_URI
+              value: "http://public-api-cluster-ip-service:3000"
+            # used on the client-side
+            - name: NEXT_PUBLIC_API_URI
+              value: "http://localhost:8080/api"
+
