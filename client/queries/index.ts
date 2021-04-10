@@ -1,28 +1,32 @@
 import { http } from "../services";
 
-import { GoogleDailyTrend, GoogleRealtimeTrend, GoogleRegionTrend } from "../types";
+import {
+  GoogleDailyTrend,
+  GoogleRealtimeTrend,
+  GoogleRegionTrend,
+} from "../types";
 
 export async function fetchGoogleDailyTrends() {
-  try{
+  try {
     const { data } = await http.get<GoogleDailyTrend[]>("/google/trends/daily");
     return data;
-  }
-  catch(e){
+  } catch (e) {
     console.error(e);
+  }
     return [];
   }
-}
 
 export async function fetchGoogleDailyTrendsByState() {
-  try{
-    const { data } = await http.get<GoogleRegionTrend[]>("/google/trends/daily/states");
+  try {
+    const { data } = await http.get<GoogleRegionTrend[]>(
+      "/google/trends/daily/states"
+    );
     return data;
-  }
-  catch(e){
+  } catch (e) {
     console.error(e);
+  }
     return [];
   }
-}
 
 /**
  * TODO: remove duplicates?
@@ -34,10 +38,10 @@ export async function fetchGoogleRealtimeTrends(
   hasDuplicates: boolean,
   maxNumTrends: number
 ) {
+  try {
   const { data } = await http.get<GoogleRealtimeTrend[]>(
     "/google/trends/realtime"
   );
-
   /**
    * Removes duplicate trending items (based on the title)
    * @param items
@@ -78,9 +82,14 @@ export async function fetchGoogleRealtimeTrends(
     return hasDuplicates ? temp : removeDuplicates(temp);
   }
   return hasDuplicates ? data : removeDuplicates(data);
+  } catch (e) {
+    console.error(e);
+  }
+  return [];
 }
 
 export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
+  try {
   const { data } = await http.get("/google/trends/realtime/states");
 
   /**
@@ -106,6 +115,10 @@ export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
   };
 
   return hasDuplicates ? data : removeDuplicates(data);
+  } catch (e) {
+    console.error(e);
+  }
+  return [];
 }
 
 export async function fetchTwitterRealtimeTrends() {
