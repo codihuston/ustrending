@@ -13,8 +13,8 @@ export async function fetchGoogleDailyTrends() {
   } catch (e) {
     console.error(e);
   }
-    return [];
-  }
+  return [];
+}
 
 export async function fetchGoogleDailyTrendsByState() {
   try {
@@ -25,8 +25,8 @@ export async function fetchGoogleDailyTrendsByState() {
   } catch (e) {
     console.error(e);
   }
-    return [];
-  }
+  return [];
+}
 
 /**
  * TODO: remove duplicates?
@@ -39,49 +39,49 @@ export async function fetchGoogleRealtimeTrends(
   maxNumTrends: number
 ) {
   try {
-  const { data } = await http.get<GoogleRealtimeTrend[]>(
-    "/google/trends/realtime"
-  );
-  /**
-   * Removes duplicate trending items (based on the title)
-   * @param items
-   */
-  const removeDuplicates = (
-    items: GoogleRealtimeTrend[]
-  ): GoogleRealtimeTrend[] => {
-    const cache = new Map<string, boolean>();
-    let result: GoogleRealtimeTrend[] = [];
+    const { data } = await http.get<GoogleRealtimeTrend[]>(
+      "/google/trends/realtime"
+    );
+    /**
+     * Removes duplicate trending items (based on the title)
+     * @param items
+     */
+    const removeDuplicates = (
+      items: GoogleRealtimeTrend[]
+    ): GoogleRealtimeTrend[] => {
+      const cache = new Map<string, boolean>();
+      let result: GoogleRealtimeTrend[] = [];
 
-    for (const item of items) {
-      if (!cache.get(item.title)) {
-        result = result.concat(item);
-      }
-      cache.set(item.title, true);
-    }
-    return result;
-  };
-
-  // expand list based on comma-delimited trending topics
-  if (expand) {
-    let temp: GoogleRealtimeTrend[] = [];
-    for (const trend of data) {
-      const titles = trend.title.split(",");
-      for (const title of titles) {
-        if (temp.length >= maxNumTrends) {
-          break;
+      for (const item of items) {
+        if (!cache.get(item.title)) {
+          result = result.concat(item);
         }
-
-        const curatedTrend: GoogleRealtimeTrend = {
-          title: title.trim(),
-          image: trend.image,
-          articles: trend.articles,
-        };
-        temp = temp.concat(curatedTrend);
+        cache.set(item.title, true);
       }
+      return result;
+    };
+
+    // expand list based on comma-delimited trending topics
+    if (expand) {
+      let temp: GoogleRealtimeTrend[] = [];
+      for (const trend of data) {
+        const titles = trend.title.split(",");
+        for (const title of titles) {
+          if (temp.length >= maxNumTrends) {
+            break;
+          }
+
+          const curatedTrend: GoogleRealtimeTrend = {
+            title: title.trim(),
+            image: trend.image,
+            articles: trend.articles,
+          };
+          temp = temp.concat(curatedTrend);
+        }
+      }
+      return hasDuplicates ? temp : removeDuplicates(temp);
     }
-    return hasDuplicates ? temp : removeDuplicates(temp);
-  }
-  return hasDuplicates ? data : removeDuplicates(data);
+    return hasDuplicates ? data : removeDuplicates(data);
   } catch (e) {
     console.error(e);
   }
@@ -90,31 +90,31 @@ export async function fetchGoogleRealtimeTrends(
 
 export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
   try {
-  const { data } = await http.get("/google/trends/realtime/states");
+    const { data } = await http.get("/google/trends/realtime/states");
 
-  /**
-   * Removes duplicate trending items for each region (based on the title)
-   * @param items
-   */
-  const removeDuplicates = (items: GoogleRegionTrend[]) => {
-    let result: GoogleRegionTrend[] = [];
+    /**
+     * Removes duplicate trending items for each region (based on the title)
+     * @param items
+     */
+    const removeDuplicates = (items: GoogleRegionTrend[]) => {
+      let result: GoogleRegionTrend[] = [];
 
-    for (const item of items) {
-      let dedupedTrends = [];
-      const cache = new Map<string, boolean>();
-      for (const trends of item.trends) {
-        if (!cache.get(trends.topic)) {
-          dedupedTrends = dedupedTrends.concat(trends);
+      for (const item of items) {
+        let dedupedTrends = [];
+        const cache = new Map<string, boolean>();
+        for (const trends of item.trends) {
+          if (!cache.get(trends.topic)) {
+            dedupedTrends = dedupedTrends.concat(trends);
+          }
+          cache.set(trends.topic, true);
         }
-        cache.set(trends.topic, true);
+        item.trends = dedupedTrends;
+        result = result.concat(item);
       }
-      item.trends = dedupedTrends;
-      result = result.concat(item);
-    }
-    return result;
-  };
+      return result;
+    };
 
-  return hasDuplicates ? data : removeDuplicates(data);
+    return hasDuplicates ? data : removeDuplicates(data);
   } catch (e) {
     console.error(e);
   }
@@ -122,11 +122,23 @@ export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
 }
 
 export async function fetchTwitterRealtimeTrends() {
-  const { data } = await http.get("/twitter/trends");
-  return data;
+  try{
+    const { data } = await http.get("/twitter/trends");
+    return data;
+  }
+  catch(e){
+    console.error(e);
+  }
+  return [];
 }
 
 export async function fetchUSPlaces() {
-  const { data } = await http.get("/places/US");
-  return data;
+  try{
+    const { data } = await http.get("/places/US");
+    return data;
+  }
+  catch(e){
+    console.error(e);
+  }
+  return [];
 }
