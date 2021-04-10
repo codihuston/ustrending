@@ -1,15 +1,27 @@
 import { http } from "../services";
 
-import { GoogleRealtimeTrend, GoogleRegionTrend } from "../types";
+import { GoogleDailyTrend, GoogleRealtimeTrend, GoogleRegionTrend } from "../types";
 
 export async function fetchGoogleDailyTrends() {
-  const { data } = await http.get("/google/trends/daily");
-  return data;
+  try{
+    const { data } = await http.get<GoogleDailyTrend[]>("/google/trends/daily");
+    return data;
+  }
+  catch(e){
+    console.error(e);
+    return [];
+  }
 }
 
 export async function fetchGoogleDailyTrendsByState() {
-  const { data } = await http.get("/google/trends/daily/states");
-  return data;
+  try{
+    const { data } = await http.get<GoogleRegionTrend[]>("/google/trends/daily/states");
+    return data;
+  }
+  catch(e){
+    console.error(e);
+    return [];
+  }
 }
 
 /**
