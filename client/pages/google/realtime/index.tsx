@@ -130,6 +130,7 @@ export default function GoogleRealtime() {
   >([]);
   const [trendNumberToShow, setTrendNumberToShow] = useState<number>(0);
   const [selectedTrend, setSelectedTrend] = useState<string>("");
+  const [highlightedTrend, setHighlightedTrend] = useState<string>("");
   // computed stateful data
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
@@ -459,6 +460,11 @@ export default function GoogleRealtime() {
     250
   );
 
+  const handleChangeHighlightedTrend = (name: string) => {
+    console.log(name);
+    setHighlightedTrend(name);
+  }
+
   return (
     <Layout>
       <Head>
@@ -677,6 +683,8 @@ export default function GoogleRealtime() {
             colorMap={colorMap}
             withColor={isWithColors}
             handleTrendClick={debouncedHandleTrendClick}
+            highlightedTrend={highlightedTrend}
+            handleChangeHighlightedTrend={handleChangeHighlightedTrend}
           >
             <GoogleTrendsByRegionList
               handleClick={handleListDelete}
@@ -689,6 +697,8 @@ export default function GoogleRealtime() {
               colorMap={colorMap}
               withColor={isWithColors}
               withTitle
+              highlightedTrend={highlightedTrend}
+              handleChangeHighlightedTrend={handleChangeHighlightedTrend}
             />
           </GoogleTrendsList>
           <h3>Trends by Region: Grid View</h3>

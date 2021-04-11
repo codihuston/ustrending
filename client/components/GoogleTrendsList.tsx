@@ -13,6 +13,9 @@ import {
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
+  highlight: {
+    backgroundColor: theme.palette.info.light,
+  },
   trendingRank: {
     borderRadius: "2px",
     textAlign: "center",
@@ -34,6 +37,8 @@ type Props = {
   ): void;
   colorMap: Map<string, string>;
   withColor: boolean;
+  highlightedTrend: string;
+  handleChangeHighlightedTrend(name: string): void;
 };
 
 const GoogleTrendsList: FunctionComponent<Props> = ({
@@ -42,6 +47,8 @@ const GoogleTrendsList: FunctionComponent<Props> = ({
   googleTrendNames,
   handleTrendClick,
   withColor,
+  highlightedTrend,
+  handleChangeHighlightedTrend,
 }) => {
   const classes = useStyles();
 
@@ -74,7 +81,14 @@ const GoogleTrendsList: FunctionComponent<Props> = ({
               : invert(background, true);
 
             return (
-              <ListItem key={i} button>
+              <ListItem
+                key={i}
+                button
+                onMouseEnter={(e) => handleChangeHighlightedTrend(trend)}
+                className={
+                  highlightedTrend === trend ? classes.highlight : null
+                }
+              >
                 <Box display="flex" width={"100%"}>
                   {withColor ? (
                     <Box

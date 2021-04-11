@@ -17,6 +17,8 @@ type Props = {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void;
+  highlightedTrend: string;
+  handleChangeHighlightedTrend(name: string): void;
   isAlphabetical: boolean;
   maxNumTrendsToShow: number;
   selectedRegions: ValueType<SelectStringOptionType, true>;
@@ -30,6 +32,8 @@ const GoogleTrendsByRegionList: FunctionComponent<Props> = ({
   googleRegionTrends,
   handleClick,
   handleTrendClick,
+  highlightedTrend,
+  handleChangeHighlightedTrend,
   isAlphabetical,
   maxNumTrendsToShow,
   selectedRegions,
@@ -99,6 +103,8 @@ const GoogleTrendsByRegionList: FunctionComponent<Props> = ({
             sourceMap={sourceMap}
             withColor={withColor}
             withTitle={withTitle}
+            highlightedTrend={highlightedTrend}
+            handleChangeHighlightedTrend={handleChangeHighlightedTrend}
           />
         </List>
       ))}

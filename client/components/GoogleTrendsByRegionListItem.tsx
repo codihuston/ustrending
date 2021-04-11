@@ -21,6 +21,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     minWidth: "3rem",
   },
   root: {},
+  highlight: {
+    backgroundColor: theme.palette.info.light,
+  },
   topRight: { position: "absolute", top: 0, right: 0 },
   trendingRank: {
     minWidth: "3rem",
@@ -46,6 +49,8 @@ type Props = {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     name: string
   ): void;
+  highlightedTrend: string;
+  handleChangeHighlightedTrend(name: string): void;
   maxNumTrendsToShow: number;
   selectedRegions: ValueType<SelectStringOptionType, true>;
   sourceMap: Map<string, number>;
@@ -57,6 +62,8 @@ const GoogleTrendsByRegionListItem: FunctionComponent<Props> = ({
   colorMap,
   handleClick,
   handleTrendClick,
+  highlightedTrend,
+  handleChangeHighlightedTrend,
   maxNumTrendsToShow,
   region,
   selectedRegions,
@@ -120,7 +127,12 @@ const GoogleTrendsByRegionListItem: FunctionComponent<Props> = ({
         const fontColor = color ? color : defaultFontColor;
 
         return (
-          <ListItem key={i} button>
+          <ListItem
+            key={i}
+            button
+            onMouseEnter={(e) => handleChangeHighlightedTrend(trend.topic)}
+            className={highlightedTrend === trend.topic ? classes.highlight : null}
+          >
             <Box display="flex" width={"100%"}>
               {withColor ? (
                 <Box

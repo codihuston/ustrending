@@ -126,6 +126,7 @@ export default function GoogleDaily() {
     ValueType<SelectStringOptionType, true>
   >([]);
   const [selectedTrend, setSelectedTrend] = useState<string>("");
+  const [highlightedTrend, setHighlightedTrend] = useState<string>("");
   const [trendNumberToShow, setTrendNumberToShow] = useState<number>(0);
   // data
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
@@ -261,9 +262,7 @@ export default function GoogleDaily() {
   ): void => {
     // to save on performance, only allow a max number of comparisons
     if (option.length > MAX_NUM_SELECTED_REGIONS) {
-      setSnackbarText(
-        MAX_NUM_SELECTED_REGIONS_TEXT
-      );
+      setSnackbarText(MAX_NUM_SELECTED_REGIONS_TEXT);
       handleOpenSnackbar();
       return;
     }
@@ -302,9 +301,7 @@ export default function GoogleDaily() {
 
     // to save on performance, only allow a max number of comparisons
     if (selectedRegions.length >= MAX_NUM_SELECTED_REGIONS) {
-      setSnackbarText(
-        MAX_NUM_SELECTED_REGIONS_TEXT
-      );
+      setSnackbarText(MAX_NUM_SELECTED_REGIONS_TEXT);
       handleOpenSnackbar();
       return;
     }
@@ -436,6 +433,11 @@ export default function GoogleDaily() {
     handleInputChangeTrendNumberToShow,
     250
   );
+
+  const handleChangeHighlightedTrend = (name: string) => {
+    console.log(name);
+    setHighlightedTrend(name);
+  };
 
   return (
     <Layout>
@@ -580,7 +582,11 @@ export default function GoogleDaily() {
                 }
                 mapColorMode={mapColorMode}
                 trendNumberToShow={trendNumberToShow}
-                countryTrendName={googleTrends &&  googleTrends[trendNumberToShow] ? googleTrends[trendNumberToShow]?.title?.query : null}
+                countryTrendName={
+                  googleTrends && googleTrends[trendNumberToShow]
+                    ? googleTrends[trendNumberToShow]?.title?.query
+                    : null
+                }
               />
             </div>
           </div>
@@ -648,7 +654,9 @@ export default function GoogleDaily() {
             googleTrendNames={googleTrendsNames}
             colorMap={colorMap}
             withColor={isWithColors}
-            handleTrendClick={handleTrendClick}            
+            handleTrendClick={handleTrendClick}
+            highlightedTrend={highlightedTrend}
+            handleChangeHighlightedTrend={handleChangeHighlightedTrend}
           >
             <GoogleTrendsByRegionList
               googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
@@ -661,6 +669,8 @@ export default function GoogleDaily() {
               colorMap={colorMap}
               withColor={isWithColors}
               withTitle
+              highlightedTrend={highlightedTrend}
+              handleChangeHighlightedTrend={handleChangeHighlightedTrend}
             />
           </GoogleTrendsList>
           <h3>Trends by Region: Grid View</h3>
