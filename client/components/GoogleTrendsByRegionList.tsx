@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useMemo } from "react";
 import { ValueType } from "react-select";
-import { Box, Grid } from "@material-ui/core";
 import List from "@material-ui/core/List";
 
 import { GoogleRegionTrend, SelectStringOptionType } from "../types";
