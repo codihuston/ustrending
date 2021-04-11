@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import ValueType from "react-select";
 import invert from "invert-color";
 import { Box, makeStyles, Theme } from "@material-ui/core";
@@ -52,7 +52,7 @@ type Props = {
   withColor?: boolean;
 };
 
-export default function GoogleTrendsByRegionListItem({
+const GoogleTrendsByRegionListItem: FunctionComponent<Props> = ({
   colorMap,
   handleClick,
   handleTrendClick,
@@ -62,7 +62,7 @@ export default function GoogleTrendsByRegionListItem({
   sourceMap,
   withColor,
   withTitle,
-}: Props) {
+}) => {
   const classes = useStyles();
   const defaultFontColor = "#FFFFFF";
   const [trends, setTrends] = useState<RegionTrend[]>([]);
@@ -164,4 +164,6 @@ export default function GoogleTrendsByRegionListItem({
       })}
     </>
   );
-}
+};
+
+export default GoogleTrendsByRegionListItem;
