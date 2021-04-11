@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { FunctionComponent, useMemo } from "react";
 import { ValueType } from "react-select";
 import { Box, Grid } from "@material-ui/core";
 import List from "@material-ui/core/List";
@@ -26,7 +26,7 @@ type Props = {
   withColor?: boolean;
 };
 
-export default function GoogleTrendsByRegionList({
+const GoogleTrendsByRegionList: FunctionComponent<Props> = ({
   colorMap,
   googleRegionTrends,
   handleClick,
@@ -37,12 +37,12 @@ export default function GoogleTrendsByRegionList({
   sourceMap,
   withColor,
   withTitle,
-}: Props) {
-  return useMemo(() => {
+}) => {
+  const regions = useMemo<GoogleRegionTrend[]>(() => {
     let regions: GoogleRegionTrend[] = [];
 
     if (!googleRegionTrends || !googleRegionTrends.length) {
-      return <span>Error: no google trends are provided!</span>;
+      return [];
     }
 
     // sort regions by name
@@ -69,38 +69,11 @@ export default function GoogleTrendsByRegionList({
     }
 
     if (!selectedRegions || selectedRegions.length <= 0) {
-      return <div>Please select a region.</div>;
+      return [];
     } else if (!regions || regions.length <= 0) {
-      return <div>No regions found for {regions.join(", ")}.</div>;
+      return [];
     }
-
-    return (
-      <Box>
-        <Grid
-          container
-          direction="row"
-          justify="center"
-          alignItems="center"
-          spacing={3}
-        >
-          {regions.map((region, i) => (
-            <List key={i}>
-              <GoogleTrendsByRegionListItem
-                colorMap={colorMap}
-                handleClick={handleClick}
-                handleTrendClick={handleTrendClick}
-                maxNumTrendsToShow={maxNumTrendsToShow}
-                region={region}
-                selectedRegions={selectedRegions}
-                sourceMap={sourceMap}
-                withColor={withColor}
-                withTitle={withTitle}
-              />
-            </List>
-          ))}
-        </Grid>
-      </Box>
-    );
+    return regions;
   }, [
     colorMap,
     googleRegionTrends,
@@ -112,4 +85,26 @@ export default function GoogleTrendsByRegionList({
     withColor,
     withTitle,
   ]);
-}
+
+  return (
+    <>
+      {regions.map((region: GoogleRegionTrend, i: number) => (
+        <List key={i}>
+          <GoogleTrendsByRegionListItem
+            colorMap={colorMap}
+            handleClick={handleClick}
+            handleTrendClick={handleTrendClick}
+            maxNumTrendsToShow={maxNumTrendsToShow}
+            region={region}
+            selectedRegions={selectedRegions}
+            sourceMap={sourceMap}
+            withColor={withColor}
+            withTitle={withTitle}
+          />
+        </List>
+      ))}
+    </>
+  );
+};
+
+export default GoogleTrendsByRegionList;

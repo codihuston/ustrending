@@ -1,3 +1,4 @@
+import React, { FunctionComponent } from "react";
 import invert from "invert-color";
 import {
   Box,
@@ -35,12 +36,13 @@ type Props = {
   withColor: boolean;
 };
 
-export default function GoogleTrendsList({
+const GoogleTrendsList: FunctionComponent<Props> = ({
+  children,
   colorMap,
   googleTrendNames,
   handleTrendClick,
   withColor,
-}: Props) {
+}) => {
   const classes = useStyles();
 
   if (!googleTrendNames || !googleTrendNames.length) {
@@ -56,6 +58,7 @@ export default function GoogleTrendsList({
         alignItems="center"
         spacing={3}
       >
+        {/* display trends for this country */}
         <List>
           <ListItem>
             <ListItemText>
@@ -114,7 +117,10 @@ export default function GoogleTrendsList({
             );
           })}
         </List>
+        {children}
       </Grid>
     </Box>
   );
-}
+};
+
+export default GoogleTrendsList;
