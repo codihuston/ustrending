@@ -13,6 +13,8 @@ import {
   fetchGoogleDailyTrendsByState,
   fetchGoogleRealtimeTrends,
   fetchGoogleRealtimeTrendsByState,
+  fetchNearestPlaceByZipcode,
+  fetchNearestPlaceByGPS,
   fetchTwitterRealtimeTrends,
   fetchUSPlaces,
 } from "../queries";
@@ -112,6 +114,24 @@ export function useUSPlaces() {
   return useQuery<Place[], Error>(
     "USPlaces",
     fetchUSPlaces,
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
+}
+
+export function usePlacesByZipcode(zipcode: string, limit: number = 1) {
+  return useQuery<Place[], Error>(
+    ["placeByZipcode", zipcode],
+    () => fetchNearestPlaceByZipcode(zipcode, limit),
+    {
+      cacheTime: 0
+    }
+  );
+}
+
+export function usePlacesByGPS(coordinates: [number, number], limit: number) {
+  return useQuery<Place[], Error>(
+    "placeByGPS",
+    () => fetchNearestPlaceByGPS(coordinates, limit),
     DEFAULT_REACT_QUERY_OPTIONS
   );
 }

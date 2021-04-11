@@ -139,8 +139,40 @@ export async function fetchUSPlaces() {
     console.error(e);
   }
   return [];
+}
+
+export async function fetchNearestPlaceByZipcode(
+  zipcode: string,
+  limit: number = 1
+) {
+  if (!zipcode) {
+    return null;
   }
-  catch(e){
+
+  try {
+    // TODO: append `&limit=${limit}` after fixing the 404
+    const { data } = await http.get(`/places/nearest/${zipcode}`);
+    return data;
+  } catch (e) {
+    console.error(e);
+  }
+  return [];
+}
+
+export async function fetchNearestPlaceByGPS(
+  coordinates: [number, number],
+  limit: number = 1
+) {
+  if (!coordinates) {
+    return null;
+  }
+
+  try {
+    const { data } = await http.get(
+      `/places/nearest/point/long=${coordinates[0]}&lat=${coordinates[1]}&limit=${limit}`
+    );
+    return data;
+  } catch (e) {
     console.error(e);
   }
   return [];

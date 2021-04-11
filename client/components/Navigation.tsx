@@ -10,6 +10,11 @@ export default function Navigation() {
           </Link>
         </li>
         <li>
+          <Link href={`/google/trending-nearby`}>
+            <a>Trending Nearby</a>
+          </Link>
+        </li>
+        <li>
           <Link href={`/google/daily`}>
             <a>Google Daily Trends</a>
           </Link>
