@@ -275,9 +275,7 @@ export default function GoogleRealtime() {
   ): void => {
     // to save on performance, only allow a max number of comparisons
     if (option.length > MAX_NUM_SELECTED_REGIONS) {
-      setSnackbarText(
-        MAX_NUM_SELECTED_REGIONS_TEXT
-      );
+      setSnackbarText(MAX_NUM_SELECTED_REGIONS_TEXT);
       handleOpenSnackbar();
       return;
     }
@@ -316,9 +314,7 @@ export default function GoogleRealtime() {
 
     // to save on performance, only allow a max number of comparisons
     if (selectedRegions.length >= MAX_NUM_SELECTED_REGIONS) {
-      setSnackbarText(
-        MAX_NUM_SELECTED_REGIONS_TEXT
-      );
+      setSnackbarText(MAX_NUM_SELECTED_REGIONS_TEXT);
       handleOpenSnackbar();
       return;
     }
@@ -462,9 +458,8 @@ export default function GoogleRealtime() {
   );
 
   const handleChangeHighlightedTrend = (name: string) => {
-    console.log(name);
     setHighlightedTrend(name);
-  }
+  };
 
   return (
     <Layout>
@@ -511,261 +506,280 @@ export default function GoogleRealtime() {
       <Box>
         <Paper>
           <h2>Trending Right Now on Google</h2>
-          <h3>Select a Region to Compare</h3>
-          <Typography>
-            To see trends for a particular region, please choose the region by
-            using the dropdown or by clicking on a region on the map below.
-            After making your selection, the results will appear above.{" "}
-            <a href={`#${selectedRegions}`}>Click here to see the results</a>.
-          </Typography>
-          <div className={classes.mapContainer}>
-            <RegionSelect
-              values={selectedRegions}
-              googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
-              handleChange={handleChange}
-            />
-            <ColorPalette
-              handleChangePalette={handleChangePalette}
-              handleChangeContrast={handleChangeContrast}
-              selectedContrast={selectedContrast}
-              selectedPalette={selectedPalette}
-            />
+          <section>
+            <h3>Select a Region to Compare</h3>
+            <Typography>
+              To see trends for a particular region, please choose the region by
+              using the dropdown or by clicking on a region on the map below.
+              After making your selection, the results will appear above.{" "}
+              <a href={`#${selectedRegions}`}>Click here to see the results</a>.
+            </Typography>
+            <div className={classes.mapContainer}>
+              <RegionSelect
+                values={selectedRegions}
+                googleRegionTrends={
+                  googleRegionTrends ? googleRegionTrends : []
+                }
+                handleChange={handleChange}
+              />
+              <ColorPalette
+                handleChangePalette={handleChangePalette}
+                handleChangeContrast={handleChangeContrast}
+                selectedContrast={selectedContrast}
+                selectedPalette={selectedPalette}
+              />
+              <Grid
+                container
+                spacing={2}
+                alignItems="center"
+                className={classes.mapContainer}
+              >
+                <Grid item>
+                  <Tooltip
+                    title={
+                      <div
+                        style={{
+                          fontSize: "1rem",
+                        }}
+                      >
+                        {
+                          "The trend at this rank for each region will be highlighted on the map. Each color is determined by the trend's rank in your country."
+                        }
+                      </div>
+                    }
+                  >
+                    <IconButton aria-label="info">
+                      <AiOutlineInfoCircle />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item xs>
+                  {googleTrends && googleTrends.length ? (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={
+                            mapColorMode === MapColorMode.All ? true : false
+                          }
+                          onChange={toggleMapColorMode}
+                        />
+                      }
+                      label={`${
+                        mapColorMode === MapColorMode.All
+                          ? `Color #${
+                              trendNumberToShow + 1
+                            } trends in each region`
+                          : `Showing popularity of #${
+                              trendNumberToShow + 1
+                            } trend in the country (${
+                              googleTrends[trendNumberToShow].title
+                            })`
+                      }`}
+                    />
+                  ) : null}
+                  <TextField
+                    defaultValue={1}
+                    id="standard-number"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    InputProps={{
+                      inputProps: { min: 1, max: MAX_NUM_GOOGLE_REGION_TRENDS },
+                    }}
+                    label="Trend #"
+                    onChange={debouncedHandleInputChangeTrendNumberToShow}
+                    style={{
+                      width: "100%",
+                    }}
+                    type="number"
+                    // value={trendNumberToShow}
+                  />
+                </Grid>
+              </Grid>
+              <div>
+                {isTooltipVisible && (
+                  <ReactTooltip html>{tooltipContent}</ReactTooltip>
+                )}
+                <GoogleTrendsMap
+                  colorMap={colorMap}
+                  handleClick={debouncedHandleMapClick}
+                  handleHover={debouncedHandleMapHover}
+                  googleRegionTrends={
+                    googleRegionTrends ? googleRegionTrends : []
+                  }
+                  mapColorMode={mapColorMode}
+                  trendNumberToShow={trendNumberToShow}
+                  countryTrendName={
+                    googleTrends && googleTrends[trendNumberToShow]
+                      ? googleTrends[trendNumberToShow].title
+                      : null
+                  }
+                />
+              </div>
+            </div>
+          </section>
+          <section>
+            <h3 id={"selectedRegions"} ref={ref}>
+              Trending in the United States
+            </h3>
             <Grid
               container
               spacing={2}
               alignItems="center"
               className={classes.mapContainer}
             >
-              <Grid item>
-                <Tooltip
-                  title={
-                    <div
-                      style={{
-                        fontSize: "1rem",
-                      }}
-                    >
-                      {
-                        "The trend at this rank for each region will be highlighted on the map. Each color is determined by the trend's rank in your country."
-                      }
-                    </div>
-                  }
-                >
-                  <IconButton aria-label="info">
-                    <AiOutlineInfoCircle />
-                  </IconButton>
-                </Tooltip>
+              <Grid item xs={12} md={3}>
+                <Typography id="discrete-slider" gutterBottom>
+                  Number of Trends ({maxNumTrendsToShow}/
+                  {googleTrends &&
+                  googleTrends.length &&
+                  googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                    ? googleTrends.length
+                    : MAX_NUM_GOOGLE_REGION_TRENDS}
+                  )
+                </Typography>
               </Grid>
-              <Grid item xs>
-                {googleTrends && googleTrends.length ? (
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={
-                          mapColorMode === MapColorMode.All ? true : false
-                        }
-                        onChange={toggleMapColorMode}
-                      />
-                    }
-                    label={`${
-                      mapColorMode === MapColorMode.All
-                        ? `Color #${
-                            trendNumberToShow + 1
-                          } trends in each region`
-                        : `Showing popularity of #${
-                            trendNumberToShow + 1
-                          } trend in the country (${
-                            googleTrends[trendNumberToShow].title
-                          })`
-                    }`}
-                  />
-                ) : null}
-                <TextField
-                  defaultValue={1}
-                  id="standard-number"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  InputProps={{
-                    inputProps: { min: 1, max: MAX_NUM_GOOGLE_REGION_TRENDS },
-                  }}
-                  label="Trend #"
-                  onChange={debouncedHandleInputChangeTrendNumberToShow}
-                  style={{
-                    width: "100%",
-                  }}
-                  type="number"
-                  // value={trendNumberToShow}
+              <Grid item xs={12} md={8}>
+                <Slider
+                  aria-labelledby="discrete-slider"
+                  defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
+                  marks
+                  max={
+                    googleTrends &&
+                    googleTrends.length &&
+                    googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                      ? googleTrends.length
+                      : MAX_NUM_GOOGLE_REGION_TRENDS
+                  }
+                  min={1}
+                  onChange={debouncedHandleSliderChangeNumTrendsToShow}
+                  step={1}
+                  valueLabelDisplay="auto"
+                  value={
+                    typeof maxNumTrendsToShow === "number"
+                      ? maxNumTrendsToShow
+                      : 0
+                  }
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isWithColors}
+                      onChange={toggleListColors}
+                    />
+                  }
+                  label={`Show colors`}
+                />
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isAlphabetical}
+                      onChange={toggleListSort}
+                    />
+                  }
+                  label={`Sort regions alphabetically`}
                 />
               </Grid>
             </Grid>
-            <div>
-              {isTooltipVisible && (
-                <ReactTooltip html>{tooltipContent}</ReactTooltip>
-              )}
-              <GoogleTrendsMap
-                colorMap={colorMap}
-                handleClick={debouncedHandleMapClick}
-                handleHover={debouncedHandleMapHover}
+            <GoogleTrendsList
+              googleTrendNames={googleTrends ? googleTrendsNames : []}
+              colorMap={colorMap}
+              withColor={isWithColors}
+              handleTrendClick={debouncedHandleTrendClick}
+              highlightedTrend={highlightedTrend}
+              handleChangeHighlightedTrend={handleChangeHighlightedTrend}
+            >
+              <GoogleTrendsByRegionList
+                handleClick={handleListDelete}
+                handleTrendClick={debouncedHandleTrendClick}
+                isAlphabetical={isAlphabetical}
+                sourceMap={sourceMap}
                 googleRegionTrends={
                   googleRegionTrends ? googleRegionTrends : []
                 }
-                mapColorMode={mapColorMode}
-                trendNumberToShow={trendNumberToShow}
-                countryTrendName={
-                  googleTrends && googleTrends[trendNumberToShow]
-                    ? googleTrends[trendNumberToShow].title
-                    : null
-                }
+                maxNumTrendsToShow={maxNumTrendsToShow}
+                selectedRegions={selectedRegions}
+                colorMap={colorMap}
+                withColor={isWithColors}
+                withTitle
+                highlightedTrend={highlightedTrend}
+                handleChangeHighlightedTrend={handleChangeHighlightedTrend}
               />
-            </div>
-          </div>
-          <h3 id={"selectedRegions"} ref={ref}>
-            Trending in the United States
-          </h3>
-          <Grid
-            container
-            spacing={2}
-            alignItems="center"
-            className={classes.mapContainer}
-          >
-            <Grid item xs={12} md={3}>
-              <Typography id="discrete-slider" gutterBottom>
-                Number of Trends ({maxNumTrendsToShow}/
-                {googleTrends &&
-                googleTrends.length &&
-                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                  ? googleTrends.length
-                  : MAX_NUM_GOOGLE_REGION_TRENDS}
-                )
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Slider
-                aria-labelledby="discrete-slider"
-                defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
-                marks
-                max={
-                  googleTrends &&
+            </GoogleTrendsList>
+          </section>
+          <section>
+            <h3>Trends by Region: Grid View</h3>
+            <Typography>
+              Below lists all of the trends for each region in a sortable,
+              filterable fashion.
+            </Typography>
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              className={classes.mapContainer}
+            >
+              <Grid item xs={12} md={3}>
+                <Typography id="discrete-slider" gutterBottom>
+                  Number of Trends ({maxNumTrendsToShow}/
+                  {googleTrends &&
                   googleTrends.length &&
                   googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
                     ? googleTrends.length
-                    : MAX_NUM_GOOGLE_REGION_TRENDS
-                }
-                min={1}
-                onChange={debouncedHandleSliderChangeNumTrendsToShow}
-                step={1}
-                valueLabelDisplay="auto"
-                value={
-                  typeof maxNumTrendsToShow === "number"
-                    ? maxNumTrendsToShow
-                    : 0
-                }
+                    : MAX_NUM_GOOGLE_REGION_TRENDS}
+                  )
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <Slider
+                  aria-labelledby="discrete-slider"
+                  defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
+                  marks
+                  max={
+                    googleTrends &&
+                    googleTrends.length &&
+                    googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
+                      ? googleTrends.length
+                      : MAX_NUM_GOOGLE_REGION_TRENDS
+                  }
+                  min={1}
+                  onChange={debouncedHandleSliderChangeNumTrendsToShow}
+                  step={1}
+                  valueLabelDisplay="auto"
+                  value={
+                    typeof maxNumTrendsToShow === "number"
+                      ? maxNumTrendsToShow
+                      : 0
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isWithColors}
+                      onChange={toggleListColors}
+                    />
+                  }
+                  label={`Show colors`}
+                />
+              </Grid>
+            </Grid>
+            {googleTrends && googleRegionTrends ? (
+              <GoogleTrendsTableContainer
+                handleTrendClick={handleTrendClick}
+                googleTrendNames={googleTrendsNames ? googleTrendsNames : []}
+                rows={rows}
+                colorMap={colorMap}
+                sourceMap={sourceMap}
+                isWithColors={isWithColors}
               />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Switch checked={isWithColors} onChange={toggleListColors} />
-                }
-                label={`Show colors`}
-              />
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <FormControlLabel
-                control={
-                  <Switch checked={isAlphabetical} onChange={toggleListSort} />
-                }
-                label={`Sort regions alphabetically`}
-              />
-            </Grid>
-          </Grid>
-          <GoogleTrendsList
-            googleTrendNames={googleTrends ? googleTrendsNames : []}
-            colorMap={colorMap}
-            withColor={isWithColors}
-            handleTrendClick={debouncedHandleTrendClick}
-            highlightedTrend={highlightedTrend}
-            handleChangeHighlightedTrend={handleChangeHighlightedTrend}
-          >
-            <GoogleTrendsByRegionList
-              handleClick={handleListDelete}
-              handleTrendClick={debouncedHandleTrendClick}
-              isAlphabetical={isAlphabetical}
-              sourceMap={sourceMap}
-              googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
-              maxNumTrendsToShow={maxNumTrendsToShow}
-              selectedRegions={selectedRegions}
-              colorMap={colorMap}
-              withColor={isWithColors}
-              withTitle
-              highlightedTrend={highlightedTrend}
-              handleChangeHighlightedTrend={handleChangeHighlightedTrend}
-            />
-          </GoogleTrendsList>
-          <h3>Trends by Region: Grid View</h3>
-          <Typography>
-            Below lists all of the trends for each region in a sortable,
-            filterable fashion.
-          </Typography>
-          <Grid
-            container
-            spacing={2}
-            alignItems="center"
-            className={classes.mapContainer}
-          >
-            <Grid item xs={12} md={3}>
-              <Typography id="discrete-slider" gutterBottom>
-                Number of Trends ({maxNumTrendsToShow}/
-                {googleTrends &&
-                googleTrends.length &&
-                googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                  ? googleTrends.length
-                  : MAX_NUM_GOOGLE_REGION_TRENDS}
-                )
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Slider
-                aria-labelledby="discrete-slider"
-                defaultValue={DEFAULT_NUM_TRENDS_TO_SHOW}
-                marks
-                max={
-                  googleTrends &&
-                  googleTrends.length &&
-                  googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                    ? googleTrends.length
-                    : MAX_NUM_GOOGLE_REGION_TRENDS
-                }
-                min={1}
-                onChange={debouncedHandleSliderChangeNumTrendsToShow}
-                step={1}
-                valueLabelDisplay="auto"
-                value={
-                  typeof maxNumTrendsToShow === "number"
-                    ? maxNumTrendsToShow
-                    : 0
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Switch checked={isWithColors} onChange={toggleListColors} />
-                }
-                label={`Show colors`}
-              />
-            </Grid>
-          </Grid>
-          {googleTrends && googleRegionTrends ? (
-            <GoogleTrendsTableContainer
-              handleTrendClick={handleTrendClick}
-              googleTrendNames={googleTrendsNames ? googleTrendsNames : []}
-              rows={rows}
-              colorMap={colorMap}
-              sourceMap={sourceMap}
-              isWithColors={isWithColors}
-            />
-          ) : null}
+            ) : null}
+          </section>
         </Paper>
       </Box>
     </Layout>
