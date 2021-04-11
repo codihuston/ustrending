@@ -608,10 +608,9 @@ export default function GoogleRealtime() {
               />
             </div>
           </div>
-          <h3>Trending in the United States</h3>
-          <Typography>
-            Click on a trend to view related news articles.
-          </Typography>
+          <h3 id={"selectedRegions"} ref={ref}>
+            Trending in the United States
+          </h3>
           <Grid
             container
             spacing={2}
@@ -652,12 +651,20 @@ export default function GoogleRealtime() {
                 }
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={4}>
               <FormControlLabel
                 control={
                   <Switch checked={isWithColors} onChange={toggleListColors} />
                 }
                 label={`Show colors`}
+              />
+            </Grid>
+            <Grid item xs={12} md={8}>
+              <FormControlLabel
+                control={
+                  <Switch checked={isAlphabetical} onChange={toggleListSort} />
+                }
+                label={`Sort regions alphabetically`}
               />
             </Grid>
           </Grid>
@@ -666,60 +673,20 @@ export default function GoogleRealtime() {
             colorMap={colorMap}
             withColor={isWithColors}
             handleTrendClick={debouncedHandleTrendClick}
-          />
-          <h4 id={"selectedRegions"} ref={ref}>
-            Trending in Your Selected Region(s)
-          </h4>
-          {selectedRegions && selectedRegions.length > 0 ? (
-            <>
-              <Typography>
-                Click on a trend to view related news articles.
-              </Typography>
-              <Toolbar>
-                <Grid
-                  container
-                  spacing={2}
-                  alignItems="center"
-                  className={classes.mapContainer}
-                >
-                  <Grid item xs={12} md={4}>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={isWithColors}
-                          onChange={toggleListColors}
-                        />
-                      }
-                      label={`Show colors`}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={8}>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={isAlphabetical}
-                          onChange={toggleListSort}
-                        />
-                      }
-                      label={`Sort regions alphabetically`}
-                    />
-                  </Grid>
-                </Grid>
-              </Toolbar>
-            </>
-          ) : null}
-          <GoogleTrendsByRegionList
-            handleClick={handleListDelete}
-            handleTrendClick={debouncedHandleTrendClick}
-            isAlphabetical={isAlphabetical}
-            sourceMap={sourceMap}
-            googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
-            maxNumTrendsToShow={maxNumTrendsToShow}
-            selectedRegions={selectedRegions}
-            colorMap={colorMap}
-            withColor={isWithColors}
-            withTitle
-          />
+          >
+            <GoogleTrendsByRegionList
+              handleClick={handleListDelete}
+              handleTrendClick={debouncedHandleTrendClick}
+              isAlphabetical={isAlphabetical}
+              sourceMap={sourceMap}
+              googleRegionTrends={googleRegionTrends ? googleRegionTrends : []}
+              maxNumTrendsToShow={maxNumTrendsToShow}
+              selectedRegions={selectedRegions}
+              colorMap={colorMap}
+              withColor={isWithColors}
+              withTitle
+            />
+          </GoogleTrendsList>
           <h3>Trends by Region: Grid View</h3>
           <Typography>
             Below lists all of the trends for each region in a sortable,
