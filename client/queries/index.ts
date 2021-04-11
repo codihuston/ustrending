@@ -122,20 +122,23 @@ export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
 }
 
 export async function fetchTwitterRealtimeTrends() {
-  try{
+  try {
     const { data } = await http.get("/twitter/trends");
     return data;
-  }
-  catch(e){
+  } catch (e) {
     console.error(e);
   }
   return [];
 }
 
 export async function fetchUSPlaces() {
-  try{
+  try {
     const { data } = await http.get("/places/US");
     return data;
+  } catch (e) {
+    console.error(e);
+  }
+  return [];
   }
   catch(e){
     console.error(e);
