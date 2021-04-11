@@ -52,9 +52,6 @@ import GoogleTrendsMap, {
   MapColorMode,
 } from "../../../components/GoogleTrendsMap";
 
-// max # of trends per region, total
-const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
-
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   mapContainer: {
@@ -97,8 +94,11 @@ export default function GoogleRealtime() {
   // overridden by maxNumTrendsToShow
   // total # trends per region to render (up to the total)
   const DEFAULT_NUM_TRENDS_TO_SHOW = 10;
+  // max # of trends per region, total
+  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   // max # of regions that can be compared
-  const MAX_NUM_SELECTED_REGIONS = 10;
+  const MAX_NUM_SELECTED_REGIONS = 5;
+  const MAX_NUM_SELECTED_REGIONS_TEXT = `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Please remove some regions before comparing more.`;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
@@ -274,7 +274,7 @@ export default function GoogleRealtime() {
     // to save on performance, only allow a max number of comparisons
     if (option.length > MAX_NUM_SELECTED_REGIONS) {
       setSnackbarText(
-        `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
+        MAX_NUM_SELECTED_REGIONS_TEXT
       );
       handleOpenSnackbar();
       return;
@@ -315,7 +315,7 @@ export default function GoogleRealtime() {
     // to save on performance, only allow a max number of comparisons
     if (selectedRegions.length >= MAX_NUM_SELECTED_REGIONS) {
       setSnackbarText(
-        `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
+        MAX_NUM_SELECTED_REGIONS_TEXT
       );
       handleOpenSnackbar();
       return;
@@ -604,7 +604,11 @@ export default function GoogleRealtime() {
                 }
                 mapColorMode={mapColorMode}
                 trendNumberToShow={trendNumberToShow}
-                countryTrendName={googleTrends[trendNumberToShow] ? googleTrends[trendNumberToShow].title : null}
+                countryTrendName={
+                  googleTrends && googleTrends[trendNumberToShow]
+                    ? googleTrends[trendNumberToShow].title
+                    : null
+                }
               />
             </div>
           </div>

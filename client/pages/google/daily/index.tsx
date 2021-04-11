@@ -93,7 +93,8 @@ export default function GoogleDaily() {
   // max # of trends per region, total
   const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   // max # of regions that can be compared
-  const MAX_NUM_SELECTED_REGIONS = 10;
+  const MAX_NUM_SELECTED_REGIONS = 5;
+  const MAX_NUM_SELECTED_REGIONS_TEXT = `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Please remove some regions before comparing more.`;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
   const [isAlphabetical, setIsAlphabetical] = useState<boolean>(false);
@@ -261,7 +262,7 @@ export default function GoogleDaily() {
     // to save on performance, only allow a max number of comparisons
     if (option.length > MAX_NUM_SELECTED_REGIONS) {
       setSnackbarText(
-        `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
+        MAX_NUM_SELECTED_REGIONS_TEXT
       );
       handleOpenSnackbar();
       return;
@@ -302,7 +303,7 @@ export default function GoogleDaily() {
     // to save on performance, only allow a max number of comparisons
     if (selectedRegions.length >= MAX_NUM_SELECTED_REGIONS) {
       setSnackbarText(
-        `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Remove some regions via the dropdown select menu.`
+        MAX_NUM_SELECTED_REGIONS_TEXT
       );
       handleOpenSnackbar();
       return;
@@ -579,7 +580,7 @@ export default function GoogleDaily() {
                 }
                 mapColorMode={mapColorMode}
                 trendNumberToShow={trendNumberToShow}
-                countryTrendName={googleTrends[trendNumberToShow] ? googleTrends[trendNumberToShow]?.title?.query : null}
+                countryTrendName={googleTrends &&  googleTrends[trendNumberToShow] ? googleTrends[trendNumberToShow]?.title?.query : null}
               />
             </div>
           </div>
