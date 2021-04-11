@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: "3rem",
   },
   trendingName: {
-    width: "99%",
+    maxWidth: "10rem",
     textOverflow: "ellipsis",
     overflow: "hidden",
     whiteSpace: "nowrap",

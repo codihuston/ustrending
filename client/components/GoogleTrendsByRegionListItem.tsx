@@ -23,11 +23,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   topRight: { position: "absolute", top: 0, right: 0 },
   trendingRank: {
+    minWidth: "3rem",
     borderRadius: "2px",
     textAlign: "center",
   },
   trendingName: {
-    width: "99%",
+    maxWidth: "10rem",
     textOverflow: "ellipsis",
     overflow: "hidden",
     whiteSpace: "nowrap",
@@ -125,7 +126,6 @@ const GoogleTrendsByRegionListItem: FunctionComponent<Props> = ({
                 <Box
                   display="flex"
                   justifyContent="center"
-                  width={"3rem"}
                   className={classes.trendingRank}
                   style={{
                     background: colorMap.get(trend.topic),
