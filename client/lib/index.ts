@@ -24,8 +24,8 @@ export function getListPositionChange(
 }
 
 export function getSelectedRegionOption(
-  regionName,
-  selectedRegions
+  regionName: string,
+  selectedRegions: ValueType<SelectStringOptionType, true>
 ): ValueType<SelectStringOptionType, true> {
   for (const givenRegion of selectedRegions) {
     if (givenRegion.label === regionName || givenRegion.value === regionName) {
