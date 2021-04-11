@@ -88,15 +88,24 @@ export async function getServerSideProps() {
   };
 }
 
-export default function GoogleDaily() {
+export default function TrendingNearby() {
   // stateful data
   const INITIAL_VALUE = "10002";
   const [zipcode, setZipcode] = useState<string>(INITIAL_VALUE);
+  const [coordinates, setCoordinates] = useState<[number, number]>(null);
 
-  const { data } = usePlacesByZipcode(zipcode, 1);
+  const { data: placesByZipcode } = usePlacesByZipcode(zipcode, 1);
+  const { data: placesByCoordinates } = usePlacesByGPS(coordinates, 1);
+  const places = placesByZipcode || placesByCoordinates || [];
 
   const handleChangeZipcode = (zipcode) => {
     setZipcode(zipcode);
+    setCoordinates(null);
+  };
+
+  const handleChangeCoordinates = (coordinates) => {
+    setCoordinates(coordinates);
+    setZipcode(null);
   };
 
   return (
@@ -107,14 +116,21 @@ export default function GoogleDaily() {
       <Box>
         <Paper>
           <h2>Trending Nearby</h2>
-          <LocationForm handleChangeZipcode={handleChangeZipcode} />
-          TODO: Show Trending in US, Realtime, Today
-          {data && data[0].name}
-          {data &&
-            data.map((p, i) => {
+          <div>
+            <LocationForm
+              initialValue={zipcode}
+              handleChangeZipcode={handleChangeZipcode}
+              handleChangeCoordinates={handleChangeCoordinates}
+            />
+            {!places.length ? `No location found!` : null}
+          </div>
+          {places &&
+            places.map((p, i) => {
               return (
                 <div key={i}>
-                  {p.name}, {p.region}, [{p.geo.coordinates[0]}, {p.geo.coordinates[1]}], {p.region ? convertRegion(p.region, false) : null}
+                  {p.name}, {p.region}, [{p.geo.coordinates[0]},{" "}
+                  {p.geo.coordinates[1]}],{" "}
+                  {p.region ? convertRegion(p.region, false) : null}
                 </div>
               );
             })}

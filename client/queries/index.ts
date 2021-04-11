@@ -151,7 +151,9 @@ export async function fetchNearestPlaceByZipcode(
 
   try {
     // TODO: append `&limit=${limit}` after fixing the 404
-    const { data } = await http.get(`/places/nearest/${zipcode}`);
+    const { data } = await http.get(`/places/nearest`, {
+      params: { zipcode, limit },
+    });
     return data;
   } catch (e) {
     console.error(e);
@@ -168,9 +170,13 @@ export async function fetchNearestPlaceByGPS(
   }
 
   try {
-    const { data } = await http.get(
-      `/places/nearest/point/long=${coordinates[0]}&lat=${coordinates[1]}&limit=${limit}`
-    );
+    const { data } = await http.get(`/places/nearest/point`, {
+      params: {
+        long: coordinates[0],
+        lat: coordinates[1],
+        limit: limit,
+      },
+    });
     return data;
   } catch (e) {
     console.error(e);

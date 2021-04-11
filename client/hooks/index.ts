@@ -122,15 +122,13 @@ export function usePlacesByZipcode(zipcode: string, limit: number = 1) {
   return useQuery<Place[], Error>(
     ["placeByZipcode", zipcode],
     () => fetchNearestPlaceByZipcode(zipcode, limit),
-    {
-      cacheTime: 0
-    }
+    DEFAULT_REACT_QUERY_OPTIONS
   );
 }
 
 export function usePlacesByGPS(coordinates: [number, number], limit: number) {
   return useQuery<Place[], Error>(
-    "placeByGPS",
+    ["placeByGPS", coordinates],
     () => fetchNearestPlaceByGPS(coordinates, limit),
     DEFAULT_REACT_QUERY_OPTIONS
   );

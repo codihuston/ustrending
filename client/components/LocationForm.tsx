@@ -4,9 +4,6 @@ import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import SearchIcon from "@material-ui/icons/Search";
-import DirectionsIcon from "@material-ui/icons/Directions";
 import MyLocationIcon from "@material-ui/icons/MyLocation";
 
 import {
@@ -39,18 +36,24 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type Props = {
   handleChangeZipcode(zipcode: string);
+  handleChangeCoordinates(coordinates: [number, number]);
+  initialValue: string;
 };
 
 const CustomizedInputBase: FunctionComponent<Props> = ({
   handleChangeZipcode,
+  handleChangeCoordinates,
+  initialValue,
 }) => {
   const classes = useStyles();
-  const INITIAL_VALUE = "10002"; // NYC
-  const [value, setValue] = useState<string>(INITIAL_VALUE);
+  const [value, setValue] = useState<string>(initialValue);
 
   const handleClickGPS = () => {
     navigator.geolocation.getCurrentPosition(function (position) {
-      console.log(position.coords.latitude, position.coords.longitude);
+      handleChangeCoordinates([
+        position.coords.longitude,
+        position.coords.latitude,
+      ]);
     });
   };
 
@@ -73,6 +76,7 @@ const CustomizedInputBase: FunctionComponent<Props> = ({
       >
         <MyLocationIcon />
       </IconButton>
+      <Divider className={classes.divider} orientation="vertical" />
       <InputBase
         className={classes.input}
         placeholder="Enter a Zipcode"
@@ -80,13 +84,6 @@ const CustomizedInputBase: FunctionComponent<Props> = ({
         value={value}
         onChange={handleChangeValue}
       />
-      <IconButton
-        type="submit"
-        className={classes.iconButton}
-        aria-label="search"
-      >
-        <SearchIcon />
-      </IconButton>
     </Paper>
   );
 };
