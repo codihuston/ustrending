@@ -579,7 +579,7 @@ export default function GoogleDaily() {
                 }
                 mapColorMode={mapColorMode}
                 trendNumberToShow={trendNumberToShow}
-                countryTrendName={googleTrends[trendNumberToShow].title.query}
+                countryTrendName={googleTrends[trendNumberToShow] ? googleTrends[trendNumberToShow]?.title?.query : null}
               />
             </div>
           </div>

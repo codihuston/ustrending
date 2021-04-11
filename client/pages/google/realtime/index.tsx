@@ -604,7 +604,7 @@ export default function GoogleRealtime() {
                 }
                 mapColorMode={mapColorMode}
                 trendNumberToShow={trendNumberToShow}
-                countryTrendName={googleTrends[trendNumberToShow].title}
+                countryTrendName={googleTrends[trendNumberToShow] ? googleTrends[trendNumberToShow].title : null}
               />
             </div>
           </div>
