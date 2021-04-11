@@ -52,6 +52,9 @@ import GoogleTrendsMap, {
   MapColorMode,
 } from "../../../components/GoogleTrendsMap";
 
+// max # of trends per region, total
+const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
+
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
   mapContainer: {
@@ -94,8 +97,6 @@ export default function GoogleRealtime() {
   // overridden by maxNumTrendsToShow
   // total # trends per region to render (up to the total)
   const DEFAULT_NUM_TRENDS_TO_SHOW = 10;
-  // max # of trends per region, total
-  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   // max # of regions that can be compared
   const MAX_NUM_SELECTED_REGIONS = 5;
   const MAX_NUM_SELECTED_REGIONS_TEXT = `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Please remove some regions before comparing more.`;
