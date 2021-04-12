@@ -8,14 +8,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GetNearestZipcodeByPoint assumes will always return a twitter place
+// GetNearestZipcodeByPoint returns X zipcode documents closest to a given point
 func GetNearestZipcodeByPoint(w http.ResponseWriter, r *http.Request) {
+	zipcode := &models.ZipCode{}
 	long, err := strconv.ParseFloat(r.URL.Query().Get("long"), 64)
 	lat, err := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
 	limit, err := strconv.ParseInt(r.URL.Query().Get("limit"), 10, 64)
 
-	place := &models.Place{}
-	results, err := place.GetNearestPlaceByPoint(long, lat, limit)
+	results, err := zipcode.GetNearestZipcodeByPoint(long, lat, limit)
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -29,7 +29,7 @@ func GetNearestZipcodeByPoint(w http.ResponseWriter, r *http.Request) {
 	RespondWithJSON(w, http.StatusOK, results)
 }
 
-// GetNearestPlaceByZipcode returns a twitter place closest to a given zipcode
+// GetZipcode returns a zipcode document matching the given zipcode
 func GetZipcode(w http.ResponseWriter, r *http.Request) {
 	zipcode := &models.ZipCode{}
 

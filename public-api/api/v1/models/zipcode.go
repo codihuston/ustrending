@@ -85,7 +85,7 @@ func (z *ZipCode) GetZipCode(zipcode string) (*ZipCode, error) {
 }
 
 // GetNearestPlaceByPoint returns up to 5 locations nearest to a given point
-func (p *ZipCode) GetNearestZipcodeByPoint(long, lat float64, limit int64) ([]*ZipCode, error) {
+func (z *ZipCode) GetNearestZipcodeByPoint(long, lat float64, limit int64) ([]*ZipCode, error) {
 	var cacheKey = fmt.Sprintf("zipcode:%f,%f:%d", long, lat, limit)
 	var results []*ZipCode
 	ttl := time.Hour * 3
@@ -112,20 +112,16 @@ func (p *ZipCode) GetNearestZipcodeByPoint(long, lat float64, limit int64) ([]*Z
 
 			// otherwise fetch from database
 			dbClient := database.GetDatabaseConnection()
-			collection := dbClient.Collection(collectionName)
+			collection := dbClient.Collection(z.GetCollectionName())
 
 			cur, err := collection.Find(ctx, bson.M{
-				"geo": bson.M{
+				"geometry": bson.M{
 					"$near": bson.M{
 						"$geometry": bson.M{
 							"type":        "Point",
 							"coordinates": bson.A{long, lat},
 						},
 					},
-				},
-				"placeType": bson.M{
-					"code": 7,
-					"name": "Town",
 				},
 			}, findOptions)
 
