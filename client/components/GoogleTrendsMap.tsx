@@ -226,9 +226,18 @@ const GoogleTrendsMap = ({
       // find its popularity rank for this region
       const rank = getTrendAtRankForRegion(name);
       // calculate the opacity (more popular = darker)
-      const val = Number(
+      let val = Number(
         Math.abs(rank / googleRegionTrends.length - 1).toFixed(2)
       );
+
+      // boundary check
+      if (val > 1){
+        val = 1;
+      }
+      else if(val < 0){
+        val = 0.1
+      }
+      
       // change the color's opacity accordingly
       color = fade(color ? color : defaultColor, val);
     }
