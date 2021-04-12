@@ -18,6 +18,7 @@ import {
   fetchNearestPlaceByGPS,
   fetchTwitterRealtimeTrends,
   fetchUSPlaces,
+  fetchNearestZipcodesByGPS,
   fetchZipcode,
 } from "../queries";
 
@@ -140,6 +141,14 @@ export function useZipcode(zipcode: string, limit: number = 1) {
   return useQuery<ZipCode, Error>(
     ["zipcode", zipcode],
     () => fetchZipcode(zipcode, limit),
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
+}
+
+export function useZipcodesByGPS(coordinates: [number, number], limit: number) {
+  return useQuery<ZipCode[], Error>(
+    ["zipcodes", coordinates],
+    () => fetchNearestZipcodesByGPS(coordinates, limit),
     DEFAULT_REACT_QUERY_OPTIONS
   );
 }

@@ -41,7 +41,7 @@ import {
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
   usePlacesByZipcode,
-  usePlacesByGPS,
+  useZipcodesByGPS,
   useZipcode,
 } from "../../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
@@ -95,10 +95,18 @@ export default function TrendingNearby() {
   const INITIAL_VALUE = "10002";
   const [zipcode, setZipcode] = useState<string>(INITIAL_VALUE);
   const [coordinates, setCoordinates] = useState<[number, number]>(null);
-
+  // hooks
   const { data: zipcodePlace } = useZipcode(zipcode, 1);
-  const { data: placesByCoordinates } = usePlacesByGPS(coordinates, 1);
-  const places: ZipCode[] = [].concat(zipcodePlace); //placesByZipcode || placesByCoordinates || [];
+  const { data: zipcodesByGPS } = useZipcodesByGPS(coordinates, 1);
+  // computed data
+  let places: ZipCode[] = [];
+
+  if(zipcodePlace){
+    places = [].concat(zipcodePlace)
+  }
+  else if(zipcodesByGPS){
+    places = [].concat(zipcodesByGPS)
+  }
 
   const handleChangeZipcode = (zipcode) => {
     setZipcode(zipcode);
@@ -109,7 +117,7 @@ export default function TrendingNearby() {
     setCoordinates(coordinates);
     setZipcode(null);
   };
-
+  
   return (
     <Layout>
       <Head>

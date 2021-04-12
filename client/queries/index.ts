@@ -199,7 +199,30 @@ export async function fetchZipcode(
     });
     return data;
   } catch (e) {
-    console.error("Failed to get nearest twitter place by zipcode:", e?.response?.status, e?.response?.statusText);
+    console.error("Failed to get zipcode:", e?.response?.status, e?.response?.statusText);
+  }
+  return [];
+}
+
+export async function fetchNearestZipcodesByGPS(
+  coordinates: [number, number],
+  limit: number = 1
+) {
+  if (!coordinates) {
+    return null;
+  }
+
+  try {
+    const { data } = await http.get(`/zipcodes/nearest/point`, {
+      params: {
+        long: coordinates[0],
+        lat: coordinates[1],
+        limit: limit,
+      },
+    });
+    return data;
+  } catch (e) {
+    console.error("Failed to get nearest zipcodes:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
