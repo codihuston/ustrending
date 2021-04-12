@@ -114,7 +114,7 @@ func (p *Place) GetPlaces(countryCode string) ([]Place, error) {
 			panic(err)
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)
@@ -136,7 +136,6 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64, limit int64) ([]*Place
 	} else if limit <= 0 {
 		limit = 1
 	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -197,7 +196,7 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64, limit int64) ([]*Place
 			panic(err)
 		}
 	} else {
-		log.Info("CACHE HIT!", cacheKey)
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)

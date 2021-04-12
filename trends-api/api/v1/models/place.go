@@ -112,7 +112,7 @@ func (p *Place) GetPlaces(countryCode string) ([]Place, error) {
 			panic(err)
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)

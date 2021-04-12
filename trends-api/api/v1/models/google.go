@@ -188,7 +188,7 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 			return results, err
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)
