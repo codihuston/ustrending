@@ -66,7 +66,7 @@ import GoogleTrendsMap, {
 } from "../../../components/GoogleTrendsMap";
 
 const MAX_NUM_GOOGLE_REGION_TRENDS = parseInt(
-  process.env.MAX_NUM_GOOGLE_REGION_TRENDS
+  process.env.NEXT_PUBLIC_MAX_NUM_GOOGLE_REGION_TRENDS
 );
 const realtimeTrendsHasDuplicates = false;
 const shouldExpandRealtimeTrends = true;

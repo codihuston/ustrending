@@ -53,7 +53,7 @@ import GoogleTrendsMap, {
 } from "../../../components/GoogleTrendsMap";
 
 // max # of trends per region, total
-const MAX_NUM_GOOGLE_REGION_TRENDS = parseInt(process.env.MAX_NUM_GOOGLE_REGION_TRENDS);
+const MAX_NUM_GOOGLE_REGION_TRENDS = parseInt(process.env.NEXT_PUBLIC_MAX_NUM_GOOGLE_REGION_TRENDS);
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
@@ -96,9 +96,9 @@ export default function GoogleRealtime() {
   const hasDuplicates = false;
   // overridden by maxNumTrendsToShow
   // total # trends per region to render (up to the total)
-  const DEFAULT_NUM_TRENDS_TO_SHOW = parseInt(process.env.DEFAULT_NUM_TRENDS_TO_SHOW);
+  const DEFAULT_NUM_TRENDS_TO_SHOW = parseInt(process.env.NEXT_PUBLIC_DEFAULT_NUM_TRENDS_TO_SHOW);
   // max # of regions that can be compared
-  const MAX_NUM_SELECTED_REGIONS = parseInt(process.env.MAX_NUM_SELECTED_REGIONS);
+  const MAX_NUM_SELECTED_REGIONS = parseInt(process.env.NEXT_PUBLIC_MAX_NUM_SELECTED_REGIONS);
   const MAX_NUM_SELECTED_REGIONS_TEXT = `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Please remove some regions before comparing more.`;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
