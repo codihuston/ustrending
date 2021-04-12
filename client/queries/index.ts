@@ -1,4 +1,5 @@
 import { http } from "../services";
+import { AxiosError } from "axios";
 
 import {
   GoogleDailyTrend,
@@ -11,7 +12,7 @@ export async function fetchGoogleDailyTrends() {
     const { data } = await http.get<GoogleDailyTrend[]>("/google/trends/daily");
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google daily trends: http", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -23,7 +24,7 @@ export async function fetchGoogleDailyTrendsByState() {
     );
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google region trends:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -83,7 +84,7 @@ export async function fetchGoogleRealtimeTrends(
     }
     return hasDuplicates ? data : removeDuplicates(data);
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google realtime trends:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -116,7 +117,7 @@ export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
 
     return hasDuplicates ? data : removeDuplicates(data);
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google region trends by state:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -126,7 +127,7 @@ export async function fetchTwitterRealtimeTrends() {
     const { data } = await http.get("/twitter/trends");
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get twitter trends:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -136,7 +137,7 @@ export async function fetchUSPlaces() {
     const { data } = await http.get("/places/US");
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get twitter US places:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -156,7 +157,7 @@ export async function fetchNearestPlaceByZipcode(
     });
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get nearest twitter place by zipcode:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -179,7 +180,7 @@ export async function fetchNearestPlaceByGPS(
     });
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get nearest twitter place by GPS:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
