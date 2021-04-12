@@ -42,7 +42,7 @@ func GetZipcode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// handle not found
-	if results.IsEmpty() {
+	if results == nil {
 		RespondWithError(w, http.StatusNotFound, "Not found")
 		return
 	}
