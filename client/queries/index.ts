@@ -184,3 +184,22 @@ export async function fetchNearestPlaceByGPS(
   }
   return [];
 }
+
+export async function fetchZipcode(
+  zipcode: string,
+  limit: number = 1
+) {
+  if (!zipcode) {
+    return null;
+  }
+
+  try {
+    const { data } = await http.get(`/zipcodes/${zipcode}`, {
+      params: { limit },
+    });
+    return data;
+  } catch (e) {
+    console.error("Failed to get nearest twitter place by zipcode:", e?.response?.status, e?.response?.statusText);
+  }
+  return [];
+}

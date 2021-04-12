@@ -30,6 +30,7 @@ import { convertRegion } from "../../../lib";
 import {
   GoogleDailyTrendArticle,
   SelectStringOptionType,
+  ZipCode,
 } from "../../../types";
 import {
   fetchGoogleDailyTrends,
@@ -41,6 +42,7 @@ import {
   useGoogleDailyTrendsByState,
   usePlacesByZipcode,
   usePlacesByGPS,
+  useZipcode,
 } from "../../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import Layout from "../../../components/Layout";
@@ -94,9 +96,9 @@ export default function TrendingNearby() {
   const [zipcode, setZipcode] = useState<string>(INITIAL_VALUE);
   const [coordinates, setCoordinates] = useState<[number, number]>(null);
 
-  const { data: placesByZipcode } = usePlacesByZipcode(zipcode, 1);
+  const { data: zipcodePlace } = useZipcode(zipcode, 1);
   const { data: placesByCoordinates } = usePlacesByGPS(coordinates, 1);
-  const places = placesByZipcode || placesByCoordinates || [];
+  const places: ZipCode[] = [].concat(zipcodePlace); //placesByZipcode || placesByCoordinates || [];
 
   const handleChangeZipcode = (zipcode) => {
     setZipcode(zipcode);
@@ -126,11 +128,14 @@ export default function TrendingNearby() {
           </div>
           {places &&
             places.map((p, i) => {
+              if(!p){
+                return
+              }
               return (
                 <div key={i}>
-                  {p.name}, {p.region}, [{p.geo.coordinates[0]},{" "}
-                  {p.geo.coordinates[1]}],{" "}
-                  {p.region ? convertRegion(p.region, false) : null}
+                  {p.Fields.city}, {p.Fields.state}, [{p.geometry.coordinates[0]},{" "}
+                  {p.geometry.coordinates[1]}],{" "}
+                  {p.Fields.state ? convertRegion(p.Fields.state, false) : null}
                 </div>
               );
             })}

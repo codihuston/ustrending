@@ -7,6 +7,7 @@ import {
   GoogleRealtimeTrend,
   Place,
   TwitterTrendsMap,
+  ZipCode
 } from "../types";
 import {
   fetchGoogleDailyTrends,
@@ -17,6 +18,7 @@ import {
   fetchNearestPlaceByGPS,
   fetchTwitterRealtimeTrends,
   fetchUSPlaces,
+  fetchZipcode,
 } from "../queries";
 
 const DEFAULT_REACT_QUERY_OPTIONS = {
@@ -130,6 +132,14 @@ export function usePlacesByGPS(coordinates: [number, number], limit: number) {
   return useQuery<Place[], Error>(
     ["placeByGPS", coordinates],
     () => fetchNearestPlaceByGPS(coordinates, limit),
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
+}
+
+export function useZipcode(zipcode: string, limit: number = 1) {
+  return useQuery<ZipCode, Error>(
+    ["zipcode", zipcode],
+    () => fetchZipcode(zipcode, limit),
     DEFAULT_REACT_QUERY_OPTIONS
   );
 }

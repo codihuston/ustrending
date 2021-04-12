@@ -97,3 +97,18 @@ export interface TwitterLocation {
 }
 
 export type SelectStringOptionType = { label: string; value: string };
+
+export interface ZipCode {
+  _id: string;
+  Fields: {
+    city: string;
+    zip: string;
+    dst: number;
+    state: string;
+    timezone: number;
+  };
+  geometry: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+}
