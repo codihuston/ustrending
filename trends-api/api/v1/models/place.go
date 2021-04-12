@@ -93,7 +93,7 @@ func (p *Place) GetPlaces(countryCode string) ([]Place, error) {
 				var result = Place{}
 				err := cur.Decode(&result)
 				if err != nil {
-					log.Fatal(err)
+					log.Error(err)
 				}
 				// do something with result....
 				results = append(results, result)

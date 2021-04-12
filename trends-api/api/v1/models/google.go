@@ -52,7 +52,7 @@ func min(x, y int) int {
 // LogGogTrendsError will log a gogtrends error
 func LogGogTrendsError(err error, errMsg string) {
 	if err != nil {
-		log.Fatal(errors.Wrap(err, errMsg))
+		log.Error(errors.Wrap(err, errMsg))
 	}
 }
 
@@ -61,14 +61,14 @@ func PrintGogTrends(items interface{}) {
 	ref := reflect.ValueOf(items)
 
 	if ref.Kind() != reflect.Slice {
-		log.Fatalf("Failed to print %s. It's not a slice type.", ref.Kind())
+		log.Errorf("Failed to print %s. It's not a slice type.", ref.Kind())
 	}
 
 	for i := 0; i < ref.Len(); i++ {
 		//MarshalIndent
 		empJSON, err := json.MarshalIndent(ref.Index(i).Interface(), "", "  ")
 		if err != nil {
-			log.Fatalf(err.Error())
+			log.Errorf(err.Error())
 		}
 		fmt.Printf("%s\n", string(empJSON))
 		// log.Println(ref.Index(i).Interface())
@@ -348,7 +348,7 @@ func (g GoogleTrend) getInterestByLocation(ctx context.Context, keyword, loc, ti
 
 	//LogGogTrendsError(err, "Error getting region data for google trends")
 	if err != nil {
-		log.Fatal("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
+		log.Error("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
 		return results, err
 	}
 
@@ -363,7 +363,7 @@ func (g GoogleTrend) getInterestByLocation(ctx context.Context, keyword, loc, ti
 
 			//LogGogTrendsError(err, "Error getting region data for google trends")
 			if err != nil {
-				log.Fatal("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
+				log.Error("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
 				return results, err
 			}
 
