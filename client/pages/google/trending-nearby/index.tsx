@@ -46,6 +46,7 @@ import {
 } from "../../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import Layout from "../../../components/Layout";
+import Loading from "../../../components/Loading";
 import LocationForm from "../../../components/LocationForm";
 import ColorPalette from "../../../components/ColorPalette";
 import GoogleRealtimeTrendArticleDialog from "../../../components/GoogleRealtimeTrendArticleDialog";
@@ -96,16 +97,22 @@ export default function TrendingNearby() {
   const [zipcode, setZipcode] = useState<string>(INITIAL_VALUE);
   const [coordinates, setCoordinates] = useState<[number, number]>(null);
   // hooks
-  const { data: zipcodePlace } = useZipcode(zipcode, 1);
-  const { data: zipcodesByGPS } = useZipcodesByGPS(coordinates, 1);
+  const { data: zipcodePlace, isLoading: isLoadingZip } = useZipcode(
+    zipcode,
+    1
+  );
+  const { data: zipcodesByGPS, isLoading: isLoadingZipGPS } = useZipcodesByGPS(
+    coordinates,
+    1
+  );
   // computed data
   let places: ZipCode[] = [];
+  const isLoading = isLoadingZip || isLoadingZipGPS;
 
-  if(zipcodePlace){
-    places = [].concat(zipcodePlace)
-  }
-  else if(zipcodesByGPS){
-    places = [].concat(zipcodesByGPS)
+  if (zipcodePlace) {
+    places = [].concat(zipcodePlace);
+  } else if (zipcodesByGPS) {
+    places = [].concat(zipcodesByGPS);
   }
 
   const handleChangeZipcode = (zipcode) => {
@@ -117,7 +124,7 @@ export default function TrendingNearby() {
     setCoordinates(coordinates);
     setZipcode(null);
   };
-  
+
   return (
     <Layout>
       <Head>
@@ -132,17 +139,21 @@ export default function TrendingNearby() {
               handleChangeZipcode={handleChangeZipcode}
               handleChangeCoordinates={handleChangeCoordinates}
             />
-            {!places.length ? `No location found!` : null}
+            {isLoading
+              ? <Loading/>
+              : !places.length
+              ? `No location found!`
+              : null}
           </div>
           {places &&
             places.map((p, i) => {
-              if(!p){
-                return
+              if (!p) {
+                return;
               }
               return (
                 <div key={i}>
-                  {p.Fields.city}, {p.Fields.state}, [{p.geometry.coordinates[0]},{" "}
-                  {p.geometry.coordinates[1]}],{" "}
+                  {p.Fields.city}, {p.Fields.state}, [
+                  {p.geometry.coordinates[0]}, {p.geometry.coordinates[1]}],{" "}
                   {p.Fields.state ? convertRegion(p.Fields.state, false) : null}
                 </div>
               );
