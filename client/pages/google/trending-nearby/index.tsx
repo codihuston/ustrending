@@ -35,11 +35,15 @@ import {
 import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
+  fetchGoogleRealtimeTrends,
+  fetchGoogleRealtimeTrendsByState,
 } from "../../../queries";
 import {
   useDebouncedCallback,
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
+  useGoogleRealtimeTrends,
+  useGooleRealtimeTrendsByState,
   usePlacesByZipcode,
   useZipcodesByGPS,
   useZipcode,
@@ -60,6 +64,12 @@ import GoogleTrendsTableContainer, {
 import GoogleTrendsMap, {
   MapColorMode,
 } from "../../../components/GoogleTrendsMap";
+
+const MAX_NUM_GOOGLE_REGION_TRENDS = parseInt(
+  process.env.MAX_NUM_GOOGLE_REGION_TRENDS
+);
+const realtimeTrendsHasDuplicates = false;
+const shouldExpandRealtimeTrends = true;
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
@@ -83,6 +93,16 @@ export async function getServerSideProps() {
     "googleDailyTrendsByState",
     fetchGoogleDailyTrendsByState
   );
+  await queryClient.prefetchQuery("googleRealtimeTrends", () =>
+    fetchGoogleRealtimeTrends(
+      shouldExpandRealtimeTrends,
+      realtimeTrendsHasDuplicates,
+      MAX_NUM_GOOGLE_REGION_TRENDS
+    )
+  );
+  await queryClient.prefetchQuery("googleRealtimeTrendsByState", () =>
+    fetchGoogleRealtimeTrendsByState(realtimeTrendsHasDuplicates)
+  );
 
   return {
     props: {
@@ -104,6 +124,17 @@ export default function TrendingNearby() {
   const { data: zipcodesByGPS, isLoading: isLoadingZipGPS } = useZipcodesByGPS(
     coordinates,
     1
+  );
+  // data
+  const { data: googleDailyTrends } = useGoogleDailyTrends();
+  const { data: googleDailyRegionTrends } = useGoogleDailyTrendsByState();
+  const { data: googleRealtimeTrends } = useGoogleRealtimeTrends(
+    shouldExpandRealtimeTrends,
+    realtimeTrendsHasDuplicates,
+    MAX_NUM_GOOGLE_REGION_TRENDS
+  );
+  const { data: googleRealtimeRegionTrends } = useGooleRealtimeTrendsByState(
+    realtimeTrendsHasDuplicates
   );
   // computed data
   let places: ZipCode[] = [];
@@ -139,22 +170,60 @@ export default function TrendingNearby() {
               handleChangeZipcode={handleChangeZipcode}
               handleChangeCoordinates={handleChangeCoordinates}
             />
-            {isLoading
-              ? <Loading/>
-              : !places.length
-              ? `No location found!`
-              : null}
+            {isLoading ? (
+              <Loading />
+            ) : !places.length ? (
+              `No location found!`
+            ) : null}
           </div>
           {places &&
             places.map((p, i) => {
+              const regionFullName = p.Fields.state
+                ? convertRegion(p.Fields.state, false)
+                : null;
               if (!p) {
                 return;
               }
               return (
                 <div key={i}>
                   {p.Fields.city}, {p.Fields.state}, [
-                  {p.geometry.coordinates[0]}, {p.geometry.coordinates[1]}],{" "}
-                  {p.Fields.state ? convertRegion(p.Fields.state, false) : null}
+                  {p.geometry.coordinates[0]}, {p.geometry.coordinates[1]}]
+                  <div>Trending Overall Today in the United States</div>
+                  <ul>
+                    {googleDailyTrends.map((t, i) => (
+                      <li key={i}>
+                        {i + 1} {t.title.query}
+                      </li>
+                    ))}
+                  </ul>
+                  <div>Trending Right Now in the United States</div>
+                  <ul>
+                    {googleRealtimeTrends.map((t, i) => (
+                      <li key={i}>
+                        {i + 1} {t.title}
+                      </li>
+                    ))}
+                  </ul>
+                  <div>Trending Overall Today for {regionFullName}</div>
+                  <ul>
+                    {googleDailyRegionTrends
+                      .find((x) => x.name === regionFullName)
+                      .trends.map((t, i) => (
+                        <li key={i}>
+                          {i + 1} {t.topic}
+                        </li>
+                      ))}
+                  </ul>
+                  <div>Trending Right Now for {regionFullName}</div>
+                  <ul>
+                    {googleRealtimeRegionTrends
+                      .find((x) => x.name === regionFullName)
+                      .trends.map((t, i) => (
+                        <li key={i}>
+                          {i + 1} {t.topic}
+                        </li>
+                      ))}
+                  </ul>
                 </div>
               );
             })}
