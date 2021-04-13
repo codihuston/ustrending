@@ -12,29 +12,6 @@ import {
   useGoogleDailyTrendsByState,
 } from "../../../hooks";
 
-function getGoogleTrendNames(googleTrends, maxNumTrendsToShow) {
-  return googleTrends
-    .map((trends) => trends.title.query)
-    .slice(0, maxNumTrendsToShow);
-}
-
-function getGoogleTrendArticles(googleTrends, selectedTrend) {
-  return selectedTrend
-    ? googleTrends
-        .filter((trend) => trend.title.query === selectedTrend)
-        .map((trend) => {
-          return trend.articles;
-        })
-        .flat(1)
-    : [];
-}
-
-function getCountryTrendName(googleTrends, trendNumberToShow) {
-  return googleTrends && googleTrends[trendNumberToShow]
-    ? googleTrends[trendNumberToShow]?.title?.query
-    : null;
-}
-
 export default function Daily() {
   // data
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
@@ -51,9 +28,6 @@ export default function Daily() {
       <GoogleTrendsPage
         googleTrends={googleTrends}
         googleRegionTrends={googleRegionTrends}
-        getGoogleTrendNames={getGoogleTrendNames}
-        getGoogleTrendArticles={getGoogleTrendArticles}
-        getCountryTrendName={getCountryTrendName}
       />
     </Layout>
   );

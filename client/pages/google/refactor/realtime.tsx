@@ -3,6 +3,10 @@ import GoogleTrendsPage from "./GoogleTrendsPage";
 import Head from "next/head";
 import Layout from "../../../components/Layout";
 import {
+  GoogleRealtimeTrend,
+  GoogleRealtimeTrendArticle,
+} from "../../../types";
+import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
 } from "../../../queries";
@@ -11,29 +15,6 @@ import {
   useGoogleRealtimeTrends,
   useGooleRealtimeTrendsByState,
 } from "../../../hooks";
-
-function getGoogleTrendNames(googleTrends, maxNumTrendsToShow) {
-  return googleTrends
-    .map((trends) => trends.title)
-    .slice(0, maxNumTrendsToShow);
-}
-
-function getGoogleTrendArticles(googleTrends, selectedTrend) {
-  return selectedTrend
-    ? googleTrends
-        .filter((trend) => trend.title === selectedTrend)
-        .map((trend) => {
-          return trend.articles;
-        })
-        .flat(1)
-    : [];
-}
-
-function getCountryTrendName(googleTrends, trendNumberToShow) {
-  return googleTrends && googleTrends[trendNumberToShow]
-    ? googleTrends[trendNumberToShow]?.title
-    : null;
-}
 
 export default function Daily() {
   const hasDuplicates = false;
@@ -65,9 +46,6 @@ export default function Daily() {
       <GoogleTrendsPage
         googleTrends={googleTrends}
         googleRegionTrends={googleRegionTrends}
-        getGoogleTrendNames={getGoogleTrendNames}
-        getGoogleTrendArticles={getGoogleTrendArticles}
-        getCountryTrendName={getCountryTrendName}
       />
     </Layout>
   );

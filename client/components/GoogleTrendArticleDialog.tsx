@@ -23,6 +23,7 @@ import {
   GoogleDailyTrendArticle,
   GoogleRealtimeTrend,
   GoogleRealtimeTrendArticle,
+  isGoogleDailyTrendArticle
 } from "../types";
 import GoogleDailyTrendArticleCard from "./GoogleDailyTrendArticleCard";
 import GoogleRealtimeTrendArticleCard from "./GoogleRealtimeTrendArticleCard";
@@ -48,14 +49,8 @@ type Props = {
   googleTrendsUrlQueryToken: string;
   handleCloseDialog();
   selectedTrend: string;
-  relatedArticles: GoogleDailyTrendArticle[] | GoogleRealtimeTrendArticle[];
+  relatedArticles: (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[];
 };
-
-function isGoogleDailyTrendArticle(
-  article: GoogleDailyTrendArticle | GoogleRealtimeTrendArticle
-): article is GoogleDailyTrendArticle {
-  return (article as GoogleDailyTrendArticle).title !== undefined;
-}
 
 export default function GoogleTrendArticleDialog({
   googleTrendsUrl,

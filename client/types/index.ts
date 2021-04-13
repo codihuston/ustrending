@@ -112,3 +112,30 @@ export interface ZipCode {
     coordinates: [number, number];
   };
 }
+
+export function isGoogleDailyTrend(
+  trend: GoogleDailyTrend | GoogleRealtimeTrend
+): trend is GoogleDailyTrend {
+  return (trend as GoogleDailyTrend)?.title?.query !== undefined;
+}
+
+export function isGoogleRealtimeTrend(
+  trend: GoogleDailyTrend | GoogleRealtimeTrend
+): trend is GoogleRealtimeTrend {
+  return (
+    (trend as GoogleRealtimeTrend)?.title !== undefined &&
+    (trend as GoogleDailyTrend)?.title?.query === undefined
+  );
+}
+
+export function isGoogleDailyTrendArticle(
+  article: GoogleDailyTrendArticle | GoogleRealtimeTrendArticle
+): article is GoogleDailyTrendArticle {
+  return (article as GoogleDailyTrendArticle).title !== undefined;
+}
+
+export function isGoogleRealtimeTrendArticle(
+  article: GoogleDailyTrendArticle | GoogleRealtimeTrendArticle
+): article is GoogleRealtimeTrendArticle {
+  return (article as GoogleRealtimeTrendArticle).articleTitle !== undefined;
+}
