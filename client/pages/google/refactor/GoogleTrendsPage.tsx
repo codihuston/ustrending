@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 type Props = {
-  googleTrends: GoogleDailyTrend[] | GoogleRealtimeTrend[];
+  googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[];
   googleRegionTrends: GoogleRegionTrend[];
 };
 
@@ -146,11 +146,8 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
 
     // compute state around googleTrends
     if (googleTrends) {
-      const allTrendNames = getGoogleTrendNames(
-        googleTrends,
-        googleTrends.length
-      );
-      const trendNames = getGoogleTrendNames(googleTrends, maxNumTrendsToShow);
+      const allTrendNames = getGoogleTrendNames(googleTrends.length);
+      const trendNames = getGoogleTrendNames(maxNumTrendsToShow);
 
       // init the color palette
       const palette = getColors(
@@ -196,20 +193,17 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
 
   useEffect(() => {
     if (googleTrends) {
-      setRelatedArticles(getGoogleTrendArticles(googleTrends, selectedTrend));
+      setRelatedArticles(getGoogleTrendArticles());
     }
   }, [selectedTrend]);
 
   useEffect(() => {
     if (googleTrends) {
-      setCountryTrendName(getCountryTrendName(googleTrends, trendNumberToShow));
+      setCountryTrendName(getCountryTrendName());
     }
   }, [trendNumberToShow]);
 
-  const getGoogleTrendNames = (
-    googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
-    maxNumTrendsToShow: number
-  ): string[] => {
+  const getGoogleTrendNames = (max): string[] => {
     return googleTrends
       .map((trend) => {
         if (isGoogleDailyTrend(trend)) {
@@ -218,13 +212,13 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
           return trend.title;
         }
       })
-      .slice(0, maxNumTrendsToShow);
-  }
+      .slice(0, max);
+  };
 
-  const getGoogleTrendArticles = (
-    googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
-    selectedTrend: string
-  ): (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[] => {
+  const getGoogleTrendArticles = (): (
+    | GoogleDailyTrendArticle
+    | GoogleRealtimeTrendArticle
+  )[] => {
     return selectedTrend
       ? googleTrends
           .filter((trend) => {
@@ -239,12 +233,9 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
           })
           .flat(1)
       : [];
-  }
+  };
 
-  const getCountryTrendName = (
-    googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
-    trendNumberToShow: number
-  ) => {
+  const getCountryTrendName = () => {
     if (googleTrends) {
       const trend = googleTrends[trendNumberToShow];
       if (isGoogleDailyTrend(trend)) {
@@ -254,7 +245,15 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
       }
     }
     return null;
-  }
+  };
+
+  const getTrendCountDisplay = () => {
+    return googleTrends &&
+      googleTrends.length &&
+      googleTrends.length <= MAX_NUM_GOOGLE_REGION_TRENDS
+      ? `${maxNumTrendsToShow}/${MAX_NUM_GOOGLE_REGION_TRENDS}`
+      : MAX_NUM_GOOGLE_REGION_TRENDS;
+  };
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -643,13 +642,7 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
             >
               <Grid item xs={12} md={3}>
                 <Typography id="discrete-slider" gutterBottom>
-                  Number of Trends ({maxNumTrendsToShow}/
-                  {googleTrends &&
-                  googleTrends.length &&
-                  googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                    ? googleTrends.length
-                    : MAX_NUM_GOOGLE_REGION_TRENDS}
-                  )
+                  Number of Trends ({getTrendCountDisplay()})
                 </Typography>
               </Grid>
               <Grid item xs={12} md={8}>
@@ -739,13 +732,7 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
               >
                 <Grid item xs={12} md={3}>
                   <Typography id="discrete-slider" gutterBottom>
-                    Number of Trends ({maxNumTrendsToShow}/
-                    {googleTrends &&
-                    googleTrends.length &&
-                    googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                      ? googleTrends.length
-                      : MAX_NUM_GOOGLE_REGION_TRENDS}
-                    )
+                    Number of Trends ({getTrendCountDisplay()})
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={8}>
