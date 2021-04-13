@@ -67,6 +67,7 @@ export default function GoogleTrendsPage({
   googleRegionTrends,
   getGoogleTrendNames,
   getGoogleTrendArticles,
+  getCountryTrendName
 }) {
   const googleTrendsUrlQueryToken = "QUERY";
   const googleTrendsUrl = `https://trends.google.com/trends/explore?q=${googleTrendsUrlQueryToken}&date=now%201-d&geo=US`;
@@ -123,6 +124,7 @@ export default function GoogleTrendsPage({
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const [googleTrendsNames, setGoogleTrendsNames] = useState<string[]>([]);
+  const [countryTrendName, setCountryTrendName] = useState<string>("");
   const [relatedArticles, setRelatedArticles] = useState<
     GoogleDailyTrendArticle[]
   >([]);
@@ -182,6 +184,13 @@ export default function GoogleTrendsPage({
       setRelatedArticles(getGoogleTrendArticles(googleTrends, selectedTrend));
     }
   }, [selectedTrend]);
+
+  
+  useEffect(() => {
+    if (googleTrends) {
+      setCountryTrendName(getCountryTrendName(googleTrends, trendNumberToShow));
+    }
+  }, [trendNumberToShow]);
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -518,7 +527,7 @@ export default function GoogleTrendsPage({
                           : `Showing popularity of #${
                               trendNumberToShow + 1
                             } trend in the country (${
-                              googleTrends[trendNumberToShow].title.query
+                              countryTrendName
                             })`
                       }`}
                     />
@@ -555,11 +564,7 @@ export default function GoogleTrendsPage({
                   }
                   mapColorMode={mapColorMode}
                   trendNumberToShow={trendNumberToShow}
-                  countryTrendName={
-                    googleTrends && googleTrends[trendNumberToShow]
-                      ? googleTrends[trendNumberToShow]?.title?.query
-                      : null
-                  }
+                  countryTrendName={countryTrendName}
                 />
               </div>
             </div>

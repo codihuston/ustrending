@@ -29,6 +29,12 @@ function getGoogleTrendArticles(googleTrends, selectedTrend) {
     : [];
 }
 
+function getCountryTrendName(googleTrends, trendNumberToShow) {
+  return googleTrends && googleTrends[trendNumberToShow]
+    ? googleTrends[trendNumberToShow]?.title
+    : null;
+}
+
 export default function Daily() {
   const hasDuplicates = false;
   const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
@@ -51,7 +57,9 @@ export default function Daily() {
   return (
     <Layout>
       <Head>
-        <title>Google Realtime Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
+        <title>
+          Google Realtime Trends | {process.env.NEXT_PUBLIC_APP_NAME}
+        </title>
       </Head>
       <h2>Trending Now on Google</h2>
       <GoogleTrendsPage
@@ -59,6 +67,7 @@ export default function Daily() {
         googleRegionTrends={googleRegionTrends}
         getGoogleTrendNames={getGoogleTrendNames}
         getGoogleTrendArticles={getGoogleTrendArticles}
+        getCountryTrendName={getCountryTrendName}
       />
     </Layout>
   );

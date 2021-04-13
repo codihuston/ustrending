@@ -29,6 +29,12 @@ function getGoogleTrendArticles(googleTrends, selectedTrend) {
     : [];
 }
 
+function getCountryTrendName(googleTrends, trendNumberToShow) {
+  return googleTrends && googleTrends[trendNumberToShow]
+    ? googleTrends[trendNumberToShow]?.title?.query
+    : null;
+}
+
 export default function Daily() {
   // data
   const useGoogleDailyTrendsHook = useGoogleDailyTrends();
@@ -47,6 +53,7 @@ export default function Daily() {
         googleRegionTrends={googleRegionTrends}
         getGoogleTrendNames={getGoogleTrendNames}
         getGoogleTrendArticles={getGoogleTrendArticles}
+        getCountryTrendName={getCountryTrendName}
       />
     </Layout>
   );
