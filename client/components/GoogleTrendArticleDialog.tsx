@@ -19,8 +19,13 @@ import {
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 
-import { GoogleDailyTrendArticle } from "../types";
-import ArticleDetailCard from "./GoogleDailyTrendArticleCard";
+import {
+  GoogleDailyTrendArticle,
+  GoogleRealtimeTrend,
+  GoogleRealtimeTrendArticle,
+} from "../types";
+import GoogleDailyTrendArticleCard from "./GoogleDailyTrendArticleCard";
+import GoogleRealtimeTrendArticleCard from "./GoogleRealtimeTrendArticleCard";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -43,10 +48,16 @@ type Props = {
   googleTrendsUrlQueryToken: string;
   handleCloseDialog();
   selectedTrend: string;
-  relatedArticles: GoogleDailyTrendArticle[];
+  relatedArticles: GoogleDailyTrendArticle[] | GoogleRealtimeTrendArticle[];
 };
 
-export default function GoogleDailyTrendArticleDialog({
+function isGoogleDailyTrendArticle(
+  article: GoogleDailyTrendArticle | GoogleRealtimeTrendArticle
+): article is GoogleDailyTrendArticle {
+  return (article as GoogleDailyTrendArticle).title !== undefined;
+}
+
+export default function GoogleTrendArticleDialog({
   googleTrendsUrl,
   googleTrendsUrlQueryToken,
   handleCloseDialog,
@@ -72,13 +83,19 @@ export default function GoogleDailyTrendArticleDialog({
 
   if (!relatedArticles) return null;
 
-  const articles = relatedArticles.map((article, i) => {
-    return (
-      <ListItem key={i}>
-        <ArticleDetailCard article={article} />
-      </ListItem>
-    );
-  });
+  const articles = relatedArticles.map(
+    (article: GoogleDailyTrendArticle | GoogleRealtimeTrendArticle, i) => {
+      return (
+        <ListItem key={i}>
+          {isGoogleDailyTrendArticle(article) ? (
+            <GoogleDailyTrendArticleCard article={article} />
+          ) : (
+            <GoogleRealtimeTrendArticleCard article={article} />
+          )}
+        </ListItem>
+      );
+    }
+  );
 
   return (
     <div>

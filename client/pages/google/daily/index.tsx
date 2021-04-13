@@ -41,7 +41,7 @@ import {
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import Layout from "../../../components/Layout";
 import ColorPalette from "../../../components/ColorPalette";
-import GoogleDailyTrendArticleDialog from "../../../components/GoogleDailyTrendArticleDialog";
+import GoogleTrendArticleDialog from "../../../components/GoogleTrendArticleDialog";
 import GoogleTrendsList from "../../../components/GoogleTrendsList";
 import GoogleTrendsByRegionList from "../../../components/GoogleTrendsByRegionList";
 import RegionSelect from "../../../components/RegionSelect";
@@ -443,13 +443,13 @@ export default function GoogleDaily() {
       <Head>
         <title>Google Daily Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
       </Head>
-      <GoogleDailyTrendArticleDialog
+      <GoogleTrendArticleDialog
         googleTrendsUrl={googleTrendsUrl}
         googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
         handleCloseDialog={handleCloseDialog}
         relatedArticles={relatedArticles}
         selectedTrend={selectedTrend}
-      ></GoogleDailyTrendArticleDialog>
+      ></GoogleTrendArticleDialog>
       <Snackbar
         anchorOrigin={{
           vertical: "bottom",

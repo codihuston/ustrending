@@ -54,7 +54,7 @@ import Loading from "../../../components/Loading";
 import LocationForm from "../../../components/LocationForm";
 import ColorPalette from "../../../components/ColorPalette";
 import GoogleRealtimeTrendArticleDialog from "../../../components/GoogleRealtimeTrendArticleDialog";
-import GoogleDailyTrendArticleDialog from "../../../components/GoogleDailyTrendArticleDialog";
+import GoogleTrendArticleDialog from "../../../components/GoogleTrendArticleDialog";
 import GoogleTrendsList from "../../../components/GoogleTrendsList";
 import GoogleTrendsByRegionList from "../../../components/GoogleTrendsByRegionList";
 import RegionSelect from "../../../components/RegionSelect";

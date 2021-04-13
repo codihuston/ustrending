@@ -37,7 +37,7 @@ import { useDebouncedCallback } from "../../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../../themes";
 import Layout from "../../../components/Layout";
 import ColorPalette from "../../../components/ColorPalette";
-import GoogleDailyTrendArticleDialog from "../../../components/GoogleDailyTrendArticleDialog";
+import GoogleTrendArticleDialog from "../../../components/GoogleTrendArticleDialog";
 import GoogleTrendsList from "../../../components/GoogleTrendsList";
 import GoogleTrendsByRegionList from "../../../components/GoogleTrendsByRegionList";
 import RegionSelect from "../../../components/RegionSelect";
@@ -66,6 +66,7 @@ export default function GoogleTrendsPage({
   googleTrends,
   googleRegionTrends,
   getGoogleTrendNames,
+  getGoogleTrendArticles,
 }) {
   const googleTrendsUrlQueryToken = "QUERY";
   const googleTrendsUrl = `https://trends.google.com/trends/explore?q=${googleTrendsUrlQueryToken}&date=now%201-d&geo=US`;
@@ -178,16 +179,7 @@ export default function GoogleTrendsPage({
 
   useEffect(() => {
     if (googleTrends) {
-      setRelatedArticles(
-        selectedTrend
-          ? googleTrends
-              .filter((trend) => trend.title.query === selectedTrend)
-              .map((trend) => {
-                return trend.articles;
-              })
-              .flat(1)
-          : []
-      );
+      setRelatedArticles(getGoogleTrendArticles(googleTrends, selectedTrend));
     }
   }, [selectedTrend]);
 
@@ -426,13 +418,13 @@ export default function GoogleTrendsPage({
       <Head>
         <title>Google Daily Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
       </Head>
-      <GoogleDailyTrendArticleDialog
+      <GoogleTrendArticleDialog
         googleTrendsUrl={googleTrendsUrl}
         googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
         handleCloseDialog={handleCloseDialog}
         relatedArticles={relatedArticles}
         selectedTrend={selectedTrend}
-      ></GoogleDailyTrendArticleDialog>
+      ></GoogleTrendArticleDialog>
       <Snackbar
         anchorOrigin={{
           vertical: "bottom",

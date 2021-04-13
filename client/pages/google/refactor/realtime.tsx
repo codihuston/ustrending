@@ -16,6 +16,17 @@ function getGoogleTrendNames(googleTrends, maxNumTrendsToShow) {
     .slice(0, maxNumTrendsToShow);
 }
 
+function getGoogleTrendArticles(googleTrends, selectedTrend) {
+  return selectedTrend
+    ? googleTrends
+        .filter((trend) => trend.title === selectedTrend)
+        .map((trend) => {
+          return trend.articles;
+        })
+        .flat(1)
+    : [];
+}
+
 export default function Daily() {
   const hasDuplicates = false;
   const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
@@ -40,6 +51,7 @@ export default function Daily() {
       googleTrends={googleTrends}
       googleRegionTrends={googleRegionTrends}
       getGoogleTrendNames={getGoogleTrendNames}
+      getGoogleTrendArticles={getGoogleTrendArticles}
     />
   );
 }
