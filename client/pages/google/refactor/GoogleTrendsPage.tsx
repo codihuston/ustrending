@@ -70,56 +70,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-function getGoogleTrendNames(
-  googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
-  maxNumTrendsToShow: number
-): string[] {
-  return googleTrends
-    .map((trend) => {
-      if (isGoogleDailyTrend(trend)) {
-        return trend.title.query;
-      } else if (isGoogleRealtimeTrend(trend)) {
-        return trend.title;
-      }
-    })
-    .slice(0, maxNumTrendsToShow);
-}
-
-function getGoogleTrendArticles(
-  googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
-  selectedTrend: string
-): (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[] {
-  return selectedTrend
-    ? googleTrends
-        .filter((trend) => {
-          if (isGoogleDailyTrend(trend)) {
-            return trend.title.query === selectedTrend;
-          } else if (isGoogleRealtimeTrend(trend)) {
-            return trend.title === selectedTrend;
-          }
-        })
-        .map((trend) => {
-          return trend.articles;
-        })
-        .flat(1)
-    : [];
-}
-
-function getCountryTrendName(
-  googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
-  trendNumberToShow: number
-) {
-  if (googleTrends) {
-    const trend = googleTrends[trendNumberToShow];
-    if (isGoogleDailyTrend(trend)) {
-      return trend?.title?.query;
-    } else if (isGoogleRealtimeTrend(trend)) {
-      return trend?.title;
-    }
-  }
-  return null;
-}
-
 type Props = {
   googleTrends: GoogleDailyTrend[] | GoogleRealtimeTrend[];
   googleRegionTrends: GoogleRegionTrend[];
@@ -255,6 +205,56 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
       setCountryTrendName(getCountryTrendName(googleTrends, trendNumberToShow));
     }
   }, [trendNumberToShow]);
+
+  const getGoogleTrendNames = (
+    googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
+    maxNumTrendsToShow: number
+  ): string[] => {
+    return googleTrends
+      .map((trend) => {
+        if (isGoogleDailyTrend(trend)) {
+          return trend.title.query;
+        } else if (isGoogleRealtimeTrend(trend)) {
+          return trend.title;
+        }
+      })
+      .slice(0, maxNumTrendsToShow);
+  }
+
+  const getGoogleTrendArticles = (
+    googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
+    selectedTrend: string
+  ): (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[] => {
+    return selectedTrend
+      ? googleTrends
+          .filter((trend) => {
+            if (isGoogleDailyTrend(trend)) {
+              return trend.title.query === selectedTrend;
+            } else if (isGoogleRealtimeTrend(trend)) {
+              return trend.title === selectedTrend;
+            }
+          })
+          .map((trend) => {
+            return trend.articles;
+          })
+          .flat(1)
+      : [];
+  }
+
+  const getCountryTrendName = (
+    googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[],
+    trendNumberToShow: number
+  ) => {
+    if (googleTrends) {
+      const trend = googleTrends[trendNumberToShow];
+      if (isGoogleDailyTrend(trend)) {
+        return trend?.title?.query;
+      } else if (isGoogleRealtimeTrend(trend)) {
+        return trend?.title;
+      }
+    }
+    return null;
+  }
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
