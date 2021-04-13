@@ -16,7 +16,7 @@ import {
   useGooleRealtimeTrendsByState,
 } from "../../../hooks";
 
-export default function Daily() {
+export default function Realtime() {
   const hasDuplicates = false;
   const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
   // data
