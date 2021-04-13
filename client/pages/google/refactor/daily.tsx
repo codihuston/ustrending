@@ -1,5 +1,7 @@
 import GoogleTrendsPage from "./GoogleTrendsPage";
 
+import Head from "next/head";
+import Layout from "../../../components/Layout";
 import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
@@ -35,11 +37,17 @@ export default function Daily() {
   const googleRegionTrends = useGoogleDailyTrendsByStateHook.data;
 
   return (
-    <GoogleTrendsPage
-      googleTrends={googleTrends}
-      googleRegionTrends={googleRegionTrends}
-      getGoogleTrendNames={getGoogleTrendNames}
-      getGoogleTrendArticles={getGoogleTrendArticles}
-    />
+    <Layout>
+      <Head>
+        <title>Google Daily Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
+      </Head>
+      <h2>Trending Today on Google</h2>
+      <GoogleTrendsPage
+        googleTrends={googleTrends}
+        googleRegionTrends={googleRegionTrends}
+        getGoogleTrendNames={getGoogleTrendNames}
+        getGoogleTrendArticles={getGoogleTrendArticles}
+      />
+    </Layout>
   );
 }

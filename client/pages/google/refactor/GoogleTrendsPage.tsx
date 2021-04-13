@@ -414,10 +414,7 @@ export default function GoogleTrendsPage({
   };
 
   return (
-    <Layout>
-      <Head>
-        <title>Google Daily Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
-      </Head>
+    <>
       <GoogleTrendArticleDialog
         googleTrendsUrl={googleTrendsUrl}
         googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
@@ -455,7 +452,6 @@ export default function GoogleTrendsPage({
       />
       <Box>
         <Paper>
-          <h2>Trending Today on Google</h2>
           <section>
             <h3>Select a Region to Compare</h3>
             <Typography>
@@ -734,6 +730,6 @@ export default function GoogleTrendsPage({
           </section>
         </Paper>
       </Box>
-    </Layout>
+    </>
   );
 }
