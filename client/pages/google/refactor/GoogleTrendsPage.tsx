@@ -136,21 +136,23 @@ export default function GoogleTrendsPage({
 
     // compute state around googleTrends
     if (googleTrends) {
+      const allTrendNames = getGoogleTrendNames(googleTrends, googleTrends.length);
       const trendNames = getGoogleTrendNames(googleTrends, maxNumTrendsToShow);
 
       // init the color palette
-      // const palette = getColors(selectedPalette.value, selectedContrast.value, maxNumTrendsToShow);
       const palette = getColors(
         selectedPalette.value,
         selectedContrast.value,
         googleTrends.length
       );
 
-      trendNames.map((name, i) => {
+      // init the colors for all trends
+      allTrendNames.map((name, i) => {
         colorMap.set(name, palette[i]);
         sourceMap.set(name, i);
       });
 
+      // init the list of trends (only the ones within the given limit)
       setGoogleTrendsNames(trendNames);
     }
 
