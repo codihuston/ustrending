@@ -390,7 +390,7 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   const debouncedHandleMapHover = useDebouncedCallback(handleMapHover, 250);
 
   const handleTrendClick = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    e: React.MouseEvent<HTMLButtonElement|HTMLDivElement, MouseEvent>,
     name: string
   ): void => {
     setSelectedTrend(name);
@@ -596,6 +596,17 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
                       }`}
                     />
                   ) : null}
+                  <Grid item>
+                    {mapColorMode === MapColorMode.One ? (
+                      <Button
+                        onClick={(e) => handleTrendClick(e, countryTrendName)}
+                        variant="contained"
+                        color="primary"
+                      >
+                        Click for News on this Trend
+                      </Button>
+                    ) : null}
+                  </Grid>
                   <TextField
                     defaultValue={1}
                     id="standard-number"
