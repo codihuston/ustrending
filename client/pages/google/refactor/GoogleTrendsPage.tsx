@@ -460,20 +460,23 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   ) => {
     const newValue: number =
       event.target.value === "" ? 1 : Number(event.target.value);
-    // the slider is 1 indexed
-    if (newValue - 1 < 0) {
-      setTrendNumberToShow(0);
-    } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
-      setTrendNumberToShow(MAX_NUM_GOOGLE_REGION_TRENDS);
-    } else if (
-      googleTrends &&
-      googleTrends.length > 0 &&
-      newValue > googleTrends.length
-    ) {
-      setTrendNumberToShow(googleTrends.length - 1);
+    let validValue = 0;
+
+    if (googleTrends && googleTrends.length > 0) {
+      // the slider is 1 indexed
+      if (newValue - 1 < 0) {
+        validValue = 0;
+      } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
+        validValue = MAX_NUM_GOOGLE_REGION_TRENDS - 1;
+      } else if (newValue > googleTrends.length) {
+        validValue = googleTrends.length - 1;
+      } else {
+        validValue = newValue - 1;
+      }
     } else {
-      setTrendNumberToShow(newValue - 1);
+      validValue = 1;
     }
+    setTrendNumberToShow(validValue);
   };
 
   const debouncedHandleInputChangeTrendNumberToShow = useDebouncedCallback(
@@ -600,7 +603,10 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
                       shrink: true,
                     }}
                     InputProps={{
-                      inputProps: { min: 1, max: MAX_NUM_GOOGLE_REGION_TRENDS },
+                      inputProps: {
+                        min: 1,
+                        max: MAX_NUM_GOOGLE_REGION_TRENDS,
+                      },
                     }}
                     label="Trend #"
                     onChange={debouncedHandleInputChangeTrendNumberToShow}

@@ -163,7 +163,7 @@ const GoogleTrendsMap = ({
    * @param region
    */
   function getRegionTrendNameAt(index: number, region: GoogleRegionTrend) {
-    if (index > region.trends.length) {
+    if (index > region.trends.length || region.trends[index] === undefined) {
       debug(
         "An out-of-bound index was given for accessing regional trends at index:",
         index,
