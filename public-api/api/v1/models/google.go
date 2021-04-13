@@ -100,7 +100,7 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 		if err == redis.Nil {
 			log.Info("CACHE MISS:", cacheKey)
 			// set nothing; worker will populate this memstore eventually...
-			return results, err
+			return results, nil
 		}
 	} else {
 
