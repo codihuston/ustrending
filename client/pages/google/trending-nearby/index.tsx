@@ -29,8 +29,11 @@ import { AiOutlineInfoCircle } from "react-icons/ai";
 import { convertRegion } from "../../../lib";
 import {
   GoogleDailyTrendArticle,
+  GoogleRealtimeTrendArticle,
   SelectStringOptionType,
   ZipCode,
+  isGoogleDailyTrend,
+  isGoogleRealtimeTrend,
 } from "../../../types";
 import {
   fetchGoogleDailyTrends,
@@ -65,6 +68,11 @@ import GoogleTrendsMap, {
   MapColorMode,
 } from "../../../components/GoogleTrendsMap";
 
+// total # trends per region to render (up to the total)
+const DEFAULT_NUM_TRENDS_TO_SHOW = parseInt(
+  process.env.NEXT_PUBLIC_DEFAULT_NUM_TRENDS_TO_SHOW
+);
+// max # of trends per region, total
 const MAX_NUM_GOOGLE_REGION_TRENDS = parseInt(
   process.env.NEXT_PUBLIC_MAX_NUM_GOOGLE_REGION_TRENDS
 );
@@ -112,10 +120,31 @@ export async function getServerSideProps() {
 }
 
 export default function TrendingNearby() {
+  const googleTrendsUrlQueryToken = "QUERY";
+  const googleTrendsUrl = `https://trends.google.com/trends/explore?q=${googleTrendsUrlQueryToken}&date=now%201-d&geo=US`;
   // stateful data
   const INITIAL_VALUE = "10002";
   const [zipcode, setZipcode] = useState<string>(INITIAL_VALUE);
   const [coordinates, setCoordinates] = useState<[number, number]>(null);
+  const [isWithColors, setIsWithColors] = useState<boolean>(true);
+  const [highlightedTrend, setHighlightedTrend] = useState<string>("");
+  const [selectedTrend, setSelectedTrend] = useState<string>("");
+  const [maxNumTrendsToShow, setMaxNumTrendsToShow] = useState<number>(
+    DEFAULT_NUM_TRENDS_TO_SHOW
+  );
+  const [relatedArticles, setRelatedArticles] = useState<
+    (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[]
+  >([]);
+  // daily trends state
+  const [googleDailyTrendsNames, setGoogleDailyTrendsNames] = useState<
+    string[]
+  >([]);
+  const [googleDailyColorMap, setColorMap] = useState<Map<string, string>>(
+    new Map()
+  );
+  const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
+  // realtime trend state
+  // ...
   // hooks
   const { data: zipcodePlace, isLoading: isLoadingZip } = useZipcode(
     zipcode,
@@ -140,6 +169,118 @@ export default function TrendingNearby() {
   let places: ZipCode[] = [];
   const isLoading = isLoadingZip || isLoadingZipGPS;
 
+  useEffect(() => {
+    const colorMap = new Map<string, string>();
+    const sourceMap = new Map<string, number>();
+
+    // compute state around googleTrends
+    if (googleDailyTrends) {
+      const allTrendNames = getGoogleTrendNames(
+        googleDailyTrends,
+        googleDailyTrends.length
+      );
+      const trendNames = getGoogleTrendNames(
+        googleDailyTrends,
+        maxNumTrendsToShow
+      );
+
+      // init the color palette
+      const palette = getColors(
+        "Rainbow",
+        "Very High",
+        googleDailyTrends.length
+      );
+
+      // init the colors for all trends
+      allTrendNames.map((name, i) => {
+        colorMap.set(name, palette[i]);
+        sourceMap.set(name, i);
+      });
+
+      // init the list of trends (only the ones within the given limit)
+      setGoogleDailyTrendsNames(trendNames);
+    }
+
+    // compute state around googleRegionTrends (for table)
+    // if (googleDailyRegionTrends) {
+    //   setRows(
+    //     googleDailyRegionTrends.map((region) => {
+    //       const topics = region.trends.map((trend) => trend.topic);
+
+    //       return {
+    //         region: region.name,
+    //         ...topics,
+    //       };
+    //     })
+    //   );
+    // }
+    // setTooltipVisibility(true);
+    setColorMap(colorMap);
+    setSourceMap(sourceMap);
+  }, [
+    googleDailyTrends,
+    googleDailyRegionTrends,
+    // isTooltipVisible,
+    maxNumTrendsToShow,
+    // selectedContrast,
+    // selectedPalette,
+  ]);
+
+  useEffect(() => {
+    if (googleDailyTrends) {
+      setRelatedArticles(getGoogleTrendArticles(googleDailyTrends));
+    }
+  }, [googleDailyTrends, selectedTrend]);
+
+  const getGoogleTrendArticles = (
+    trends
+  ): (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[] => {
+    return selectedTrend
+      ? trends
+          .filter((trend) => {
+            if (isGoogleDailyTrend(trend)) {
+              return trend.title.query === selectedTrend;
+            } else if (isGoogleRealtimeTrend(trend)) {
+              return trend.title === selectedTrend;
+            }
+          })
+          .map((trend) => {
+            return trend.articles;
+          })
+          .flat(1)
+      : [];
+  };
+
+  const getGoogleTrendNames = (trends, max): string[] => {
+    return trends
+      .map((trend) => {
+        if (isGoogleDailyTrend(trend)) {
+          return trend.title.query;
+        } else if (isGoogleRealtimeTrend(trend)) {
+          return trend.title;
+        }
+      })
+      .slice(0, max);
+  };
+
+  const handleTrendClick = (
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement, MouseEvent>,
+    name: string
+  ): void => {
+    setSelectedTrend(name);
+  };
+
+  const handleChangeHighlightedTrend = (name: string) => {
+    setHighlightedTrend(name);
+  };
+
+  /**
+   * Will nullify selectedTrend
+   */
+  const handleCloseDialog = () => {
+    setSelectedTrend("");
+  };
+
   if (zipcodePlace) {
     places = [].concat(zipcodePlace);
   } else if (zipcodesByGPS) {
@@ -156,11 +297,25 @@ export default function TrendingNearby() {
     setZipcode(null);
   };
 
+  const selectedRegions = [
+    {
+      label: "Kentucky",
+      value: "Kentucky",
+    },
+  ];
+
   return (
     <Layout>
       <Head>
         <title>Trending Nearby | {process.env.NEXT_PUBLIC_APP_NAME}</title>
       </Head>
+      <GoogleTrendArticleDialog
+        googleTrendsUrl={googleTrendsUrl}
+        googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
+        handleCloseDialog={handleCloseDialog}
+        relatedArticles={relatedArticles}
+        selectedTrend={selectedTrend}
+      ></GoogleTrendArticleDialog>
       <Box>
         <Paper>
           <h2>Trending Nearby</h2>
@@ -205,7 +360,7 @@ export default function TrendingNearby() {
                     ))}
                   </ul>
                   <div>Trending Overall Today for {regionFullName}</div>
-                  <ul>
+                  {/* <ul>
                     {googleDailyRegionTrends
                       .find((x) => x.name === regionFullName)
                       .trends.map((t, i) => (
@@ -213,7 +368,36 @@ export default function TrendingNearby() {
                           {i + 1} {t.topic}
                         </li>
                       ))}
-                  </ul>
+                  </ul> */}
+                  <GoogleTrendsList
+                    googleTrendNames={googleDailyTrendsNames}
+                    colorMap={googleDailyColorMap}
+                    withColor={isWithColors}
+                    handleTrendClick={handleTrendClick}
+                    highlightedTrend={highlightedTrend}
+                    handleChangeHighlightedTrend={handleChangeHighlightedTrend}
+                  >
+                    <GoogleTrendsByRegionList
+                      googleRegionTrends={
+                        googleDailyRegionTrends ? googleDailyRegionTrends : []
+                      }
+                      // handleClick={handleListDelete}
+                      handleTrendClick={handleTrendClick}
+                      isAlphabetical={true}
+                      maxNumTrendsToShow={maxNumTrendsToShow}
+                      sourceMap={sourceMap}
+                      selectedRegions={[
+                        { label: regionFullName, value: regionFullName },
+                      ]}
+                      colorMap={googleDailyColorMap}
+                      withColor={isWithColors}
+                      withTitle
+                      highlightedTrend={highlightedTrend}
+                      handleChangeHighlightedTrend={
+                        handleChangeHighlightedTrend
+                      }
+                    />
+                  </GoogleTrendsList>
                   <div>Trending Right Now for {regionFullName}</div>
                   <ul>
                     {googleRealtimeRegionTrends

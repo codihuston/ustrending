@@ -390,7 +390,7 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   const debouncedHandleMapHover = useDebouncedCallback(handleMapHover, 250);
 
   const handleTrendClick = (
-    e: React.MouseEvent<HTMLButtonElement|HTMLDivElement, MouseEvent>,
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement, MouseEvent>,
     name: string
   ): void => {
     setSelectedTrend(name);
@@ -460,12 +460,12 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   ) => {
     const newValue: number =
       event.target.value === "" ? 1 : Number(event.target.value);
-    let validValue = 0;
+    let validValue = 1;
 
     if (googleTrends && googleTrends.length > 0) {
       // the slider is 1 indexed
       if (newValue - 1 < 0) {
-        validValue = 0;
+        validValue = 1;
       } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
         validValue = MAX_NUM_GOOGLE_REGION_TRENDS - 1;
       } else if (newValue > googleTrends.length) {
@@ -487,6 +487,8 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   const handleChangeHighlightedTrend = (name: string) => {
     setHighlightedTrend(name);
   };
+
+  console.log("trendNumberToShow", trendNumberToShow);
 
   return (
     <>
