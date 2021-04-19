@@ -9,7 +9,7 @@ import GoogleTrendsByRegionListItem from "./GoogleTrendsByRegionListItem";
 type Props = {
   colorMap: Map<string, string>;
   googleRegionTrends: GoogleRegionTrend[];
-  handleClick(
+  handleClick?(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<SelectStringOptionType, true>
   ): void;

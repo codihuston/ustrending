@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 type Props = {
   colorMap: Map<string, string>;
   region: GoogleRegionTrend;
-  handleClick(
+  handleClick?(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<SelectStringOptionType, true>
   ): void;
@@ -96,27 +96,38 @@ const GoogleTrendsByRegionListItem: FunctionComponent<Props> = ({
     <>
       {withTitle ? (
         <>
-          <ListItem
-            button
-            className="cursor-pointer"
-            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
-              handleClick(
-                e,
-                getSelectedRegionOption(region.name, selectedRegions)
-              )
-            }
-          >
-            <ListItemText>
-              <Box textAlign="center">{region.name}</Box>
-            </ListItemText>
-            <IconButton
-              className={classes.topRight}
-              aria-label="delete"
-              color="secondary"
+          {handleClick ? (
+            <ListItem
+              button
+              className="cursor-pointer"
+              onClick={
+                handleClick
+                  ? (e: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
+                      handleClick(
+                        e,
+                        getSelectedRegionOption(region.name, selectedRegions)
+                      )
+                  : null
+              }
             >
-              <DeleteIcon />
-            </IconButton>
-          </ListItem>
+              <ListItemText>
+                <Box textAlign="center">{region.name}</Box>
+              </ListItemText>
+              <IconButton
+                className={classes.topRight}
+                aria-label="delete"
+                color="secondary"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </ListItem>
+          ) : (
+            <ListItem>
+              <ListItemText>
+                <Box textAlign="center">{region.name}</Box>
+              </ListItemText>
+            </ListItem>
+          )}
           <Divider />
         </>
       ) : null}
@@ -131,7 +142,9 @@ const GoogleTrendsByRegionListItem: FunctionComponent<Props> = ({
             key={i}
             button
             onMouseEnter={(e) => handleChangeHighlightedTrend(trend.topic)}
-            className={highlightedTrend === trend.topic ? classes.highlight : null}
+            className={
+              highlightedTrend === trend.topic ? classes.highlight : null
+            }
           >
             <Box display="flex" width={"100%"}>
               {withColor ? (
