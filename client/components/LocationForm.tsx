@@ -80,7 +80,7 @@ const CustomizedInputBase: FunctionComponent<Props> = ({
       <InputBase
         className={classes.input}
         placeholder="Enter a Zipcode"
-        inputProps={{ "aria-label": "enter a zipcode" }}
+        inputProps={{ "aria-label": "Enter a zipcode", label: "Zipcode" }}
         value={value}
         name="zip"
         id="zip"
