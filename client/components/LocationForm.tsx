@@ -82,6 +82,8 @@ const CustomizedInputBase: FunctionComponent<Props> = ({
         placeholder="Enter a Zipcode"
         inputProps={{ "aria-label": "enter a zipcode" }}
         value={value}
+        name="zip"
+        id="zip"
         onChange={handleChangeValue}
       />
     </Paper>
