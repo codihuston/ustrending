@@ -132,6 +132,7 @@ export default function TrendingNearby() {
   const [maxNumTrendsToShow, setMaxNumTrendsToShow] = useState<number>(
     DEFAULT_NUM_TRENDS_TO_SHOW
   );
+  const [zipcodePlaces, setZipcodePlaces] = useState<ZipCode[]>([]);
   const [relatedArticles, setRelatedArticles] = useState<
     (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[]
   >([]);
@@ -169,7 +170,6 @@ export default function TrendingNearby() {
     realtimeTrendsHasDuplicates
   );
   // computed data
-  let places: ZipCode[] = [];
   const isLoading = isLoadingZip || isLoadingZipGPS;
 
   useEffect(() => {
@@ -236,23 +236,29 @@ export default function TrendingNearby() {
   }, [googleDailyTrends, selectedTrend]);
 
   useEffect(() => {
-    if (googleDailyTrends) {
-      setSelectedRegions(
-        places.map((p) => {
-          const regionFullName = p.Fields.state
-            ? convertRegion(p.Fields.state, false)
-            : null;
-          if (!regionFullName) {
-            return;
-          }
-          return {
-            label: regionFullName,
-            value: regionFullName,
-          };
-        })
-      );
+    if (zipcodePlace) {
+      setZipcodePlaces([].concat(zipcodePlace));
+    } else if (zipcodesByGPS) {
+      setZipcodePlaces([].concat(zipcodesByGPS));
     }
-  }, [places]);
+  }, [zipcodePlace, zipcodesByGPS]);
+
+  useEffect(() => {
+    setSelectedRegions(
+      zipcodePlaces.map((p) => {
+        const regionFullName = p.Fields.state
+          ? convertRegion(p.Fields.state, false)
+          : null;
+        if (!regionFullName) {
+          return;
+        }
+        return {
+          label: regionFullName,
+          value: regionFullName,
+        };
+      })
+    );
+  }, [zipcodePlace, zipcodesByGPS, zipcodePlaces]);
 
   const getGoogleTrendArticles = (
     trends
@@ -303,12 +309,6 @@ export default function TrendingNearby() {
     setSelectedTrend("");
   };
 
-  if (zipcodePlace) {
-    places = [].concat(zipcodePlace);
-  } else if (zipcodesByGPS) {
-    places = [].concat(zipcodesByGPS);
-  }
-
   const handleChangeZipcode = (zipcode) => {
     setZipcode(zipcode);
     setCoordinates(null);
@@ -342,88 +342,38 @@ export default function TrendingNearby() {
             />
             {isLoading ? (
               <Loading />
-            ) : !places.length ? (
+            ) : !zipcodePlaces.length ? (
               `No location found!`
             ) : null}
           </div>
-          {places &&
-            places.map((p, i) => {
-              const regionFullName = p.Fields.state
-                ? convertRegion(p.Fields.state, false)
-                : null;
-              if (!p) {
-                return;
-              }
-              return (
-                <div key={i}>
-                  {p.Fields.city}, {p.Fields.state}, [
-                  {p.geometry.coordinates[0]}, {p.geometry.coordinates[1]}]
-                  <div>Trending Overall Today in the United States</div>
-                  <ul>
-                    {googleDailyTrends.map((t, i) => (
-                      <li key={i}>
-                        {i + 1} {t.title.query}
-                      </li>
-                    ))}
-                  </ul>
-                  <div>Trending Right Now in the United States</div>
-                  <ul>
-                    {googleRealtimeTrends.map((t, i) => (
-                      <li key={i}>
-                        {i + 1} {t.title}
-                      </li>
-                    ))}
-                  </ul>
-                  <div>Trending Overall Today for {regionFullName}</div>
-                  {/* <ul>
-                    {googleDailyRegionTrends
-                      .find((x) => x.name === regionFullName)
-                      .trends.map((t, i) => (
-                        <li key={i}>
-                          {i + 1} {t.topic}
-                        </li>
-                      ))}
-                  </ul> */}
-                  <GoogleTrendsList
-                    googleTrendNames={googleDailyTrendsNames}
-                    colorMap={googleDailyColorMap}
-                    withColor={isWithColors}
-                    handleTrendClick={handleTrendClick}
-                    highlightedTrend={highlightedTrend}
-                    handleChangeHighlightedTrend={handleChangeHighlightedTrend}
-                  >
-                    <GoogleTrendsByRegionList
-                      googleRegionTrends={
-                        googleDailyRegionTrends ? googleDailyRegionTrends : []
-                      }
-                      // handleClick={handleListDelete}
-                      handleTrendClick={handleTrendClick}
-                      isAlphabetical={true}
-                      maxNumTrendsToShow={maxNumTrendsToShow}
-                      sourceMap={sourceMap}
-                      selectedRegions={selectedRegions}
-                      colorMap={googleDailyColorMap}
-                      withColor={isWithColors}
-                      withTitle
-                      highlightedTrend={highlightedTrend}
-                      handleChangeHighlightedTrend={
-                        handleChangeHighlightedTrend
-                      }
-                    />
-                  </GoogleTrendsList>
-                  <div>Trending Right Now for {regionFullName}</div>
-                  <ul>
-                    {googleRealtimeRegionTrends
-                      .find((x) => x.name === regionFullName)
-                      .trends.map((t, i) => (
-                        <li key={i}>
-                          {i + 1} {t.topic}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              );
-            })}
+          <section>
+            <h2>Trending Nearby Today</h2>
+            <GoogleTrendsList
+              googleTrendNames={googleDailyTrendsNames}
+              colorMap={googleDailyColorMap}
+              withColor={isWithColors}
+              handleTrendClick={handleTrendClick}
+              highlightedTrend={highlightedTrend}
+              handleChangeHighlightedTrend={handleChangeHighlightedTrend}
+            >
+              <GoogleTrendsByRegionList
+                googleRegionTrends={
+                  googleDailyRegionTrends ? googleDailyRegionTrends : []
+                }
+                // handleClick={handleListDelete}
+                handleTrendClick={handleTrendClick}
+                isAlphabetical={true}
+                maxNumTrendsToShow={maxNumTrendsToShow}
+                sourceMap={sourceMap}
+                selectedRegions={selectedRegions}
+                colorMap={googleDailyColorMap}
+                withColor={isWithColors}
+                withTitle
+                highlightedTrend={highlightedTrend}
+                handleChangeHighlightedTrend={handleChangeHighlightedTrend}
+              />
+            </GoogleTrendsList>
+          </section>
         </Paper>
       </Box>
     </Layout>
