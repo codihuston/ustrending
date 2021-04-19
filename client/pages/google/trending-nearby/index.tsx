@@ -135,6 +135,9 @@ export default function TrendingNearby() {
   const [relatedArticles, setRelatedArticles] = useState<
     (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[]
   >([]);
+  const [selectedRegions, setSelectedRegions] = useState<
+    ValueType<SelectStringOptionType, true>
+  >([]);
   // daily trends state
   const [googleDailyTrendsNames, setGoogleDailyTrendsNames] = useState<
     string[]
@@ -232,6 +235,25 @@ export default function TrendingNearby() {
     }
   }, [googleDailyTrends, selectedTrend]);
 
+  useEffect(() => {
+    if (googleDailyTrends) {
+      setSelectedRegions(
+        places.map((p) => {
+          const regionFullName = p.Fields.state
+            ? convertRegion(p.Fields.state, false)
+            : null;
+          if (!regionFullName) {
+            return;
+          }
+          return {
+            label: regionFullName,
+            value: regionFullName,
+          };
+        })
+      );
+    }
+  }, [places]);
+
   const getGoogleTrendArticles = (
     trends
   ): (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[] => {
@@ -296,13 +318,6 @@ export default function TrendingNearby() {
     setCoordinates(coordinates);
     setZipcode(null);
   };
-
-  const selectedRegions = [
-    {
-      label: "Kentucky",
-      value: "Kentucky",
-    },
-  ];
 
   return (
     <Layout>
@@ -386,9 +401,7 @@ export default function TrendingNearby() {
                       isAlphabetical={true}
                       maxNumTrendsToShow={maxNumTrendsToShow}
                       sourceMap={sourceMap}
-                      selectedRegions={[
-                        { label: regionFullName, value: regionFullName },
-                      ]}
+                      selectedRegions={selectedRegions}
                       colorMap={googleDailyColorMap}
                       withColor={isWithColors}
                       withTitle
