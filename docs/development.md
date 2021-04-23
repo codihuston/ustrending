@@ -1,14 +1,10 @@
 # Getting Started
-
-> NOTE: This file was ported over from another project, and documentation here
-is a work in progress!
-
 ## For Developers
 
 This document will tell you how to begin developing on this boilerplate.
-Documentation that details exactly either component in this project will be
+Documentation that details exactly either component in this project will be 
 contained in the `docs` directory of each respective component. This only
-serves as an entry point into developing on the application it self; that is,
+serves as an entry point into developing the application itself; that is,
 how to start the application(s).
 
 Currently, you can develop in this project by starting it using the
@@ -40,8 +36,10 @@ scale with a few changes!
 
 ### Starting the Project
 
-1. In order to begin, we must set up [ingress-nginx](https://kubernetes.github.io/ingress-nginx/). It is possible that you may already have one enabled on your machine. If that is the case, you may skip this setup.
-Otherwise, use the provided `ingress-nginx-example.yml` file as such:
+1. In order to begin, we must set up [ingress-nginx](https://kubernetes.github.io/ingress-nginx/).
+It is possible that you may already have a traffic controller enabled in your local Kubernetes cluster.
+If that is the case, you may skip this setup. Otherwise, use the provided `ingress-nginx-example.yml`
+file as such:
 
     ```cmd
     # to init / update
@@ -60,32 +58,41 @@ Otherwise, use the provided `ingress-nginx-example.yml` file as such:
 
 1. Copy the contents of the `k8s/examples` directory to the `k8s/dev` directory
 
-    > Note: If you want to configure environment variables or other default
-    configurations, do so in the destination directory mentioned above.
-    The defaults work out-of-box for `Windows w/ Docker Desktop Kubernetes`.
-    If you are operating in a different environment, you will need to make
-    changes to the `hostPath` key in the `mongodb-deployment.yml`. See that file
-    for additional instructions
+    > Note: You must configure the environment variables as needed, see the example
+    > config files.
+    > 
+    > The defaults work out-of-box for `Windows w/ Docker Desktop Kubernetes`.
+    > 
+    > If you are operating in a different environment, you will need to make
+    > changes to the `hostPath` key in the `mongodb-deployment.yml`. See that file
+    > for additional instructions
 
     1. Change the resource allocation in the deployment files to your liking.
     The out-of-box configuration might be very slow, especially for the
     client and server services
 
     1. Replace the `REPLACE_ME_WITH_YOUR_DOCKER_ID` token in that file with
-    your name (if you want to use your own dockerhub). Not a strict requirement
-    if not
+    your name (if you want to use your own dockerhub). Not a strict requirement,
+    but it will tag the docker images more accordingly when built
 
-1. Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`; replace the
+2. Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`; replace the
 `REPLACE_ME_WITH_YOUR_DOCKER_ID` in this file as well
 
 1. Install dependencies for each project.
 
-    ```cmd
-    cd server
-    yarn install
-
+    ```sh
     cd client
     yarn install
+
+    # this is to resolve any golang compiler warnings/errors
+    cd public-api
+    go install
+
+    cd trends-api
+    go install
+
+    cd worker-trends
+    go install
     ```
 
     > Note that the `node_modules` directories are excluded during
@@ -99,11 +106,11 @@ file
     skaffold dev
     ```
 
-    > Note: You may see an error printed by the API server indicating a database error. This will be addressed in the next step.
+    > Note: You may see an error printed by the API server indicating a database error. This will be addressed in the next step
 
     > Note: You can exit the `Skaffold` via SIGINT (ctrl+c). Exiting `Skaffold`
     will destroy any Kubernetes Objects defined in `k8s-dev`. The Persistent
-    Volume Claims should persist between `Skaffold` instances.
+    Volume Claims should persist between `Skaffold` instances
 
     You can run the following commands to get the status of the
     services/deployments/pods:
@@ -137,6 +144,14 @@ file
 
 ### Testing the Project
 
+> There are currently no test suites for this project, as most of the tests would
+> end up being integration tests. There isn't a lot of specific business logic
+> in this project at the moment--it is purely a CRUD application without any
+> real data manipulation done on the server-side
+>
+> That being said, the steps below would describe the ideal approach to the
+> test scenarios should any real testing of business logic be implemented
+ 
 You can run tests as follows:
 
 1. The ideal option: run tests Locally (on your host machine, while your pods are running)
@@ -152,7 +167,7 @@ You can run tests as follows:
     Simply run `yarn run test` in the directory of the application that you
     want to test.
 
-    > Note: Unit tests should not rely on external sources.
+    > Note: Unit tests should not rely on external sources
     
     > Note: Integration tests should test larger pieces of the codebase, and
     sometimes, it may be appropriate to read/write to/from external services
@@ -192,7 +207,7 @@ You can run tests as follows:
       > kubectl exec -it server-deployment-747bfc4578-jfwd5 npm run test
       ```
 
-  1. In the CI/CD pipeline
+  2. In the CI/CD pipeline
 
       1. At some point in the pipeline you should build all of the
       `<application>/Dockerfile.dev` files with the `npm run test` command set as the image Default Command. Be sure to inject the necessary environment variables when running the image (if any)
