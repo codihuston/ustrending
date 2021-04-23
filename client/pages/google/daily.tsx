@@ -1,16 +1,16 @@
 import GoogleTrendsPage from "./GoogleTrendsPage";
 
 import Head from "next/head";
-import Layout from "../../../components/Layout";
+import Layout from "../../components/Layout";
 import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
-} from "../../../queries";
+} from "../../queries";
 import {
   useDebouncedCallback,
   useGoogleDailyTrends,
   useGoogleDailyTrendsByState,
-} from "../../../hooks";
+} from "../../hooks";
 
 export default function Daily() {
   // data

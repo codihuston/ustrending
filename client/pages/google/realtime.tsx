@@ -1,20 +1,20 @@
 import GoogleTrendsPage from "./GoogleTrendsPage";
 
 import Head from "next/head";
-import Layout from "../../../components/Layout";
+import Layout from "../../components/Layout";
 import {
   GoogleRealtimeTrend,
   GoogleRealtimeTrendArticle,
-} from "../../../types";
+} from "../../types";
 import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
-} from "../../../queries";
+} from "../../queries";
 import {
   useDebouncedCallback,
   useGoogleRealtimeTrends,
   useGooleRealtimeTrendsByState,
-} from "../../../hooks";
+} from "../../hooks";
 
 export default function Realtime() {
   const hasDuplicates = false;
