@@ -5,7 +5,7 @@ The purpose of this app is to visualize trending Google Searches by US State usi
 Table of Contents
 
 - [Purpose](#purpose)
-  - [Design Decisions](#design-decisions)
+  - [About the Project](#about-the-project)
     - [The Project Goals](#the-project-goals)
     - [The Product Goals](#the-product-goals)
     - [Google Trends](#google-trends)
@@ -17,7 +17,7 @@ Table of Contents
     - [Google Daily / Realtime Trends](#google-daily--realtime-trends)
   - [Additional Documentation](#additional-documentation)
 
-## Design Decisions
+## About the Project
 
 ### The Project Goals
 
