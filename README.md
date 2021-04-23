@@ -5,21 +5,21 @@ The purpose of this app is to visualize trending Google Searches by US State usi
 Table of Contents
 
 - [Purpose](#purpose)
-  - [About the Project](#about-the-project)
-    - [The Project Goals](#the-project-goals)
-    - [The Product Goals](#the-product-goals)
-    - [Google Trends](#google-trends)
-    - [Twitter Trends](#twitter-trends)
-  - [Features](#features)
-  - [Routes and Endpoints](#routes-and-endpoints)
-  - [Demo (In Place)](#demo-in-place)
-    - [Trending Nearby](#trending-nearby)
-    - [Google Daily / Realtime Trends](#google-daily--realtime-trends)
-  - [Additional Documentation](#additional-documentation)
+- [About the Project](#about-the-project)
+  - [The Project Goals](#the-project-goals)
+  - [The Product Goals](#the-product-goals)
+  - [Google Trends](#google-trends)
+  - [Twitter Trends](#twitter-trends)
+- [Features](#features)
+- [Routes and Endpoints](#routes-and-endpoints)
+- [Demo (In Place)](#demo-in-place)
+  - [Trending Nearby](#trending-nearby)
+  - [Google Daily / Realtime Trends](#google-daily--realtime-trends)
+- [Additional Documentation](#additional-documentation)
 
-## About the Project
+# About the Project
 
-### The Project Goals
+## The Project Goals
 
 This project was designed for the following purposes. The actual product idea (visualization of trends data) did not come until later.
 
@@ -37,14 +37,14 @@ This project was designed for the following purposes. The actual product idea (v
   - The Public API would serve the web front-end
   - The Private API would serve the worker, which both would manage data processing in some fashion. The Private API would centralize any 3rd party service calls, and the worker would execute these and process any data on a specified interval
 
-### The Product Goals
+## The Product Goals
 
 I wanted to keep the implementation details simple. I figured finding and visualizing a simple dataset would suffice for this project. I wasn't setting out to solve any problems in particular. This led me to looking for datasets for:
 
 1. Google Trends
 2. Twitter Trends
 
-### Google Trends
+## Google Trends
 
 I figured that it would be cool to see **what is trending in your US state, or the states around you**. There wasn't really a means of seeing **what was trending #1 on google for each state** on Google Trends' website. There was, however, **a means of seeing how popular a trend is in each state**. This would be key in manifesting this project.
 
@@ -56,7 +56,7 @@ With this dataset meeting my criteria of being pretty simple, I prototyped my ap
 
 Once this prototype was complete, I moved on to Twitter Trends.
 
-### Twitter Trends
+## Twitter Trends
 
 I wanted to do the same thing for Twitter, alongside some additional ideas. I wanted live-stream tweets related to the top trends, specific categories (entertainment/politics/etc.). This was a perfect use case for my split API back-end: I could scale up the Public API both horizontally and vertically. The Private API should only need to be scaled up vertically, since it only serves the worker service.
 
@@ -71,7 +71,7 @@ Now that Twitter was out of the picture, I didn't have a real reason why the bac
 
 However, I elected to leave this architecture in place, as there is a possibility that I could come back and implement the Twitter Trends and its Streaming API as described above. But since my primary goal has been reached just by using the Google Trends dataset, this will suffice for now.
 
-## Features
+# Features
 
 Below is a list of primary features that are either completed or a work-in-progress.
 
@@ -137,7 +137,7 @@ Below is a list of primary features that are either completed or a work-in-progr
       - [x] All US Twitter Places
       - [x] A specific Twitter Place
 
-## Routes and Endpoints
+# Routes and Endpoints
 
 Since I am not using any API documenting utility, I have provided the routes for my APIs below. These are all HTTP GET requests, since all of the data is sourced from a 3rd party. Any data that is written to the database or cache layer is done either after a successful GET request from the 3rd party API, or done by the worker service after processing the data sourced from the 3rd party.
 
@@ -184,7 +184,7 @@ Since I am not using any API documenting utility, I have provided the routes for
    8. [/trends-api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/trends-api/twitter/trends/1)
       1. Returns a specific Twitter Place
 
-## Demo (In Place)
+# Demo (In Place)
 
 Since this project is not production-ready yet, I will demo the overall features below in place. As described in the [Features](#features) section, there are a handful of things to be done before I want to take this into production. 
 
@@ -194,7 +194,7 @@ With that being said, let's demo the product.
 
 > Note: The user interface design is not final at this time
 
-### Trending Nearby
+## Trending Nearby
 
 This would likely be the landing page for the application. You can enter a `zipcode` or use
 your `browser location` to see what is trending in your state today (compared to what
@@ -202,7 +202,7 @@ is trending country-wide).
 
 ![Trending Nearby Today](docs/img/trending-nearby-today.PNG)
 
-### Google Daily / Realtime Trends
+## Google Daily / Realtime Trends
 
 > Note: the Google Daily and Realtime Trends pages look the same, but the trends dataset is different
 
@@ -249,6 +249,6 @@ On this page, you would be able to see a data visualization of what is trending 
 
     You can click on a trend here to display the article modal as well.
 
-## Additional Documentation
+# Additional Documentation
 
 See additional technical documentation in [development documentation](docs/development.md) and [production documentation](docs/production.md). Each project may have documentation for itself as well.
