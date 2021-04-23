@@ -27,13 +27,6 @@ spec:
                 port:
                   number: 3000
           - pathType: Prefix
-            path: /old-client/?(.*)
-            backend:
-              service:
-                name: old-client-cluster-ip-service
-                port:
-                  number: 3000
-          - pathType: Prefix
             path: /?(.*)
             backend:
               service:
