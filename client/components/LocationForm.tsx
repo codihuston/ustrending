@@ -81,7 +81,6 @@ const CustomizedInputBase: FunctionComponent<Props> = ({
       >
         <MyLocationIcon />
       </IconButton>
-      <Divider className={classes.divider} orientation="vertical" />
       <InputLabel htmlFor="zip">Zipcode</InputLabel>
       <InputBase
         className={classes.input}

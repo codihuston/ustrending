@@ -1,5 +1,5 @@
 import Select, { ValueType } from "react-select";
-
+import InputLabel from "@material-ui/core/InputLabel";
 import { palettes, contrasts } from "../themes";
 import { SelectStringOptionType } from "../types";
 
@@ -31,15 +31,17 @@ export default function ColorPalette({
 
   return (
     <div>
-      Palette Name:
+      <InputLabel htmlFor="color-palette">Palette Name</InputLabel>
       <Select
+        name="color-palette"
         value={selectedPalette}
         isSearchable={true}
         onChange={handleChangePalette}
         options={paletteOptions}
       ></Select>
-      Contrast Level:
+      <InputLabel htmlFor="contrast-level">Contrast Level</InputLabel>
       <Select
+        name="contrast-level"
         value={selectedContrast}
         isSearchable={true}
         onChange={handleChangeContrast}
