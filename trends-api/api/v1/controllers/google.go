@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	locUS  = "US"
-	catAll = "all"
-	langEn = "EN"
+	DEFAULT_LOCATION    = "US"
+	DEFAULT_CATEGORY    = "all"
+	DEFAULT_LANGUAGE    = "EN"
+	DEFAULT_TIME_PERIOD = "now 1-d"
 )
 
 // GetDailyTrends returns a twitter place closest to a given zipcode
@@ -41,15 +42,15 @@ func GetGoogleRealtimeTrends(w http.ResponseWriter, r *http.Request) {
 
 	// validate / default incoming query parameters
 	if len(hl) <= 0 {
-		hl = langEn
+		hl = DEFAULT_LANGUAGE
 	}
 
 	if len(loc) <= 0 {
-		loc = locUS
+		loc = DEFAULT_LOCATION
 	}
 
 	if len(cat) <= 0 {
-		cat = catAll
+		cat = DEFAULT_CATEGORY
 	}
 
 	// get the google trends (an array)
@@ -79,15 +80,15 @@ func GetGoogleRealtimeTrendsByState(w http.ResponseWriter, r *http.Request) {
 
 	// validate / default incoming query parameters
 	if len(hl) <= 0 {
-		hl = langEn
+		hl = DEFAULT_LANGUAGE
 	}
 
 	if len(loc) <= 0 {
-		loc = locUS
+		loc = DEFAULT_LOCATION
 	}
 
 	if len(cat) <= 0 {
-		cat = catAll
+		cat = DEFAULT_CATEGORY
 	}
 
 	// get the google trends (an array)
@@ -117,15 +118,15 @@ func GetDailyTrendsByState(w http.ResponseWriter, r *http.Request) {
 
 	// validate / default incoming query parameters
 	if len(hl) <= 0 {
-		hl = langEn
+		hl = DEFAULT_LANGUAGE
 	}
 
 	if len(loc) <= 0 {
-		loc = locUS
+		loc = DEFAULT_LOCATION
 	}
 
 	if len(cat) <= 0 {
-		cat = catAll
+		cat = DEFAULT_CATEGORY
 	}
 
 	// get the google trends (an array)
@@ -155,6 +156,22 @@ func GetGoogleTrendInterest(w http.ResponseWriter, r *http.Request) {
 	timePeriod := r.URL.Query().Get("time")
 	lang := r.URL.Query().Get("lang")
 
+	if len(keyword) == 0 {
+		RespondWithError(w, http.StatusBadRequest, "Field 'keyword' is required.")
+		return
+	}
+
+	if len(loc) == 0 {
+		loc = DEFAULT_LOCATION
+	}
+
+	if len(timePeriod) == 0 {
+		timePeriod = DEFAULT_TIME_PERIOD
+	}
+
+	if len(lang) == 0 {
+		lang = DEFAULT_LANGUAGE
+	}
 	// get the google trends (an array)
 	g := &models.GoogleTrend{}
 	results, err := g.GetTrendInterest(keyword, loc, timePeriod, lang)
