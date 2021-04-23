@@ -52,7 +52,7 @@ func GetNearestPlaceByZipcode(w http.ResponseWriter, r *http.Request) {
 	limit, err := strconv.ParseInt(r.URL.Query().Get("limit"), 10, 64)
 
 	// get the zipcode
-	err = zipcode.GetPlaceByZipCode(mux.Vars(r)["zipcode"])
+	zipcode, err = zipcode.GetZipCode(mux.Vars(r)["zipcode"])
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return

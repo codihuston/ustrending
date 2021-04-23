@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -32,17 +33,6 @@ const (
 	DEFAULT_IS_TWITTER_ENABLED         = 0
 )
 
-// TODO: use me?
-func getJson(url string, target interface{}) error {
-	r, err := httpClient.Get(url)
-	if err != nil {
-		return err
-	}
-	defer r.Body.Close()
-
-	return json.NewDecoder(r.Body).Decode(target)
-}
-
 func min(x, y int) int {
 	if x > y {
 		return y
@@ -67,6 +57,7 @@ func doGoogleDailyTrends() {
 	var trendingTopics []string
 	var queueKey = "google-daily-trends-queue"
 	var cacheKey = "google-daily-trends-by-state"
+	var jobName = "doGoogleDailyTrends"
 
 	if configMap["IS_GOOGLE_ENABLED"] == 0 {
 		log.Warn("Google processing is DISABLED! Skipping...")
@@ -79,7 +70,7 @@ func doGoogleDailyTrends() {
 	defer cancel()
 
 	if err != nil {
-		log.Fatal("Failed to get daily trends from API... aborting job! ", err)
+		log.Errorf("Failed to get daily trends from API... aborting job '%s'! %s", jobName, err)
 		return
 	}
 
@@ -87,7 +78,7 @@ func doGoogleDailyTrends() {
 	_, err = database.CacheClient.Del(ctx, queueKey).Result()
 
 	if err != nil {
-		log.Fatal("Failed to get empty queue '", queueKey, "'... aborting job! ", err)
+		log.Errorf("Failed to get empty queue '", queueKey, "'... aborting job '%s'! %s", jobName, err)
 		return
 	}
 
@@ -111,7 +102,7 @@ func doGoogleDailyTrends() {
 	_, err = database.CacheClient.LPush(ctx, queueKey, s...).Result()
 
 	if err != nil {
-		log.Fatal("Error queueing topics: '", trendingTopics, "... aborting job! Error: ", err)
+		log.Errorf("Error queueing topics: '%s'... aborting job '%s'! %s", trendingTopics, jobName, err)
 	} else {
 		log.Info("[", len(trendingTopics), "] Topics queued at '", queueKey, "': ", trendingTopics)
 	}
@@ -120,7 +111,7 @@ func doGoogleDailyTrends() {
 	geoMaps, err := getGoogleRealtimeTrendsGeoMaps(ctx, queueKey, 1*time.Second)
 
 	if err != nil {
-		log.Fatal("Failed to process google real time trends:", err)
+		log.Error("Failed to process google real time trends:", err)
 	}
 
 	// now process each trending story into a []State
@@ -135,12 +126,10 @@ func doGoogleDailyTrends() {
 	ttl := time.Second * 0
 	err = database.CacheClient.Set(ctx, cacheKey, jsonMap, ttl).Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 }
 
-// TODO: refactor this, take any interface{} of which to feed results into
-// Replace this function, and getDailyRealtimeTrends() with this new function.
 func getGoogleDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	// this endpoint queries daily trends, and builds state trends, and caches.
 	var uri = getAPIString() + "/google/trends/daily"
@@ -153,9 +142,15 @@ func getGoogleDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 
 	// handle error
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return result, err
 	}
+
+	// handle non 200 http codes
+	if r.StatusCode != 200 {
+		return result, errors.New(r.Status)
+	}
+
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
 
@@ -166,8 +161,6 @@ func getGoogleDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	// append each result here in a map: {woeid: []trends}
 	json.Unmarshal([]byte(body), &result)
 
-	// assume successful
-	log.Info("Query successful!")
 	return result, err
 }
 
@@ -196,7 +189,7 @@ func doGoogleRealtimeTrends() {
 	defer cancel()
 
 	if err != nil {
-		log.Fatal("Failed to get realtime trends from API... aborting job! ", err)
+		log.Error("Failed to get realtime trends from API... aborting job! ", err)
 		return
 	}
 
@@ -204,7 +197,7 @@ func doGoogleRealtimeTrends() {
 	_, err = database.CacheClient.Del(ctx, queueKey).Result()
 
 	if err != nil {
-		log.Fatal("Failed to get empty queue '", queueKey, "'... aborting job! ", err)
+		log.Error("Failed to empty out the queue '", queueKey, "'... aborting job! ", err)
 		return
 	}
 
@@ -245,7 +238,7 @@ func doGoogleRealtimeTrends() {
 	_, err = database.CacheClient.LPush(ctx, queueKey, s...).Result()
 
 	if err != nil {
-		log.Fatal("Error queueing topics: '", trendingTopics, "... aborting job! Error: ", err)
+		log.Error("Error queueing topics: '", trendingTopics, "... aborting job! Error: ", err)
 	} else {
 		log.Info("[", len(trendingTopics), "] Topics queued at '", queueKey, "': ", trendingTopics)
 	}
@@ -254,7 +247,7 @@ func doGoogleRealtimeTrends() {
 	geoMaps, err := getGoogleRealtimeTrendsGeoMaps(ctx, queueKey, 1*time.Second)
 
 	if err != nil {
-		log.Fatal("Failed to process google real time trends:", err)
+		log.Error("Failed to process google real time trends:", err)
 	}
 
 	// now process each trending story into a []State
@@ -269,7 +262,7 @@ func doGoogleRealtimeTrends() {
 	ttl := time.Second * 0
 	err = database.CacheClient.Set(ctx, cacheKey, jsonMap, ttl).Err()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 }
 
@@ -288,9 +281,15 @@ func getGoogleRealtimeTrends() ([]*gogtrends.TrendingStory, error) {
 
 	// handle error
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return result, err
 	}
+
+	// handle non 200 http codes
+	if r.StatusCode != 200 {
+		return result, errors.New(r.Status)
+	}
+
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
 
@@ -301,8 +300,6 @@ func getGoogleRealtimeTrends() ([]*gogtrends.TrendingStory, error) {
 	// append each result here in a map: {woeid: []trends}
 	json.Unmarshal([]byte(body), &result)
 
-	// assume successful
-	log.Info("Query successful!")
 	return result, err
 }
 
@@ -348,7 +345,7 @@ func getGoogleRealtimeTrendsGeoMaps(ctx context.Context, queueKey string, second
 		trend, err := database.CacheClient.RPop(ctx, queueKey).Result()
 
 		if err != nil {
-			log.Fatal("Error processing from queue: RPOP failed with:", err)
+			log.Error("Error processing from queue: RPOP failed with:", err)
 		} else {
 			log.Info("Dequeueing topic: ", trend)
 		}
@@ -470,9 +467,6 @@ func getInterestByRegion(keyword, loc, timePeriod, lang string) ([]*gogtrends.Ge
 
 	json.Unmarshal(body, &results)
 
-	// assume successful
-	log.Info("Query successful!")
-
 	return results, nil
 }
 
@@ -491,6 +485,11 @@ func getPlaces() ([]types.Place, error) {
 		return nil, err
 	}
 
+	// handle non 200 http codes
+	if r.StatusCode != 200 {
+		return nil, errors.New(r.Status)
+	}
+
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
 
@@ -500,14 +499,12 @@ func getPlaces() ([]types.Place, error) {
 
 	json.Unmarshal([]byte(body), &results)
 
-	// assume successful
-	log.Info("Query successful!")
-
 	return results, nil
 }
 
 // gets all twitter places and their trending topics
 func getTwitterTrends() {
+	var jobName = "getTwitterTrends"
 
 	if configMap["IS_TWITTER_ENABLED"] == 0 {
 		log.Warn("Twitter processing is DISABLED! Skipping...")
@@ -516,12 +513,12 @@ func getTwitterTrends() {
 
 	places, err := getPlaces()
 	if err != nil {
-		log.Fatal(err)
+		log.Errorf("Failed to get twitter places from API... aborting job '%s'! %s", jobName, err)
 	}
 
 	err = getTwitterTrendsForPlaces(places)
 	if err != nil {
-		log.Fatal(err)
+		log.Errorf("Failed to get twitter trends for places from API... aborting job '%s'! %s", jobName, err)
 	}
 }
 
@@ -540,8 +537,9 @@ func getTwitterTrendsForPlaces(places []types.Place) error {
 		place := places[i]
 		result, err := getTwitterTrendsByPlace(place.Woeid)
 
+		// stop processing if any errors occur
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		m[place.Woeid] = result
@@ -572,6 +570,11 @@ func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
 		return result, err
 	}
 
+	// handle non 200 http codes
+	if r.StatusCode != 200 {
+		return result, errors.New(r.Status)
+	}
+
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
 
@@ -581,8 +584,6 @@ func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
 
 	// append each result here in a map: {woeid: []trends}
 	json.Unmarshal([]byte(body), &result)
-
-	log.Info("Query successful!")
 
 	return result, nil
 }
@@ -594,9 +595,9 @@ func initialize() {
 	setConfigMapValue("MAX_GOOGLE_REALTIME_TRENDS", DEFAULT_MAX_GOOGLE_REALTIME_TRENDS)
 	setConfigMapValue("IS_TWITTER_ENABLED", DEFAULT_IS_TWITTER_ENABLED)
 
-	log.Info("IS_GOOGLE_ENABLED: ", configMap["IS_GOOGLE_ENABLED"], " ", os.Getenv("IS_GOOGLE_ENABLED"))
-	log.Info("MAX_GOOGLE_REALTIME_TRENDS: ", configMap["MAX_GOOGLE_REALTIME_TRENDS"], " ", os.Getenv("MAX_GOOGLE_REALTIME_TRENDS"))
-	log.Info("IS_TWITTER_ENABLED: ", configMap["IS_TWITTER_ENABLED"], " ", os.Getenv("IS_TWITTER_ENABLED"))
+	log.Info("IS_GOOGLE_ENABLED: ", configMap["IS_GOOGLE_ENABLED"])
+	log.Info("MAX_GOOGLE_REALTIME_TRENDS: ", configMap["MAX_GOOGLE_REALTIME_TRENDS"])
+	log.Info("IS_TWITTER_ENABLED: ", configMap["IS_TWITTER_ENABLED"])
 	log.Info("Connecting to services...")
 
 	database.InitializeCache()

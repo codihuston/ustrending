@@ -38,7 +38,7 @@ type Props = {
   article: GoogleDailyTrendArticle;
 };
 
-export default function ArticleDetailCard({ article }: Props) {
+export default function GoogleDailyTrendArticleCard({ article }: Props) {
   const classes = useStyles();
 
   return (

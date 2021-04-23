@@ -57,6 +57,8 @@ export const palettes = {
     red,
   ],
   [greyscale]: [grey],
+  "Bluescale": [lightBlue],
+  "Violetscale": [deepPurple]
 };
 
 export const defaultContrast = "Very High";
@@ -102,6 +104,15 @@ export const contrasts = {
     "A400",
     "800",
     "900",
+  ],
+  [`For Color Scales: Solid - Heavy`]: [
+    "900"
+  ],
+  [`For Color Scales: Solid - Medium`]: [
+    "A700"
+  ],
+  [`For Color Scales: Solid - Light`]: [
+    "400"
   ],
 };
 

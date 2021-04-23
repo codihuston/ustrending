@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { FunctionComponent, useState, useRef, useEffect } from "react";
 import { QueryClient } from "react-query";
 import { dehydrate } from "react-query/hydration";
 import { isEqual, clone } from "lodash";
@@ -26,31 +26,34 @@ import { Close } from "@material-ui/icons";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
 import {
+  GoogleDailyTrend,
   GoogleDailyTrendArticle,
+  GoogleRealtimeTrend,
+  GoogleRealtimeTrendArticle,
+  GoogleRegionTrend,
   SelectStringOptionType,
-} from "../../../types";
+  isGoogleDailyTrend,
+  isGoogleDailyTrendArticle,
+  isGoogleRealtimeTrend,
+  isGoogleRealtimeTrendArticle,
+} from "../../types";
 import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
-} from "../../../queries";
-import {
-  useDebouncedCallback,
-  useGoogleDailyTrends,
-  useGoogleDailyTrendsByState,
-} from "../../../hooks";
-import { getColors, defaultPalette, defaultContrast } from "../../../themes";
-import Layout from "../../../components/Layout";
-import ColorPalette from "../../../components/ColorPalette";
-import GoogleDailyTrendArticleDialog from "../../../components/GoogleDailyTrendArticleDialog";
-import GoogleTrendsList from "../../../components/GoogleTrendsList";
-import GoogleTrendsByRegionList from "../../../components/GoogleTrendsByRegionList";
-import RegionSelect from "../../../components/RegionSelect";
+} from "../../queries";
+import { useDebouncedCallback } from "../../hooks";
+import { getColors, defaultPalette, defaultContrast } from "../../themes";
+import ColorPalette from "../../components/ColorPalette";
+import GoogleTrendArticleDialog from "../../components/GoogleTrendArticleDialog";
+import GoogleTrendsList from "../../components/GoogleTrendsList";
+import GoogleTrendsByRegionList from "../../components/GoogleTrendsByRegionList";
+import RegionSelect from "../../components/RegionSelect";
 import GoogleTrendsTableContainer, {
   RowProps,
-} from "../../../components/containers/GoogleTrendsTableContainer";
+} from "../../components/containers/GoogleTrendsTableContainer";
 import GoogleTrendsMap, {
   MapColorMode,
-} from "../../../components/GoogleTrendsMap";
+} from "../../components/GoogleTrendsMap";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
@@ -66,34 +69,32 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export async function getServerSideProps() {
-  const queryClient = new QueryClient();
+type Props = {
+  googleTrends: (GoogleDailyTrend | GoogleRealtimeTrend)[];
+  googleRegionTrends: GoogleRegionTrend[];
+};
 
-  await queryClient.prefetchQuery("googleDailyTrends", fetchGoogleDailyTrends);
-  await queryClient.prefetchQuery(
-    "googleDailyTrendsByState",
-    fetchGoogleDailyTrendsByState
-  );
-
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  };
-}
-
-export default function GoogleDaily() {
+const GoogleTrendsPage: FunctionComponent<Props> = ({
+  googleTrends,
+  googleRegionTrends,
+}) => {
   const googleTrendsUrlQueryToken = "QUERY";
   const googleTrendsUrl = `https://trends.google.com/trends/explore?q=${googleTrendsUrlQueryToken}&date=now%201-d&geo=US`;
   const classes = useStyles();
   const ref = useRef(null);
   // overridden by maxNumTrendsToShow
   // total # trends per region to render (up to the total)
-  const DEFAULT_NUM_TRENDS_TO_SHOW = 10;
+  const DEFAULT_NUM_TRENDS_TO_SHOW = parseInt(
+    process.env.NEXT_PUBLIC_DEFAULT_NUM_TRENDS_TO_SHOW
+  );
   // max # of trends per region, total
-  const MAX_NUM_GOOGLE_REGION_TRENDS = 50;
+  const MAX_NUM_GOOGLE_REGION_TRENDS = parseInt(
+    process.env.NEXT_PUBLIC_MAX_NUM_GOOGLE_REGION_TRENDS
+  );
   // max # of regions that can be compared
-  const MAX_NUM_SELECTED_REGIONS = 5;
+  const MAX_NUM_SELECTED_REGIONS = parseInt(
+    process.env.NEXT_PUBLIC_MAX_NUM_SELECTED_REGIONS
+  );
   const MAX_NUM_SELECTED_REGIONS_TEXT = `You may only compare up to "${MAX_NUM_SELECTED_REGIONS}" regions! Please remove some regions before comparing more.`;
   // stateful visual settings
   const [isTooltipVisible, setTooltipVisibility] = useState(false);
@@ -128,17 +129,13 @@ export default function GoogleDaily() {
   const [selectedTrend, setSelectedTrend] = useState<string>("");
   const [highlightedTrend, setHighlightedTrend] = useState<string>("");
   const [trendNumberToShow, setTrendNumberToShow] = useState<number>(0);
-  // data
-  const useGoogleDailyTrendsHook = useGoogleDailyTrends();
-  const useGoogleDailyTrendsByStateHook = useGoogleDailyTrendsByState();
-  const googleTrends = useGoogleDailyTrendsHook.data;
-  const googleRegionTrends = useGoogleDailyTrendsByStateHook.data;
   // computed stateful data
   const [colorMap, setColorMap] = useState<Map<string, string>>(new Map());
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
   const [googleTrendsNames, setGoogleTrendsNames] = useState<string[]>([]);
+  const [countryTrendName, setCountryTrendName] = useState<string>("");
   const [relatedArticles, setRelatedArticles] = useState<
-    GoogleDailyTrendArticle[]
+    (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[]
   >([]);
   const [rows, setRows] = useState<RowProps[]>([]);
 
@@ -148,24 +145,24 @@ export default function GoogleDaily() {
 
     // compute state around googleTrends
     if (googleTrends) {
+      const allTrendNames = getGoogleTrendNames(googleTrends.length);
+      const trendNames = getGoogleTrendNames(maxNumTrendsToShow);
+
       // init the color palette
-      // const palette = getColors(selectedPalette.value, selectedContrast.value, maxNumTrendsToShow);
       const palette = getColors(
         selectedPalette.value,
         selectedContrast.value,
         googleTrends.length
       );
 
-      googleTrends.map((x, i) => {
-        colorMap.set(x.title.query, palette[i]);
-        sourceMap.set(x.title.query, i);
+      // init the colors for all trends
+      allTrendNames.map((name, i) => {
+        colorMap.set(name, palette[i]);
+        sourceMap.set(name, i);
       });
 
-      setGoogleTrendsNames(
-        googleTrends
-          .map((trends) => trends.title.query)
-          .slice(0, maxNumTrendsToShow)
-      );
+      // init the list of trends (only the ones within the given limit)
+      setGoogleTrendsNames(trendNames);
     }
 
     // compute state around googleRegionTrends
@@ -195,18 +192,67 @@ export default function GoogleDaily() {
 
   useEffect(() => {
     if (googleTrends) {
-      setRelatedArticles(
-        selectedTrend
-          ? googleTrends
-              .filter((trend) => trend.title.query === selectedTrend)
-              .map((trend) => {
-                return trend.articles;
-              })
-              .flat(1)
-          : []
-      );
+      setRelatedArticles(getGoogleTrendArticles());
     }
   }, [selectedTrend]);
+
+  useEffect(() => {
+    if (googleTrends) {
+      setCountryTrendName(getCountryTrendName());
+    }
+  }, [trendNumberToShow]);
+
+  const getGoogleTrendNames = (max): string[] => {
+    return googleTrends
+      .map((trend) => {
+        if (isGoogleDailyTrend(trend)) {
+          return trend.title.query;
+        } else if (isGoogleRealtimeTrend(trend)) {
+          return trend.title;
+        }
+      })
+      .slice(0, max);
+  };
+
+  const getGoogleTrendArticles = (): (
+    | GoogleDailyTrendArticle
+    | GoogleRealtimeTrendArticle
+  )[] => {
+    return selectedTrend
+      ? googleTrends
+          .filter((trend) => {
+            if (isGoogleDailyTrend(trend)) {
+              return trend.title.query === selectedTrend;
+            } else if (isGoogleRealtimeTrend(trend)) {
+              return trend.title === selectedTrend;
+            }
+          })
+          .map((trend) => {
+            return trend.articles;
+          })
+          .flat(1)
+      : [];
+  };
+
+  const getCountryTrendName = () => {
+    if (googleTrends) {
+      const trend = googleTrends[trendNumberToShow];
+      if (isGoogleDailyTrend(trend)) {
+        return trend?.title?.query;
+      } else if (isGoogleRealtimeTrend(trend)) {
+        return trend?.title;
+      }
+    }
+    return null;
+  };
+
+  const getTrendCountDisplay = () => {
+    return googleTrends &&
+      googleTrends.length &&
+      googleTrends.length <= MAX_NUM_GOOGLE_REGION_TRENDS
+      ? `${maxNumTrendsToShow}/${MAX_NUM_GOOGLE_REGION_TRENDS}`
+      : MAX_NUM_GOOGLE_REGION_TRENDS;
+  };
 
   /**
    * Scrolls to the reference (selected regions / region comparison secion)
@@ -343,7 +389,7 @@ export default function GoogleDaily() {
   const debouncedHandleMapHover = useDebouncedCallback(handleMapHover, 250);
 
   const handleTrendClick = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement, MouseEvent>,
     name: string
   ): void => {
     setSelectedTrend(name);
@@ -413,20 +459,23 @@ export default function GoogleDaily() {
   ) => {
     const newValue: number =
       event.target.value === "" ? 1 : Number(event.target.value);
-    // the slider is 1 indexed
-    if (newValue - 1 < 0) {
-      setTrendNumberToShow(0);
-    } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
-      setTrendNumberToShow(MAX_NUM_GOOGLE_REGION_TRENDS);
-    } else if (
-      googleTrends &&
-      googleTrends.length > 0 &&
-      newValue > googleTrends.length
-    ) {
-      setTrendNumberToShow(googleTrends.length - 1);
+    let validValue = 1;
+
+    if (googleTrends && googleTrends.length > 0) {
+      // the slider is 1 indexed
+      if (newValue - 1 < 0) {
+        validValue = 1;
+      } else if (newValue > MAX_NUM_GOOGLE_REGION_TRENDS) {
+        validValue = MAX_NUM_GOOGLE_REGION_TRENDS - 1;
+      } else if (newValue > googleTrends.length) {
+        validValue = googleTrends.length - 1;
+      } else {
+        validValue = newValue - 1;
+      }
     } else {
-      setTrendNumberToShow(newValue - 1);
+      validValue = 1;
     }
+    setTrendNumberToShow(validValue);
   };
 
   const debouncedHandleInputChangeTrendNumberToShow = useDebouncedCallback(
@@ -438,18 +487,17 @@ export default function GoogleDaily() {
     setHighlightedTrend(name);
   };
 
+  console.log("trendNumberToShow", trendNumberToShow);
+
   return (
-    <Layout>
-      <Head>
-        <title>Google Daily Trends | {process.env.NEXT_PUBLIC_APP_NAME}</title>
-      </Head>
-      <GoogleDailyTrendArticleDialog
+    <>
+      <GoogleTrendArticleDialog
         googleTrendsUrl={googleTrendsUrl}
         googleTrendsUrlQueryToken={googleTrendsUrlQueryToken}
         handleCloseDialog={handleCloseDialog}
         relatedArticles={relatedArticles}
         selectedTrend={selectedTrend}
-      ></GoogleDailyTrendArticleDialog>
+      ></GoogleTrendArticleDialog>
       <Snackbar
         anchorOrigin={{
           vertical: "bottom",
@@ -480,9 +528,8 @@ export default function GoogleDaily() {
       />
       <Box>
         <Paper>
-          <h2>Trending Today on Google</h2>
-          <h3>Select a Region to Compare</h3>
           <section>
+            <h3>Select a Region to Compare</h3>
             <Typography>
               To see trends for a particular region, please choose the region by
               using the dropdown or by clicking on a region on the map below.
@@ -546,12 +593,21 @@ export default function GoogleDaily() {
                             } trends in each region`
                           : `Showing popularity of #${
                               trendNumberToShow + 1
-                            } trend in the country (${
-                              googleTrends[trendNumberToShow].title.query
-                            })`
+                            } trend in the country (${countryTrendName})`
                       }`}
                     />
                   ) : null}
+                  <Grid item>
+                    {mapColorMode === MapColorMode.One ? (
+                      <Button
+                        onClick={(e) => handleTrendClick(e, countryTrendName)}
+                        variant="contained"
+                        color="primary"
+                      >
+                        Click for News on this Trend
+                      </Button>
+                    ) : null}
+                  </Grid>
                   <TextField
                     defaultValue={1}
                     id="standard-number"
@@ -559,7 +615,10 @@ export default function GoogleDaily() {
                       shrink: true,
                     }}
                     InputProps={{
-                      inputProps: { min: 1, max: MAX_NUM_GOOGLE_REGION_TRENDS },
+                      inputProps: {
+                        min: 1,
+                        max: MAX_NUM_GOOGLE_REGION_TRENDS,
+                      },
                     }}
                     label="Trend #"
                     onChange={debouncedHandleInputChangeTrendNumberToShow}
@@ -584,11 +643,7 @@ export default function GoogleDaily() {
                   }
                   mapColorMode={mapColorMode}
                   trendNumberToShow={trendNumberToShow}
-                  countryTrendName={
-                    googleTrends && googleTrends[trendNumberToShow]
-                      ? googleTrends[trendNumberToShow]?.title?.query
-                      : null
-                  }
+                  countryTrendName={countryTrendName}
                 />
               </div>
             </div>
@@ -605,13 +660,7 @@ export default function GoogleDaily() {
             >
               <Grid item xs={12} md={3}>
                 <Typography id="discrete-slider" gutterBottom>
-                  Number of Trends ({maxNumTrendsToShow}/
-                  {googleTrends &&
-                  googleTrends.length &&
-                  googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                    ? googleTrends.length
-                    : MAX_NUM_GOOGLE_REGION_TRENDS}
-                  )
+                  Number of Trends ({getTrendCountDisplay()})
                 </Typography>
               </Grid>
               <Grid item xs={12} md={8}>
@@ -701,13 +750,7 @@ export default function GoogleDaily() {
               >
                 <Grid item xs={12} md={3}>
                   <Typography id="discrete-slider" gutterBottom>
-                    Number of Trends ({maxNumTrendsToShow}/
-                    {googleTrends &&
-                    googleTrends.length &&
-                    googleTrends.length < MAX_NUM_GOOGLE_REGION_TRENDS
-                      ? googleTrends.length
-                      : MAX_NUM_GOOGLE_REGION_TRENDS}
-                    )
+                    Number of Trends ({getTrendCountDisplay()})
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={8}>
@@ -759,6 +802,8 @@ export default function GoogleDaily() {
           </section>
         </Paper>
       </Box>
-    </Layout>
+    </>
   );
-}
+};
+
+export default GoogleTrendsPage;

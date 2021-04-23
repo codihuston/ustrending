@@ -52,7 +52,7 @@ func min(x, y int) int {
 // LogGogTrendsError will log a gogtrends error
 func LogGogTrendsError(err error, errMsg string) {
 	if err != nil {
-		log.Fatal(errors.Wrap(err, errMsg))
+		log.Error(errors.Wrap(err, errMsg))
 	}
 }
 
@@ -61,14 +61,14 @@ func PrintGogTrends(items interface{}) {
 	ref := reflect.ValueOf(items)
 
 	if ref.Kind() != reflect.Slice {
-		log.Fatalf("Failed to print %s. It's not a slice type.", ref.Kind())
+		log.Errorf("Failed to print %s. It's not a slice type.", ref.Kind())
 	}
 
 	for i := 0; i < ref.Len(); i++ {
 		//MarshalIndent
 		empJSON, err := json.MarshalIndent(ref.Index(i).Interface(), "", "  ")
 		if err != nil {
-			log.Fatalf(err.Error())
+			log.Errorf(err.Error())
 		}
 		fmt.Printf("%s\n", string(empJSON))
 		// log.Println(ref.Index(i).Interface())
@@ -188,7 +188,7 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 			return results, err
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &results)
@@ -241,6 +241,11 @@ func (g GoogleTrend) GetTrendInterest(keyword, loc, timePeriod, lang string) ([]
 
 			if err != nil {
 				return results, err
+			}
+
+			// return 404 if a valid widget was not returned
+			if widget == nil {
+				return results, nil
 			}
 
 			// now fetch the interests by location
@@ -346,24 +351,16 @@ func (g GoogleTrend) getInterestByLocation(ctx context.Context, keyword, loc, ti
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	//LogGogTrendsError(err, "Error getting region data for google trends")
-	if err != nil {
-		log.Fatal("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
-		return results, err
-	}
-
 	// first, see if it's time to invalidate/update the caches
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		// cache miss, worker HAS NOT processed data yet
 		if err == redis.Nil {
 			log.Info("CACHE MISS: ", cacheKey)
-			// TODO: fix me: runtime error: invalid memory address or nil pointer dereference
 			results, err = gogtrends.InterestByLocation(ctx, widget, lang)
 
-			//LogGogTrendsError(err, "Error getting region data for google trends")
 			if err != nil {
-				log.Fatal("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
+				log.Error("Error fetching interests by location (geomap) for trend '", keyword, "' with error: ", err)
 				return results, err
 			}
 

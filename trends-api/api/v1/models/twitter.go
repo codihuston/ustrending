@@ -39,6 +39,11 @@ func (p Twitter) GetTrendsByPlace(woeid int64) ([]twitter.TrendsList, error) {
 			trends, _, err := client.Trends.Place(woeid, placeParams)
 			result = trends
 
+			// handle twitter client errors
+			if err != nil {
+				return nil, err
+			}
+
 			// cache it
 			response, _ := json.Marshal(result)
 			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
@@ -50,7 +55,7 @@ func (p Twitter) GetTrendsByPlace(woeid int64) ([]twitter.TrendsList, error) {
 			return nil, err
 		}
 	} else {
-		log.Info("CACHE HIT!")
+		log.Info("CACHE HIT: ", cacheKey)
 
 		// convert json to list of structs
 		json.Unmarshal([]byte(val), &result)

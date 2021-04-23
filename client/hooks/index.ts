@@ -7,14 +7,19 @@ import {
   GoogleRealtimeTrend,
   Place,
   TwitterTrendsMap,
+  ZipCode
 } from "../types";
 import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
   fetchGoogleRealtimeTrends,
   fetchGoogleRealtimeTrendsByState,
+  fetchNearestPlaceByZipcode,
+  fetchNearestPlaceByGPS,
   fetchTwitterRealtimeTrends,
   fetchUSPlaces,
+  fetchNearestZipcodesByGPS,
+  fetchZipcode,
 } from "../queries";
 
 const DEFAULT_REACT_QUERY_OPTIONS = {
@@ -112,6 +117,38 @@ export function useUSPlaces() {
   return useQuery<Place[], Error>(
     "USPlaces",
     fetchUSPlaces,
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
+}
+
+export function usePlacesByZipcode(zipcode: string, limit: number = 1) {
+  return useQuery<Place[], Error>(
+    ["placeByZipcode", zipcode],
+    () => fetchNearestPlaceByZipcode(zipcode, limit),
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
+}
+
+export function usePlacesByGPS(coordinates: [number, number], limit: number) {
+  return useQuery<Place[], Error>(
+    ["placeByGPS", coordinates],
+    () => fetchNearestPlaceByGPS(coordinates, limit),
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
+}
+
+export function useZipcode(zipcode: string, limit: number = 1) {
+  return useQuery<ZipCode, Error>(
+    ["zipcode", zipcode],
+    () => fetchZipcode(zipcode, limit),
+    DEFAULT_REACT_QUERY_OPTIONS
+  );
+}
+
+export function useZipcodesByGPS(coordinates: [number, number], limit: number) {
+  return useQuery<ZipCode[], Error>(
+    ["zipcodes", coordinates],
+    () => fetchNearestZipcodesByGPS(coordinates, limit),
     DEFAULT_REACT_QUERY_OPTIONS
   );
 }

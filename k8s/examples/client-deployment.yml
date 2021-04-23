@@ -28,12 +28,18 @@ spec:
             # build config
             - name: CI
               value: "true"
-            - name: NEXT_PUBLIC_APP_NAME
-              value: "US Trending"
             # used on the server-side
             - name: API_URI
               value: "http://public-api-cluster-ip-service:3000"
-            # used on the client-side
+            # used on both the client-side and server-side
+            - name: NEXT_PUBLIC_APP_NAME
+              value: "US Trending"
             - name: NEXT_PUBLIC_API_URI
               value: "http://localhost:8080/api"
+            - name: NEXT_PUBLIC_MAX_NUM_GOOGLE_REGION_TRENDS
+              value: "10"
+            - name: NEXT_PUBLIC_MAX_NUM_SELECTED_REGIONS
+              value: "5"
+            - name: NEXT_PUBLIC_DEFAULT_NUM_TRENDS_TO_SHOW
+              value: "10"
 

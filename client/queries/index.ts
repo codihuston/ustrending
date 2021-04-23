@@ -1,4 +1,5 @@
 import { http } from "../services";
+import { AxiosError } from "axios";
 
 import {
   GoogleDailyTrend,
@@ -11,7 +12,7 @@ export async function fetchGoogleDailyTrends() {
     const { data } = await http.get<GoogleDailyTrend[]>("/google/trends/daily");
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google daily trends: http", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -23,7 +24,7 @@ export async function fetchGoogleDailyTrendsByState() {
     );
     return data;
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google region trends:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -83,7 +84,7 @@ export async function fetchGoogleRealtimeTrends(
     }
     return hasDuplicates ? data : removeDuplicates(data);
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google realtime trends:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
@@ -116,29 +117,112 @@ export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
 
     return hasDuplicates ? data : removeDuplicates(data);
   } catch (e) {
-    console.error(e);
+    console.error("Failed to get google region trends by state:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
 
 export async function fetchTwitterRealtimeTrends() {
-  try{
+  try {
     const { data } = await http.get("/twitter/trends");
     return data;
-  }
-  catch(e){
-    console.error(e);
+  } catch (e) {
+    console.error("Failed to get twitter trends:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }
 
 export async function fetchUSPlaces() {
-  try{
+  try {
     const { data } = await http.get("/places/US");
     return data;
+  } catch (e) {
+    console.error("Failed to get twitter US places:", e?.response?.status, e?.response?.statusText);
   }
-  catch(e){
-    console.error(e);
+  return [];
+}
+
+export async function fetchNearestPlaceByZipcode(
+  zipcode: string,
+  limit: number = 1
+) {
+  if (!zipcode) {
+    return null;
+  }
+
+  try {
+    // TODO: append `&limit=${limit}` after fixing the 404
+    const { data } = await http.get(`/places/nearest`, {
+      params: { zipcode, limit },
+    });
+    return data;
+  } catch (e) {
+    console.error("Failed to get nearest twitter place by zipcode:", e?.response?.status, e?.response?.statusText);
+  }
+  return [];
+}
+
+export async function fetchNearestPlaceByGPS(
+  coordinates: [number, number],
+  limit: number = 1
+) {
+  if (!coordinates) {
+    return null;
+  }
+
+  try {
+    const { data } = await http.get(`/places/nearest/point`, {
+      params: {
+        long: coordinates[0],
+        lat: coordinates[1],
+        limit: limit,
+      },
+    });
+    return data;
+  } catch (e) {
+    console.error("Failed to get nearest twitter place by GPS:", e?.response?.status, e?.response?.statusText);
+  }
+  return [];
+}
+
+export async function fetchZipcode(
+  zipcode: string,
+  limit: number = 1
+) {
+  if (!zipcode) {
+    return null;
+  }
+
+  try {
+    const { data } = await http.get(`/zipcodes/${zipcode}`, {
+      params: { limit },
+    });
+    return data;
+  } catch (e) {
+    console.error("Failed to get zipcode:", e?.response?.status, e?.response?.statusText);
+  }
+  return [];
+}
+
+export async function fetchNearestZipcodesByGPS(
+  coordinates: [number, number],
+  limit: number = 1
+) {
+  if (!coordinates) {
+    return null;
+  }
+
+  try {
+    const { data } = await http.get(`/zipcodes/nearest/point`, {
+      params: {
+        long: coordinates[0],
+        lat: coordinates[1],
+        limit: limit,
+      },
+    });
+    return data;
+  } catch (e) {
+    console.error("Failed to get nearest zipcodes:", e?.response?.status, e?.response?.statusText);
   }
   return [];
 }

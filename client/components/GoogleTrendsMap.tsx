@@ -163,7 +163,7 @@ const GoogleTrendsMap = ({
    * @param region
    */
   function getRegionTrendNameAt(index: number, region: GoogleRegionTrend) {
-    if (index > region.trends.length) {
+    if (index > region.trends.length || region.trends[index] === undefined) {
       debug(
         "An out-of-bound index was given for accessing regional trends at index:",
         index,
@@ -184,18 +184,14 @@ const GoogleTrendsMap = ({
   function getRegionByGeoName(name: string): GoogleRegionTrend {
     // handle null region
     if (!name) {
-      debug(
-        `Unable to fetch style, region not provided, using defaults.`
-      );
+      debug(`Unable to fetch style, region not provided, using defaults.`);
       return null;
     }
 
     // handle region not found
     const region = googleRegionTrends.find((x) => x.name === name);
     if (!region) {
-      debug(
-        `No trends found for region named: ${name}, using default styles.`
-      );
+      debug(`No trends found for region named: ${name}, using default styles.`);
       return null;
     }
 
@@ -215,7 +211,7 @@ const GoogleTrendsMap = ({
     const region = getRegionByGeoName(name);
     let color = defaultColor;
 
-    if (!region) {
+    if (!region || !region.trends) {
       return defaultColor;
     }
 
@@ -226,9 +222,17 @@ const GoogleTrendsMap = ({
       // find its popularity rank for this region
       const rank = getTrendAtRankForRegion(name);
       // calculate the opacity (more popular = darker)
-      const val = Number(
-        Math.abs(rank / googleRegionTrends.length - 1).toFixed(2)
+      let val = Number(
+        Math.abs(rank / region.trends.length - 1).toFixed(2)
       );
+
+      // boundary check
+      if (val > 1) {
+        val = 1;
+      } else if (val < 0) {
+        val = 0.1;
+      }
+
       // change the color's opacity accordingly
       color = fade(color ? color : defaultColor, val);
     }

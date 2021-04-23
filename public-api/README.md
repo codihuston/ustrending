@@ -1,71 +1,17 @@
 # Purpose
 
 This project was designed to sort of emulate a commonly useed
-project structure for a web API. The idea was to separate each
-`model` and `controller` (and other services, such as `database` connectors)
-into their own `packages`.
+project structure for an MVC-like web API (without the Views).
+The idea was to separate each `model` and `controller`
+(and other services, such as `database` connectors) into their own `packages`.
 
-## Testing
+The `public-api` is designed in a manner that allows the front-end `client` to
+serve its users without deteriorating performance for the front-end `client`
+as much as possible. This is done by separating the "hard work" done by
+the back-end into the `trends-api` and `worker-trends` script, and delegating
+the `read` operations primarily to the `public-api`.
 
-To test, please do the following
-
-1. Install docker
-
-1. Setup the database using docker
-
-```
-docker pull postgres
-docker run --name some-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres
-```
-
-1. Setup environment variables
-
-```
-powershell
-$env:GMH_DB_USERNAME="postgres"
-$env:GMH_DB_PASSWORD="postgres"
-$env:GMH_DB_NAME="postgres"
-
-bash
-export GMH_DB_USERNAME=postgres
-export GMH_DB_PASSWORD=postgres
-export GMH_DB_NAME=postgres
-```
-
-1. In the root of this project, run:
-
-```
-go test -v
-```
-
-Expected output:
-
-```
-PS C:\Users\Codi\git\ustrending/public-api> go test -v
-=== RUN   TestEmptyTable
---- PASS: TestEmptyTable (0.01s)  
-=== RUN   TestCreateProduct     
---- PASS: TestCreateProduct (0.01s)
-=== RUN   TestGetProduct
---- PASS: TestGetProduct (0.01s)
-=== RUN   TestUpdateProduct
---- PASS: TestUpdateProduct (0.02s)
-=== RUN   TestDeleteProduct
---- PASS: TestDeleteProduct (0.02s)
-PASS
-ok      github.com/codihuston/ustrending/public-api  0.459s
-```
-
-## Cleanup
-
-Be sure to clean up the docker image you started.
-
-```
-docker ps
-
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
-0ae813bf8d41        postgres            "docker-entrypoint.s…"   3 hours ago         Up 3 hours          0.0.0.0:5432->5432/tcp   some-postgres
-
-docker kill some-postgres
-docker rm 0ae813bf8d41
-```
+This service will read from the `redis` cache, and query `mongodb` with
+only read operations. Handling cases in which the `redis` cache
+does not contain any of the information that the front-end `client` needs
+is delegated to the `client` itself.

@@ -52,6 +52,8 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/places/{countryCode:[a-zA-Z]+}", c.GetPlaces).Methods("GET")
 	a.Router.HandleFunc("/places/nearest/point", mw.Adapter(c.GetNearestPlaceByPoint, mw.ValidatePoint)).Methods("GET")
 	a.Router.HandleFunc("/places/nearest/{zipcode:[0-9]{5}}", c.GetNearestPlaceByZipcode).Methods("GET")
+	a.Router.HandleFunc("/zipcodes/nearest/point", mw.Adapter(c.GetNearestZipcodeByPoint, mw.ValidatePoint)).Methods("GET")
+	a.Router.HandleFunc("/zipcodes/{zipcode:[0-9]{5}}", c.GetZipcode).Methods("GET")
 	// trends for all places
 	a.Router.HandleFunc("/twitter/trends", c.GetTwitterRealtimeTrends).Methods("GET")
 	// trends for specific place

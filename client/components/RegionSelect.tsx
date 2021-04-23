@@ -1,5 +1,5 @@
 import Select, { Props as SelectProps, ValueType } from "react-select";
-
+import InputLabel from "@material-ui/core/InputLabel";
 import { GoogleRegionTrend, SelectStringOptionType } from "../types";
 
 type Props = {
@@ -36,7 +36,9 @@ export default function RegionSelect({
 
   return (
     <>
+      <InputLabel htmlFor="region-select">Selected Regions for Comparision</InputLabel>
       <Select
+        name="region-select"
         isMulti={true}
         value={values}
         isSearchable={true}
