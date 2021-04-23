@@ -4,6 +4,7 @@ import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
+import InputLabel from "@material-ui/core/InputLabel";
 import MyLocationIcon from "@material-ui/icons/MyLocation";
 
 import {
@@ -64,6 +65,10 @@ const CustomizedInputBase: FunctionComponent<Props> = ({
   const debouncedSetZipcode = useDebouncedCallback(handleChangeZipcode, 1000);
 
   useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
     debouncedSetZipcode(value);
   }, [value]);
 
@@ -77,10 +82,12 @@ const CustomizedInputBase: FunctionComponent<Props> = ({
         <MyLocationIcon />
       </IconButton>
       <Divider className={classes.divider} orientation="vertical" />
+      <InputLabel htmlFor="zip">Zipcode</InputLabel>
       <InputBase
         className={classes.input}
         placeholder="Enter a Zipcode"
         inputProps={{ "aria-label": "Enter a zipcode", label: "Zipcode" }}
+        // defaultValue={value}
         value={value}
         name="zip"
         id="zip"

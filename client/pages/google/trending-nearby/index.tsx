@@ -236,10 +236,14 @@ export default function TrendingNearby() {
   }, [googleDailyTrends, selectedTrend]);
 
   useEffect(() => {
-    if (zipcodePlace) {
+    if (zipcodePlace && !coordinates) {
       setZipcodePlaces([].concat(zipcodePlace));
     } else if (zipcodesByGPS) {
       setZipcodePlaces([].concat(zipcodesByGPS));
+      // update zipcode in the input field
+      setZipcode(
+        zipcodesByGPS[0]?.Fields?.zip ? zipcodesByGPS[0]?.Fields?.zip : zipcode ? zipcode : INITIAL_VALUE
+      );
     }
   }, [zipcodePlace, zipcodesByGPS]);
 
@@ -316,7 +320,6 @@ export default function TrendingNearby() {
 
   const handleChangeCoordinates = (coordinates) => {
     setCoordinates(coordinates);
-    setZipcode(null);
   };
 
   return (
@@ -347,7 +350,7 @@ export default function TrendingNearby() {
             ) : null}
           </div>
           <section>
-            <h2>Trending Nearby Today</h2>
+            <h2>Trending Today</h2>
             <GoogleTrendsList
               googleTrendNames={googleDailyTrendsNames}
               colorMap={googleDailyColorMap}
@@ -373,6 +376,10 @@ export default function TrendingNearby() {
                 handleChangeHighlightedTrend={handleChangeHighlightedTrend}
               />
             </GoogleTrendsList>
+          </section>
+          <section>
+            <h2>Trending Right Now</h2>
+            No UI implemented yet.
           </section>
         </Paper>
       </Box>
