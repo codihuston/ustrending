@@ -142,19 +142,19 @@ Below is a list of primary features that are either completed or a work-in-progr
 Since I am not using any API documenting utility, I have provided the routes for my APIs below. These are all HTTP GET requests, since all of the data is sourced from a 3rd party. Any data that is written to the database or cache layer is done either after a successful GET request from the 3rd party API, or done by the worker service after processing the data sourced from the 3rd party.
 
 1. Public API
-   1. [localhost:8080/api/google/trends/daily](http://localhost:8080/api/google/trends/daily)
+   1. [/api/google/trends/daily](http://localhost:8080/api/google/trends/daily)
       1. Returns today's google trends (as cached by worker)
-   2. [localhost:8080/api/google/trends/daily/states](http://localhost:8080/api/google/trends/daily/states)
+   2. [/api/google/trends/daily/states](http://localhost:8080/api/google/trends/daily/states)
       1. Returns the processed trends data for all US states (as cached by worker)
-   3. [localhost:8080/api/google/trends/realtime](http://localhost:8080/api/google/trends/realtime)
+   3. [/api/google/trends/realtime](http://localhost:8080/api/google/trends/realtime)
       1. Returns what is trending on google at this moment (as cached by worker)
-   4. [localhost:8080/api/google/trends/realtime/states](http://localhost:8080/api/google/trends/realtime/states)
+   4. [/api/google/trends/realtime/states](http://localhost:8080/api/google/trends/realtime/states)
       1. Returns the processed realtime trends data for all US states (as cached by worker)
-   5. [localhost:8080/api/places](http://localhost:8080/api/places)
+   5. [/api/places](http://localhost:8080/api/places)
       1. Returns all Twitter Places
-   6. [localhost:8080/api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/api/places/US)
+   6. [/api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/api/places/US)
       1. Returns all US Twitter Places
-   7. [localhost:8080/api/places/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/places/nearest/point?long=-73.99653&lat=40.750742)
+   7. [/api/places/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/places/nearest/point?long=-73.99653&lat=40.750742)
       1. Returns a Twitter Place closest to this point
    8. [/api/places/nearest/{zipcode:[0-9]{5}}](http://localhost:8080/api/places/nearest/10001)
       1. Returns a Twitter Place closest to this Zipcode
