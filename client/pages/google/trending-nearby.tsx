@@ -26,7 +26,7 @@ import {
 import { Close } from "@material-ui/icons";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 
-import { convertRegion } from "../../../lib";
+import { convertRegion } from "../../lib";
 import {
   GoogleDailyTrendArticle,
   GoogleRealtimeTrendArticle,
@@ -34,13 +34,13 @@ import {
   ZipCode,
   isGoogleDailyTrend,
   isGoogleRealtimeTrend,
-} from "../../../types";
+} from "../../types";
 import {
   fetchGoogleDailyTrends,
   fetchGoogleDailyTrendsByState,
   fetchGoogleRealtimeTrends,
   fetchGoogleRealtimeTrendsByState,
-} from "../../../queries";
+} from "../../queries";
 import {
   useDebouncedCallback,
   useGoogleDailyTrends,
@@ -50,23 +50,23 @@ import {
   usePlacesByZipcode,
   useZipcodesByGPS,
   useZipcode,
-} from "../../../hooks";
-import { getColors, defaultPalette, defaultContrast } from "../../../themes";
-import Layout from "../../../components/Layout";
-import Loading from "../../../components/Loading";
-import LocationForm from "../../../components/LocationForm";
-import ColorPalette from "../../../components/ColorPalette";
+} from "../../hooks";
+import { getColors, defaultPalette, defaultContrast } from "../../themes";
+import Layout from "../../components/Layout";
+import Loading from "../../components/Loading";
+import LocationForm from "../../components/LocationForm";
+import ColorPalette from "../../components/ColorPalette";
 import GoogleRealtimeTrendArticleDialog from "../../../components/GoogleRealtimeTrendArticleDialog";
-import GoogleTrendArticleDialog from "../../../components/GoogleTrendArticleDialog";
-import GoogleTrendsList from "../../../components/GoogleTrendsList";
-import GoogleTrendsByRegionList from "../../../components/GoogleTrendsByRegionList";
-import RegionSelect from "../../../components/RegionSelect";
+import GoogleTrendArticleDialog from "../../components/GoogleTrendArticleDialog";
+import GoogleTrendsList from "../../components/GoogleTrendsList";
+import GoogleTrendsByRegionList from "../../components/GoogleTrendsByRegionList";
+import RegionSelect from "../../components/RegionSelect";
 import GoogleTrendsTableContainer, {
   RowProps,
-} from "../../../components/containers/GoogleTrendsTableContainer";
+} from "../../components/containers/GoogleTrendsTableContainer";
 import GoogleTrendsMap, {
   MapColorMode,
-} from "../../../components/GoogleTrendsMap";
+} from "../../components/GoogleTrendsMap";
 
 // total # trends per region to render (up to the total)
 const DEFAULT_NUM_TRENDS_TO_SHOW = parseInt(
