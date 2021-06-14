@@ -487,8 +487,6 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     setHighlightedTrend(name);
   };
 
-  console.log("trendNumberToShow", trendNumberToShow);
-
   return (
     <>
       <GoogleTrendArticleDialog
