@@ -157,6 +157,13 @@ scale with a few changes!
     before re-running the `skaffold dev` command. Sometimes the database doesn't clean
     up quickly enough, which can cause the subsequent skaffold re-deployment to fail.
 
+1.  If no data is being rendered to the application pages
+    (See [Testing the Project](#testing-the-project)), restart the worker process
+
+    ```powershell
+    kubectl rollout restart deployment worker-trends-deployment
+    ```
+
 ### Testing the Project
 
 There are currently no test runners for this project, as most of the application logic is
