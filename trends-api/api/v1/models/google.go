@@ -327,14 +327,12 @@ func (g GoogleTrend) getGeoWidget(ctx context.Context, keyword, loc, timePeriod,
 			}
 
 			// cache it
-			if len(results) > 0 {
 				response, _ := json.Marshal(results)
 				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
 				if err != nil {
 					return results, err
 				}
 			}
-		}
 	} else {
 		// cache hit, worker HAS processed the data
 		log.Info("CACHE HIT: ", cacheKey)
