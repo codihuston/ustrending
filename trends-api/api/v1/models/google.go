@@ -178,10 +178,12 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 			}
 
 			// cache it
-			response, _ := json.Marshal(results)
-			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
-			if err != nil {
-				return results, err
+			if len(results) > 0 {
+				response, _ := json.Marshal(results)
+				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+				if err != nil {
+					return results, err
+				}
 			}
 			// end if key !exists
 		} else {
@@ -256,10 +258,12 @@ func (g GoogleTrend) GetTrendInterest(keyword, loc, timePeriod, lang string) ([]
 			}
 
 			// cache it
-			response, _ := json.Marshal(results)
-			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
-			if err != nil {
-				return results, err
+			if len(results) > 0 {
+				response, _ := json.Marshal(results)
+				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+				if err != nil {
+					return results, err
+				}
 			}
 		}
 	} else {
@@ -324,10 +328,12 @@ func (g GoogleTrend) getGeoWidget(ctx context.Context, keyword, loc, timePeriod,
 			}
 
 			// cache it
-			response, _ := json.Marshal(results)
-			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
-			if err != nil {
-				return results, err
+			if len(results) > 0 {
+				response, _ := json.Marshal(results)
+				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+				if err != nil {
+					return results, err
+				}
 			}
 		}
 	} else {
@@ -365,10 +371,12 @@ func (g GoogleTrend) getInterestByLocation(ctx context.Context, keyword, loc, ti
 			}
 
 			// cache it
-			response, _ := json.Marshal(results)
-			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
-			if err != nil {
-				return results, err
+			if len(results) > 0 {
+				response, _ := json.Marshal(results)
+				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+				if err != nil {
+					return results, err
+				}
 			}
 		}
 	} else {
