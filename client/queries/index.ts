@@ -30,8 +30,10 @@ export async function fetchGoogleDailyTrendsByState() {
 }
 
 /**
- * TODO: remove duplicates?
+ * Returns Google Realtime Trends, with the ability to exclude duplicates
+ * 
  * @param expand
+ * @param hasDuplicates
  * @param maxNumTrends
  */
 export async function fetchGoogleRealtimeTrends(
@@ -151,7 +153,6 @@ export async function fetchNearestPlaceByZipcode(
   }
 
   try {
-    // TODO: append `&limit=${limit}` after fixing the 404
     const { data } = await http.get(`/places/nearest`, {
       params: { zipcode, limit },
     });

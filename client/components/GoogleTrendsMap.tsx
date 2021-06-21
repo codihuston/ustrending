@@ -13,15 +13,13 @@ import debugLib from "debug";
 import invert, { HexColor, RgbArray } from "invert-color";
 import { fade, decomposeColor } from "@material-ui/core";
 
-// TODO: modularize this by country?
 import allStates from "../data/regions.json";
 import { GoogleRegionTrend } from "../types";
 
 const tooltipFontSize = "1rem";
 const debug = debugLib("client:mapchart");
-// TODO: modularize this by country?
+// TODO: localize this file?
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
-// TODO: modularize this by country?
 const offsets = {
   VT: {
     name: "Vermont",
@@ -148,7 +146,6 @@ const GoogleTrendsMap = ({
   mapColorMode,
   trendNumberToShow,
 }: Props) => {
-  // TODO: make this dynamic?
   const projection = "geoAlbersUsa";
 
   if (!googleRegionTrends || !googleRegionTrends.length) {

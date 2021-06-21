@@ -78,7 +78,6 @@ func PrintGogTrends(items interface{}) {
 // GetDailyTrends returns an array of gogtrends.TrendingSearch.
 func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	var maxTrends int
-	// TODO: rename me
 	var cacheKey = "daily-trends"
 	ctx := context.Background()
 

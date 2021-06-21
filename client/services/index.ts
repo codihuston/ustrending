@@ -10,7 +10,7 @@ import axios from "axios";
  * value. I've done it this way to avoid having to configure subdomains / etc.
  * for this project.
  *
- * TODO: implement these server/client values as environment variables
+ * These server/client values are implemented as environment variables.
  *
  * Ref: https://github.com/vercel/next.js/issues/5354
  */
