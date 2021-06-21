@@ -1,4 +1,4 @@
-import GoogleTrendsPage from "./GoogleTrendsPage";
+import GoogleTrendsPage from "../../components/pages/GoogleTrendsPage";
 
 import Head from "next/head";
 import Layout from "../../components/Layout";

@@ -34,17 +34,17 @@ import {
 } from "../../types";
 import { useDebouncedCallback } from "../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../themes";
-import ColorPalette from "../../components/ColorPalette";
-import GoogleTrendArticleDialog from "../../components/GoogleTrendArticleDialog";
-import GoogleTrendsList from "../../components/GoogleTrendsList";
-import GoogleTrendsByRegionList from "../../components/GoogleTrendsByRegionList";
-import RegionSelect from "../../components/RegionSelect";
+import ColorPalette from "../ColorPalette";
+import GoogleTrendArticleDialog from "../GoogleTrendArticleDialog";
+import GoogleTrendsList from "../GoogleTrendsList";
+import GoogleTrendsByRegionList from "../GoogleTrendsByRegionList";
+import RegionSelect from "../RegionSelect";
 import GoogleTrendsTableContainer, {
   RowProps,
-} from "../../components/containers/GoogleTrendsTableContainer";
+} from "../containers/GoogleTrendsTableContainer";
 import GoogleTrendsMap, {
   MapColorMode,
-} from "../../components/GoogleTrendsMap";
+} from "../GoogleTrendsMap";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {},
