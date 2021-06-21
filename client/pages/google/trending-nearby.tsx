@@ -140,7 +140,7 @@ export default function TrendingNearby() {
   const isLoading = isLoadingZip || isLoadingZipGPS;
 
   /**
-   * Compute google daily/realtime trend properties
+   * Compute google daily/realtime trend properties.
    */
   useEffect(() => {
     const colorMap = new Map<string, string>();
@@ -208,7 +208,7 @@ export default function TrendingNearby() {
   ]);
 
   /**
-   * Compute google daily/realtime article list
+   * Compute google daily/realtime article list.
    */
   useEffect(() => {
     let articles = [];
@@ -222,7 +222,7 @@ export default function TrendingNearby() {
   }, [googleDailyTrends, googleRealtimeTrends, selectedTrend]);
 
   /**
-   * Compute zipcode/location
+   * Compute zipcode/location.
    */
   useEffect(() => {
     if (zipcodePlace && !coordinates) {
@@ -241,7 +241,7 @@ export default function TrendingNearby() {
   }, [zipcodePlace, zipcodesByGPS]);
 
   /**
-   * Compute selected region based on zipcode(s)
+   * Compute selected region based on zipcode(s).
    */
   useEffect(() => {
     setSelectedRegions(
@@ -261,7 +261,8 @@ export default function TrendingNearby() {
   }, [zipcodePlace, zipcodesByGPS, zipcodePlaces]);
 
   /**
-   * @returns google daily/realtime article list
+   * Returns google daily/realtime article list.
+   * @returns (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[]
    */
   const getGoogleTrendArticles = (
     trends
@@ -283,7 +284,9 @@ export default function TrendingNearby() {
   };
 
   /**
-   * @returns google daily/realtime names, used in the list components
+   * Returns google daily/realtime names, used in the list components.
+   * 
+   * @returns string[]
    */
   const getGoogleTrendNames = (trends, max): string[] => {
     return trends
@@ -298,7 +301,7 @@ export default function TrendingNearby() {
   };
 
   /**
-   * Handles selection (click) of a trend
+   * Handles selection (click) of a trend.
    *
    * @param e
    * @param name
@@ -311,7 +314,7 @@ export default function TrendingNearby() {
   };
 
   /**
-   * Handles mousing over a trend
+   * Handles mousing over a trend.
    *
    * @param name
    */
@@ -320,14 +323,14 @@ export default function TrendingNearby() {
   };
 
   /**
-   * Will nullify selectedTrend
+   * Will nullify selectedTrend.
    */
   const handleCloseDialog = () => {
     setSelectedTrend("");
   };
 
   /**
-   * Change the zipcode
+   * Change the zipcode.
    *
    * @param zipcode
    */
@@ -337,7 +340,7 @@ export default function TrendingNearby() {
   };
 
   /**
-   * Change the coordinates
+   * Change the coordinates.
    *
    * @param coordinates
    */

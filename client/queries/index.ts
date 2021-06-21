@@ -46,7 +46,8 @@ export async function fetchGoogleRealtimeTrends(
       "/google/trends/realtime"
     );
     /**
-     * Removes duplicate trending items (based on the title)
+     * Removes duplicate trending items (based on the title).
+     * 
      * @param items
      */
     const removeDuplicates = (
@@ -96,7 +97,8 @@ export async function fetchGoogleRealtimeTrendsByState(hasDuplicates) {
     const { data } = await http.get("/google/trends/realtime/states");
 
     /**
-     * Removes duplicate trending items for each region (based on the title)
+     * Removes duplicate trending items for each region (based on the title).
+     * 
      * @param items
      */
     const removeDuplicates = (items: GoogleRegionTrend[]) => {
