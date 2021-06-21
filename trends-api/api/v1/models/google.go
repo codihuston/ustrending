@@ -79,7 +79,12 @@ func PrintGogTrends(items interface{}) {
 func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	var maxTrends int
 	var cacheKey = "daily-trends"
-	ctx := context.Background()
+	var proxyKey = cacheKey + "-proxy"
+	// 25 minutes
+	ttl := time.Second * 1500
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	maxTrends, err := strconv.Atoi(os.Getenv("DEFAULT_MAX_GOOGLE_DAILY_TRENDS"))
 
@@ -91,11 +96,20 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 	// otherwise fetch from api
 	var results []*gogtrends.TrendingSearch
 
+	// check proxy key
+	doesProxyKeyExist, err := database.GetProxyKey(ctx, proxyKey)
+
 	// check cache
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
-	if err != nil {
-		if err == redis.Nil {
-			log.Info("CACHE MISS: ", cacheKey)
+
+	// if the cache is empty, or the proxy key has dropped populate it
+	if err != nil || !doesProxyKeyExist {
+		if err == redis.Nil || !doesProxyKeyExist {
+			if !doesProxyKeyExist {
+				log.Info("Proxy Key is unset, updating the cache at: ", cacheKey)
+			} else {
+				log.Info("CACHE MISS:", cacheKey)
+			}
 
 			results, err = gogtrends.Daily(ctx, langEn, locUS)
 
@@ -115,6 +129,12 @@ func (g GoogleTrend) GetDailyTrends() ([]*gogtrends.TrendingSearch, error) {
 			err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
 			if err != nil {
 				panic(err)
+			}
+
+			// set the proxy key
+			_, err := database.SetProxyKey(ctx, proxyKey, ttl)
+			if err != nil {
+				return results, err
 			}
 			// end if key !exists
 		} else {
@@ -156,6 +176,7 @@ func (g GoogleTrend) GetDailyTrendsByState(hl, loc, cat string) ([]State, error)
 // GetRealtimeTrends returns a list of realtime google trends
 func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.TrendingStory, error) {
 	var cacheKey = fmt.Sprintf("google-realtime-trends:%s:%s:%s", hl, loc, cat)
+	var proxyKey = cacheKey + "-proxy"
 	var results []*gogtrends.TrendingStory
 	// 25 minutes
 	ttl := time.Second * 1500
@@ -163,11 +184,20 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	// check proxy key
+	doesProxyKeyExist, err := database.GetProxyKey(ctx, proxyKey)
+
 	// check cache
 	val, err := database.CacheClient.Get(ctx, cacheKey).Result()
-	if err != nil {
-		if err == redis.Nil {
-			log.Info("CACHE MISS:", cacheKey)
+
+	// if the cache is empty, or the proxy key has dropped populate it
+	if err != nil || !doesProxyKeyExist {
+		if err == redis.Nil || !doesProxyKeyExist {
+			if !doesProxyKeyExist {
+				log.Info("Proxy Key is unset, updating the cache at: ", cacheKey)
+			} else {
+				log.Info("CACHE MISS:", cacheKey)
+			}
 
 			// otherwise fetch from google
 			results, err = gogtrends.Realtime(ctx, hl, loc, cat)
@@ -179,10 +209,16 @@ func (g GoogleTrend) GetRealtimeTrends(hl, loc, cat string) ([]*gogtrends.Trendi
 			// cache it
 			if len(results) > 0 {
 				response, _ := json.Marshal(results)
-				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+				err = database.CacheClient.Set(ctx, cacheKey, response, 0).Err()
 				if err != nil {
 					return results, err
 				}
+			}
+
+			// set the proxy key
+			_, err := database.SetProxyKey(ctx, proxyKey, ttl)
+			if err != nil {
+				return results, err
 			}
 			// end if key !exists
 		} else {
@@ -327,12 +363,12 @@ func (g GoogleTrend) getGeoWidget(ctx context.Context, keyword, loc, timePeriod,
 			}
 
 			// cache it
-				response, _ := json.Marshal(results)
-				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
-				if err != nil {
-					return results, err
-				}
+			response, _ := json.Marshal(results)
+			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+			if err != nil {
+				return results, err
 			}
+		}
 	} else {
 		// cache hit, worker HAS processed the data
 		log.Info("CACHE HIT: ", cacheKey)

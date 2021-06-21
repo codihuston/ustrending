@@ -1,11 +1,14 @@
 package database
 
 import (
+	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
+	"time"
+
+	"github.com/go-redis/redis/v8"
+	log "github.com/sirupsen/logrus"
 )
 
 // CacheClient a connection to cache database
@@ -64,3 +67,36 @@ func CloseCacheConnection() {
 		CacheClient = nil
 	}
 }
+
+/**
+* Will set a key in redis with a boolean value.
+ */
+func SetProxyKey(ctx context.Context, cacheKey string, ttl time.Duration) (bool, error) {
+	err := CacheClient.Set(ctx, cacheKey, true, ttl).Err()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+/**
+* Will return true if a given key is set. If a proxy key is not set,
+* then the application should be notified to update any other cache values,
+* followed by setting the proxy key for some amount of time. This allows us to
+* persist data indefinitely so the front-end client can still display data (even if it is old)
+* should the worker process fail to update this dat for any reason.
+ */
+func GetProxyKey(ctx context.Context, cacheKey string) (bool, error) {
+	_, err := CacheClient.Get(ctx, cacheKey).Result()
+
+	if err != nil {
+		if err == redis.Nil {
+			return false, nil
+		}
+		return true, err
+	}
+
+	return true, err
+}
+
+// database.CacheClient.Get(ctx, cacheKey).Result()
