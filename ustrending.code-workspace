@@ -4,19 +4,10 @@
       "path": "./client"
     },
     {
-      "path": "./old-client"
-    },
-    {
       "path": "./docs"
     },
     {
       "path": "./k8s"
-    },
-    {
-      "path": "./worker-twitter-stream"
-    },
-    {
-      "path": "./worker-twitter-stream-processor"
     },
     {
       "path": "./skaffold"
