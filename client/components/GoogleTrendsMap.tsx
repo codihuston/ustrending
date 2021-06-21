@@ -154,7 +154,7 @@ const GoogleTrendsMap = ({
 
   /**
    * Gets a trend at the given index. If the index eceeds the number of trends,
-   * return the final trend
+   * return the final trend.
    *
    * @param index
    * @param region
@@ -173,8 +173,9 @@ const GoogleTrendsMap = ({
     }
     return region.trends[index].topic;
   }
+  
   /**
-   * Will fetch a Google Region Trend with the given name
+   * Will fetch a Google Region Trend with the given name.
    *
    * @param name
    */
@@ -196,7 +197,7 @@ const GoogleTrendsMap = ({
   }
 
   /**
-   * Determines a background color to use for a given topic and region
+   * Determines a background color to use for a given topic and region.
    *
    * @param name
    * @param defaultColor
@@ -305,7 +306,8 @@ const GoogleTrendsMap = ({
   }
 
   /**
-   * Renders an HTML string to be used for the tooltip content
+   * Renders an HTML string to be used for the tooltip content.
+   * 
    * @param name
    */
   function getTooltipContent(name: string) {
@@ -361,6 +363,12 @@ const GoogleTrendsMap = ({
     return null;
   }
 
+  /**
+   * Returns an object containing style information for a geography.
+   * 
+   * @param color
+   * @returns 
+   */
   function getRegionStyle(color: string): GeographyStyle {
     const style = cloneDeep(defaultRegionStyle);
 
@@ -371,6 +379,12 @@ const GoogleTrendsMap = ({
     return style;
   }
 
+  /**
+   * Returns style information for the connectorProps of the SVG elements used by the map.
+   * 
+   * @param color
+   * @returns 
+   */
   function getConnectorProps(color: string): React.SVGProps<SVGPathElement> {
     const style = cloneDeep(defaultAnnotationProps);
 
