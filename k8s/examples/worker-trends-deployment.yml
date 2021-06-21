@@ -30,9 +30,6 @@ spec:
               value: "1"
             - name: MAX_GOOGLE_REALTIME_TRENDS
               value: "50"
-            # twitter config
-            - name: IS_TWITTER_ENABLED
-              value: "1"
             # redis config
             - name: TRENDS_API_HOST
               value: trends-api-cluster-ip-service

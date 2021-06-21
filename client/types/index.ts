@@ -72,30 +72,6 @@ export interface Point {
   coordinates: [number, number];
 }
 
-export interface TwitterTrendsMap {
-  [id: string]: TwitterTrendsList[];
-}
-
-export interface TwitterTrendsList {
-  trends: TwitterTrend[];
-  as_of: Date;
-  created_at: string;
-  locations: TwitterLocation[];
-}
-
-export interface TwitterTrend {
-  name: string;
-  url: string;
-  promoted_content: string;
-  query: string;
-  tweet_volume: number;
-}
-
-export interface TwitterLocation {
-  name: string;
-  woeid: number;
-}
-
 export type SelectStringOptionType = { label: string; value: string };
 
 export interface ZipCode {

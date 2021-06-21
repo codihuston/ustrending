@@ -24,11 +24,6 @@ export default function Navigation() {
             <a>Google Realtime Trends</a>
           </Link>
         </li>
-        <li>
-          <Link href={`/twitter/realtime`}>
-            <a>Twitter Realtime Trends</a>
-          </Link>
-        </li>
       </ul>
     </>
   );

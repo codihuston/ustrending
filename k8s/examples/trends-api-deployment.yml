@@ -48,14 +48,3 @@ spec:
               value: ""
             - name: MONGO_DB
               value: ustrending
-            # twitter api config
-            - name: TWITTER_API_KEY
-              value: ""
-            - name: TWITTER_API_SECRET_KEY
-              value: ""
-            - name: TWITTER_API_BEARER_TOKEN
-              value: ""
-            - name: TWITTER_API_ACCESS_TOKEN
-              value: ""
-            - name: TWITTER_API_ACCESS_TOKEN_SECRET
-              value: ""

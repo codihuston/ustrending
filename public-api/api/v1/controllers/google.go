@@ -14,7 +14,7 @@ const (
 	langEn = "EN"
 )
 
-// GetGoogleDailyTrends returns a twitter place closest to a given zipcode
+// GetGoogleDailyTrends returns a list of google daily trends
 func GetGoogleDailyTrends(w http.ResponseWriter, r *http.Request) {
 	// get the google trends (an array)
 	g := &models.GoogleTrend{}

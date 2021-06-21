@@ -15,7 +15,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/groovili/gogtrends"
 	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
@@ -31,7 +30,6 @@ var configMap = make(map[string]int, 0)
 const (
 	DEFAULT_IS_GOOGLE_ENABLED          = 0
 	DEFAULT_MAX_GOOGLE_REALTIME_TRENDS = 25
-	DEFAULT_IS_TWITTER_ENABLED         = 0
 )
 
 func min(x, y int) int {
@@ -502,102 +500,14 @@ func getPlaces() ([]types.Place, error) {
 	return results, nil
 }
 
-// gets all twitter places and their trending topics
-func getTwitterTrends() {
-	var jobName = "getTwitterTrends"
-
-	if configMap["IS_TWITTER_ENABLED"] == 0 {
-		log.Warn("Twitter processing is DISABLED! Skipping...")
-		return
-	}
-
-	places, err := getPlaces()
-	if err != nil {
-		log.Errorf("Failed to get twitter places from API... aborting job '%s'! %s", jobName, err)
-	}
-
-	err = getTwitterTrendsForPlaces(places)
-	if err != nil {
-		log.Errorf("Failed to get twitter trends for places from API... aborting job '%s'! %s", jobName, err)
-	}
-}
-
-func getTwitterTrendsForPlaces(places []types.Place) error {
-	var cacheKey = "twitter-trends-by-place"
-	ttl := time.Second * 0
-	m := make(map[int][]twitter.TrendsList)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	log.Info("Get twitter trends for ", len(places), " places")
-
-	// fetch trends per place
-	for i := 0; i < len(places); i++ {
-		place := places[i]
-		result, err := getTwitterTrendsByPlace(place.Woeid)
-
-		// stop processing if any errors occur
-		if err != nil {
-			return err
-		}
-
-		m[place.Woeid] = result
-	} // end for
-
-	// always cache the map into redis no matter what...
-	jsonMap, _ := json.Marshal(m)
-	err := database.CacheClient.Set(ctx, cacheKey, jsonMap, ttl).Err()
-	if err != nil {
-		return err
-	}
-
-	log.Info("DONE.")
-	return nil
-}
-
-func getTwitterTrendsByPlace(woeid int) ([]twitter.TrendsList, error) {
-	// for each place
-	var uri = getAPIString() + "/twitter/trends/" + strconv.Itoa(woeid)
-	var result []twitter.TrendsList
-	log.Info("Querying uri:", uri)
-
-	// hit the API endpoint to populate its trends list
-	r, err := httpClient.Get(uri)
-
-	// handle error
-	if err != nil {
-		return result, err
-	}
-
-	// handle non 200 http codes
-	if r.StatusCode != 200 {
-		return result, errors.New(r.Status)
-	}
-
-	// read body
-	body, err := ioutil.ReadAll(r.Body)
-
-	if err != nil {
-		return result, err
-	}
-
-	// append each result here in a map: {woeid: []trends}
-	json.Unmarshal([]byte(body), &result)
-
-	return result, nil
-}
-
 func initialize() {
 	log.Info("Initializing environment variables...")
 
 	setConfigMapValue("IS_GOOGLE_ENABLED", DEFAULT_IS_GOOGLE_ENABLED)
 	setConfigMapValue("MAX_GOOGLE_REALTIME_TRENDS", DEFAULT_MAX_GOOGLE_REALTIME_TRENDS)
-	setConfigMapValue("IS_TWITTER_ENABLED", DEFAULT_IS_TWITTER_ENABLED)
 
 	log.Info("IS_GOOGLE_ENABLED: ", configMap["IS_GOOGLE_ENABLED"])
 	log.Info("MAX_GOOGLE_REALTIME_TRENDS: ", configMap["MAX_GOOGLE_REALTIME_TRENDS"])
-	log.Info("IS_TWITTER_ENABLED: ", configMap["IS_TWITTER_ENABLED"])
 	log.Info("Connecting to services...")
 
 	database.InitializeCache()
@@ -630,7 +540,6 @@ func main() {
 	log.Println("Run initial request")
 	doGoogleDailyTrends()
 	doGoogleRealtimeTrends()
-	getTwitterTrends()
 	log.Println("DONE with initial requests")
 
 	// configure schedules for re-runs
@@ -648,13 +557,6 @@ func main() {
 		log.Println("Every minute: Get Google Realtime Trends ")
 
 		doGoogleRealtimeTrends()
-	})
-
-	// update twitter trends every 30 minutes
-	c.AddFunc("*/30 * * * *", func() {
-		log.Println("Every 30 minutes")
-
-		getTwitterTrends()
 	})
 
 	// start cronjobs

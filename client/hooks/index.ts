@@ -6,7 +6,6 @@ import {
   GoogleRegionTrend,
   GoogleRealtimeTrend,
   Place,
-  TwitterTrendsMap,
   ZipCode
 } from "../types";
 import {
@@ -16,7 +15,6 @@ import {
   fetchGoogleRealtimeTrendsByState,
   fetchNearestPlaceByZipcode,
   fetchNearestPlaceByGPS,
-  fetchTwitterRealtimeTrends,
   fetchUSPlaces,
   fetchNearestZipcodesByGPS,
   fetchZipcode,
@@ -101,14 +99,6 @@ export function useGooleRealtimeTrendsByState(hasDuplicates: boolean) {
   return useQuery<GoogleRegionTrend[], Error>(
     "googleRealtimeTrendsByState",
     () => fetchGoogleRealtimeTrendsByState(hasDuplicates),
-    DEFAULT_REACT_QUERY_OPTIONS
-  );
-}
-
-export function useTwitterRealtimeTrends() {
-  return useQuery<TwitterTrendsMap, Error>(
-    "twitterRealtimeTrends",
-    fetchTwitterRealtimeTrends,
     DEFAULT_REACT_QUERY_OPTIONS
   );
 }

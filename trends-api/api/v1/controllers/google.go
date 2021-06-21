@@ -15,7 +15,7 @@ const (
 	DEFAULT_TIME_PERIOD = "now 1-d"
 )
 
-// GetDailyTrends returns a twitter place closest to a given zipcode
+// GetDailyTrends returns a list of google daily trends
 func GetDailyTrends(w http.ResponseWriter, r *http.Request) {
 	// get the google trends (an array)
 	g := &models.GoogleTrend{}
@@ -110,7 +110,7 @@ func GetGoogleRealtimeTrendsByState(w http.ResponseWriter, r *http.Request) {
 	RespondWithJSON(w, http.StatusOK, results)
 }
 
-// GetDailyTrends returns a twitter place closest to a given zipcode
+// GetDailyTrendsByState returns a list of states and their trends, sorted by most popular
 func GetDailyTrendsByState(w http.ResponseWriter, r *http.Request) {
 	hl := r.URL.Query().Get("hl")
 	loc := r.URL.Query().Get("loc")
