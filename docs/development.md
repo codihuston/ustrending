@@ -72,7 +72,7 @@ scale with a few changes!
     1. Change the resource allocation in the deployment files to your liking.
        The out-of-box configuration might be very slow.
 
-    1. Replace the `REPLACE_ME_WITH_YOUR_DOCKER_ID` token in that file with
+    1. Replace the `your-docker-id` token in that file with
        your name (if you want to use your own dockerhub). Not a strict requirement,
        but it will tag the docker images more accordingly when built.
 
@@ -80,7 +80,7 @@ scale with a few changes!
     > images are built. It will simply keep them locally
 
 1.  Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`; replace the
-    `REPLACE_ME_WITH_YOUR_DOCKER_ID` in this file as well
+    `your-docker-id` in this file as well
 
 1.  _(Optional)_ Install dependencies for each project. If you are developing on the
     project, you should do this so that your IDE doesn't argue with you. Otherwise,

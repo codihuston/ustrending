@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: public-api
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api
+          image: your-docker-id/ustrending-public-api
           resources:
             requests:
               memory: "1Gi"

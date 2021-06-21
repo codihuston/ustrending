@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: trends-api
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-trends-api
+          image: your-docker-id/ustrending-trends-api
           resources:
             requests:
               memory: "1Gi"
@@ -27,7 +27,7 @@ spec:
           env:
             # google config
             - name: DEFAULT_MAX_GOOGLE_DAILY_TRENDS
-              value: "50"
+              value: "15"
             # redis config
             - name: REDIS_HOST
               value: redis-cluster-ip-service

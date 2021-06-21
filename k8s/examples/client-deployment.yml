@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-client
+          image: your-docker-id/ustrending-client
           resources:
             requests:
               memory: "256Mi"
@@ -37,9 +37,9 @@ spec:
             - name: NEXT_PUBLIC_API_URI
               value: "http://localhost:8080/api"
             - name: NEXT_PUBLIC_MAX_NUM_GOOGLE_REGION_TRENDS
-              value: "10"
+              value: "15"
             - name: NEXT_PUBLIC_MAX_NUM_SELECTED_REGIONS
               value: "5"
             - name: NEXT_PUBLIC_DEFAULT_NUM_TRENDS_TO_SHOW
-              value: "10"
+              value: "15"
 

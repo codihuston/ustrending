@@ -7,22 +7,22 @@ build:
   tagPolicy:
     gitCommit: {}
   artifacts:
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-public-api
+    - image: your-docker-id/ustrending-public-api
       context: ../public-api
       docker:
         dockerfile: Dockerfile.dev
       sync:
         infer:
           - '**/*.js'
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-trends-api
+    - image: your-docker-id/ustrending-trends-api
       context: ../trends-api
       docker:
         dockerfile: Dockerfile.dev
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-trends
+    - image: your-docker-id/ustrending-worker-trends
       context: ../worker-trends
       docker:
         dockerfile: Dockerfile.dev
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-client
+    - image: your-docker-id/ustrending-client
       context: ../client
       docker:
         dockerfile: Dockerfile.dev
@@ -35,11 +35,11 @@ build:
           - '**/*.css'
           - '**/*.scss'
           - '**/*.html'
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-redis
+    - image: your-docker-id/ustrending-redis
       context: ../redis
       docker:
         dockerfile: Dockerfile.dev
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-mongodb
+    - image: your-docker-id/ustrending-mongodb
       context: ../mongodb
       docker:
         dockerfile: Dockerfile.dev

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: worker-trends
-          image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-worker-trends
+          image: your-docker-id/ustrending-worker-trends
           resources:
             requests:
               memory: "24Mi"
@@ -29,7 +29,7 @@ spec:
             - name: IS_GOOGLE_ENABLED
               value: "1"
             - name: MAX_GOOGLE_REALTIME_TRENDS
-              value: "50"
+              value: "15"
             # redis config
             - name: TRENDS_API_HOST
               value: trends-api-cluster-ip-service
