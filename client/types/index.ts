@@ -46,27 +46,6 @@ export interface GoogleRealtimeTrendArticle {
   url: string;
 }
 
-export interface Place {
-  _id: string;
-  country: string;
-  countryCode: string;
-  createdAt: string;
-  geo: Point;
-  name: string;
-  parentId: number;
-  placeType: PlaceType;
-  region: string;
-  timezoneId: string;
-  updatedAt: Date;
-  url: string;
-  woeid: number;
-}
-
-export interface PlaceType {
-  code: number;
-  name: string;
-}
-
 export interface Point {
   type: "Point";
   coordinates: [number, number];
