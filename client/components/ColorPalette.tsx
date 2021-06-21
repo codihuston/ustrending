@@ -33,6 +33,7 @@ export default function ColorPalette({
     <div>
       <InputLabel htmlFor="color-palette">Palette Name</InputLabel>
       <Select
+        instanceId={1}
         name="color-palette"
         value={selectedPalette}
         isSearchable={true}
@@ -41,6 +42,7 @@ export default function ColorPalette({
       ></Select>
       <InputLabel htmlFor="contrast-level">Contrast Level</InputLabel>
       <Select
+        instanceId={2}
         name="contrast-level"
         value={selectedContrast}
         isSearchable={true}

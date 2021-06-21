@@ -38,6 +38,7 @@ export default function RegionSelect({
     <>
       <InputLabel htmlFor="region-select">Selected Regions for Comparision</InputLabel>
       <Select
+        instanceId={3}
         name="region-select"
         isMulti={true}
         value={values}
