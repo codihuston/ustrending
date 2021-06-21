@@ -420,6 +420,7 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
       setMapColorMode(MapColorMode.All);
     } else {
       setMapColorMode(MapColorMode.One);
+      setCountryTrendName(getCountryTrendName());
     }
   };
 
