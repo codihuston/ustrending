@@ -1,9 +1,6 @@
 import { FunctionComponent, useState, useRef, useEffect } from "react";
-import { QueryClient } from "react-query";
-import { dehydrate } from "react-query/hydration";
 import { isEqual, clone } from "lodash";
 import { ValueType } from "react-select";
-import Head from "next/head";
 import ReactTooltip from "react-tooltip";
 import {
   Box,
@@ -33,14 +30,8 @@ import {
   GoogleRegionTrend,
   SelectStringOptionType,
   isGoogleDailyTrend,
-  isGoogleDailyTrendArticle,
   isGoogleRealtimeTrend,
-  isGoogleRealtimeTrendArticle,
 } from "../../types";
-import {
-  fetchGoogleDailyTrends,
-  fetchGoogleDailyTrendsByState,
-} from "../../queries";
 import { useDebouncedCallback } from "../../hooks";
 import { getColors, defaultPalette, defaultContrast } from "../../themes";
 import ColorPalette from "../../components/ColorPalette";
@@ -139,6 +130,9 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   >([]);
   const [rows, setRows] = useState<RowProps[]>([]);
 
+  /**
+   * Handle computed properties related to google trends.
+   */
   useEffect(() => {
     const colorMap = new Map<string, string>();
     const sourceMap = new Map<string, number>();
@@ -190,12 +184,18 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     selectedPalette,
   ]);
 
+  /**
+   * Handles the fetching of articles relevant to the selected trend name.
+   */
   useEffect(() => {
     if (googleTrends) {
       setRelatedArticles(getGoogleTrendArticles());
     }
   }, [selectedTrend]);
 
+  /**
+   * Handles the changing of the trend to show info about in the map.
+   */
   useEffect(() => {
     if (googleTrends) {
       setCountryTrendName(getCountryTrendName());
@@ -214,6 +214,11 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
       .slice(0, max);
   };
 
+  /**
+   * Returns an array of either Google Daily/Realtime Articles.
+   * 
+   * @returns GoogleDailyTrendArticle[] | GoogleRealtimeTrendArticle[]
+   */
   const getGoogleTrendArticles = (): (
     | GoogleDailyTrendArticle
     | GoogleRealtimeTrendArticle
@@ -234,7 +239,12 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
       : [];
   };
 
-  const getCountryTrendName = () => {
+  /**
+   * The title of a google trend for this country at the given trendNumberToShow.
+   * 
+   * @returns string
+   */
+  const getCountryTrendName = (): string => {
     if (googleTrends) {
       const trend = googleTrends[trendNumberToShow];
       if (isGoogleDailyTrend(trend)) {
@@ -246,16 +256,21 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     return null;
   };
 
-  const getTrendCountDisplay = () => {
+  /**
+   * Returns a string simply displaying the number of trends shown.
+   * 
+   * @returns string
+   */
+  const getTrendCountDisplay = (): string => {
     return googleTrends &&
       googleTrends.length &&
       googleTrends.length <= MAX_NUM_GOOGLE_REGION_TRENDS
       ? `${maxNumTrendsToShow}/${MAX_NUM_GOOGLE_REGION_TRENDS}`
-      : MAX_NUM_GOOGLE_REGION_TRENDS;
+      : `${MAX_NUM_GOOGLE_REGION_TRENDS}`;
   };
 
   /**
-   * Scrolls to the reference (selected regions / region comparison secion)
+   * Scrolls to the reference (selected regions / region comparison secion).
    */
   const executeScroll = () =>
     ref.current.scrollIntoView({
@@ -265,14 +280,14 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     });
 
   /**
-   * Opens the snackbar
+   * Opens the snackbar.
    */
   const handleOpenSnackbar = () => {
     setOpen(true);
   };
 
   /**
-   * Closes the snackbar
+   * Closes the snackbar.
    */
   const handleCloseSnackbar = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -281,18 +296,26 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   };
 
   /**
-   * Will nullify selectedTrend
+   * Will nullify selectedTrend.
    */
   const handleCloseDialog = () => {
     setSelectedTrend("");
   };
 
+  /**
+   * Handle changing of the color palettes. See ..\..\themes\index.ts.
+   * @param option
+   */
   const handleChangePalette = (
     option: ValueType<SelectStringOptionType, false>
   ) => {
     setSelectedPalette(option);
   };
 
+  /**
+   * Handle changing of the color palettes contrast. See ..\..\themes\index.ts.
+   * @param option
+   */
   const handleChangeContrast = (
     option: ValueType<SelectStringOptionType, false>
   ) => {
@@ -300,7 +323,7 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   };
 
   /**
-   * Handles change event from the dropdown select
+   * Handles change event from the dropdown select.
    * @param option
    */
   const handleChange = (
@@ -335,7 +358,7 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   };
 
   /**
-   * Handles click event on the map regions
+   * Handles click event on the map regions.
    * @param e
    * @param regionName
    */
@@ -377,8 +400,18 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     handleOpenSnackbar();
   };
 
+  /**
+   * Debounces this action by the given number of ms.
+   */
   const debouncedHandleMapClick = useDebouncedCallback(handleMapClick, 250);
 
+  /**
+   * Handles when a map geography is hovered. Should display tooltip relative
+   * to the mouse.
+   * 
+   * @param e
+   * @param tooltipContent 
+   */
   const handleMapHover = (
     e: React.MouseEvent<SVGGElement, MouseEvent>,
     tooltipContent: string
@@ -386,6 +419,9 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     setTooltipContent(tooltipContent);
   };
 
+  /**
+   * Delays the map hover event by the given number of ms.
+   */
   const debouncedHandleMapHover = useDebouncedCallback(handleMapHover, 250);
 
   const handleTrendClick = (
@@ -396,7 +432,8 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   };
 
   /**
-   * Toggles the sort method for the regions' trends list
+   * Toggles the sort method for the regions' trends list.
+   * 
    * @param event
    */
   const toggleListSort = (event) => {
@@ -404,7 +441,8 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   };
 
   /**
-   * Toggles region list colors
+   * Toggles region list colors.
+   * 
    * @param event
    */
   const toggleListColors = (event) => {
@@ -412,7 +450,8 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   };
 
   /**
-   * If checked, map color mode is "All", otherwise it is "One"
+   * If checked, map color mode is "All", otherwise it is "One".
+   * 
    * @param event
    */
   const toggleMapColorMode = (event) => {
@@ -425,7 +464,8 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
   };
 
   /**
-   * Handles click event for deleting a list from the regions' trends list
+   * Handles click event for deleting a list from the regions' trends list.
+   * 
    * @param e
    * @param selectedRegion
    */
@@ -443,6 +483,13 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     setSelectedRegions(temp);
   };
 
+  /**
+   * Handles the change event for the slider. Will change the number of list items
+   * and table columns on change.
+   * 
+   * @param event
+   * @param newValue 
+   */
   const handleSliderChangeNumTrendsToShow = (
     event: React.ChangeEvent<HTMLInputElement>,
     newValue: number
@@ -450,11 +497,20 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     setMaxNumTrendsToShow(newValue);
   };
 
+  /**
+   * Delays the slider change event by the given ms.
+   */
   const debouncedHandleSliderChangeNumTrendsToShow = useDebouncedCallback(
     handleSliderChangeNumTrendsToShow,
     1000
   );
 
+  /**
+   * Handles the change event for the trendNumberToShow. This value tells the
+   * map how to behave, alongside the map mode.
+   * 
+   * @param event
+   */
   const handleInputChangeTrendNumberToShow = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -479,11 +535,19 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     setTrendNumberToShow(validValue);
   };
 
+  /**
+   * Delays the change event for trendNumberToShow by the given ms
+   */
   const debouncedHandleInputChangeTrendNumberToShow = useDebouncedCallback(
     handleInputChangeTrendNumberToShow,
     250
   );
 
+  /**
+   * Handles the hover event of a trend in the region compare list.
+   * 
+   * @param name 
+   */
   const handleChangeHighlightedTrend = (name: string) => {
     setHighlightedTrend(name);
   };
