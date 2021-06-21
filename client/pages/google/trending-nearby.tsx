@@ -1,30 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { QueryClient } from "react-query";
 import { dehydrate } from "react-query/hydration";
-import { isEqual, clone } from "lodash";
 import { ValueType } from "react-select";
 import Head from "next/head";
-import ReactTooltip from "react-tooltip";
-import {
-  Box,
-  Button,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  makeStyles,
-  Paper,
-  Slider,
-  Switch,
-  TextField,
-  Theme,
-  Toolbar,
-  Tooltip,
-  Typography,
-  Snackbar,
-} from "@material-ui/core";
-import { Close } from "@material-ui/icons";
-import { AiOutlineInfoCircle } from "react-icons/ai";
+import { Box, makeStyles, Paper, Theme } from "@material-ui/core";
 
 import { convertRegion } from "../../lib";
 import {
@@ -47,27 +26,16 @@ import {
   useGoogleDailyTrendsByState,
   useGoogleRealtimeTrends,
   useGooleRealtimeTrendsByState,
-  usePlacesByZipcode,
   useZipcodesByGPS,
   useZipcode,
 } from "../../hooks";
-import { getColors, defaultPalette, defaultContrast } from "../../themes";
+import { getColors } from "../../themes";
 import Layout from "../../components/Layout";
 import Loading from "../../components/Loading";
 import LocationForm from "../../components/LocationForm";
-import ColorPalette from "../../components/ColorPalette";
-import GoogleRealtimeTrendArticleDialog from "../../../components/GoogleRealtimeTrendArticleDialog";
 import GoogleTrendArticleDialog from "../../components/GoogleTrendArticleDialog";
 import GoogleTrendsList from "../../components/GoogleTrendsList";
 import GoogleTrendsByRegionList from "../../components/GoogleTrendsByRegionList";
-import RegionSelect from "../../components/RegionSelect";
-import GoogleTrendsTableContainer, {
-  RowProps,
-} from "../../components/containers/GoogleTrendsTableContainer";
-import GoogleTrendsMap, {
-  MapColorMode,
-} from "../../components/GoogleTrendsMap";
-
 // total # trends per region to render (up to the total)
 const DEFAULT_NUM_TRENDS_TO_SHOW = parseInt(
   process.env.NEXT_PUBLIC_DEFAULT_NUM_TRENDS_TO_SHOW
@@ -78,21 +46,14 @@ const MAX_NUM_GOOGLE_REGION_TRENDS = parseInt(
 );
 const realtimeTrendsHasDuplicates = false;
 const shouldExpandRealtimeTrends = true;
+// sort region list items
+const isAlphabetical = true;
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {},
-  mapContainer: {
-    [theme.breakpoints.down("xs")]: {
-      width: "100%",
-      margin: "auto",
-    },
-    [theme.breakpoints.up("lg")]: {
-      width: "50%",
-      margin: "auto",
-    },
-  },
-}));
-
+/**
+ * Statically loads values before page render.
+ *
+ * @returns
+ */
 export async function getServerSideProps() {
   const queryClient = new QueryClient();
 
@@ -139,23 +100,23 @@ export default function TrendingNearby() {
   const [selectedRegions, setSelectedRegions] = useState<
     ValueType<SelectStringOptionType, true>
   >([]);
-  // daily trends state
+  // google trends
   const [googleDailyTrendsNames, setGoogleDailyTrendsNames] = useState<
     string[]
   >([]);
   const [googleRealtimeTrendsNames, setGoogleRealtimeTrendsNames] = useState<
     string[]
   >([]);
-  const [googleDailyColorMap, setColorMap] = useState<Map<string, string>>(
-    new Map()
-  );
+  const [googleDailyColorMap, setGoogleDailyTrendsColorMap] = useState<
+    Map<string, string>
+  >(new Map());
   const [googleRealtimeTrendsColorMap, setgoogleRealtimeTrendsColorMap] =
     useState<Map<string, string>>(new Map());
-  const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
+  const [googleDailyTrendSourceMap, setGoogleDailyTrendSourceMap] = useState<
+    Map<string, number>
+  >(new Map());
   const [googleRealtimeTrendsSourceMap, setgoogleRealtimeTrendsSourceMap] =
     useState<Map<string, number>>(new Map());
-  // realtime trend state
-  // ...
   // hooks
   const { data: zipcodePlace, isLoading: isLoadingZip } = useZipcode(
     zipcode,
@@ -165,7 +126,6 @@ export default function TrendingNearby() {
     coordinates,
     1
   );
-  // data
   const { data: googleDailyTrends } = useGoogleDailyTrends();
   const { data: googleDailyRegionTrends } = useGoogleDailyTrendsByState();
   const { data: googleRealtimeTrends } = useGoogleRealtimeTrends(
@@ -179,67 +139,63 @@ export default function TrendingNearby() {
   // computed data
   const isLoading = isLoadingZip || isLoadingZipGPS;
 
+  /**
+   * Compute google daily/realtime trend info
+   */
   useEffect(() => {
     const colorMap = new Map<string, string>();
-    const sourceMap = new Map<string, number>();
+    const googleDailyTrendSourceMap = new Map<string, number>();
     const googleRealtimeTrendsColorMap = new Map<string, string>();
     const googleRealtimeTrendsSourceMap = new Map<string, number>();
 
-    // compute state around googleTrends
     if (googleDailyTrends) {
+      // get all daily trend names
       const allTrendNames = getGoogleTrendNames(
         googleDailyTrends,
         googleDailyTrends.length
       );
-      const trendNames = getGoogleTrendNames(
-        googleDailyTrends,
-        maxNumTrendsToShow
-      );
 
-      // init the color palette
+      // init the color palette for all daily trends
       const palette = getColors(
         "Rainbow",
         "Very High",
         googleDailyTrends.length
       );
 
-      // init the colors for all trends
+      // init the colors for all daily trends
       allTrendNames.map((name, i) => {
         colorMap.set(name, palette[i]);
-        sourceMap.set(name, i);
+        googleDailyTrendSourceMap.set(name, i);
       });
 
-      // init the list of trends (only the ones within the given limit)
-      setGoogleDailyTrendsNames(trendNames);
-      setColorMap(colorMap);
-      setSourceMap(sourceMap);
+      setGoogleDailyTrendsNames(allTrendNames);
+      setGoogleDailyTrendsColorMap(colorMap);
+      setGoogleDailyTrendSourceMap(googleDailyTrendSourceMap);
     }
-    // compute state around google realtim trends
+
+    // compute state around google realtime trends
     if (googleRealtimeTrends) {
+      // get all realtime trend names
       const allTrendNames = getGoogleTrendNames(
         googleRealtimeTrends,
         googleRealtimeTrends.length
       );
-      const trendNames = getGoogleTrendNames(
-        googleRealtimeTrends,
-        maxNumTrendsToShow
-      );
 
-      // init the color palette
+      // init the realtime color palette
       const palette = getColors(
         "Rainbow",
         "Very High",
         googleRealtimeTrends.length
       );
 
-      // init the colors for all trends
+      // init the colors for all realtime trends
       allTrendNames.map((name, i) => {
         googleRealtimeTrendsColorMap.set(name, palette[i]);
         googleRealtimeTrendsSourceMap.set(name, i);
       });
 
       // init the list of trends (only the ones within the given limit)
-      setGoogleRealtimeTrendsNames(trendNames);
+      setGoogleRealtimeTrendsNames(allTrendNames);
       setgoogleRealtimeTrendsColorMap(googleRealtimeTrendsColorMap);
       setgoogleRealtimeTrendsSourceMap(googleRealtimeTrendsSourceMap);
     }
@@ -248,12 +204,12 @@ export default function TrendingNearby() {
     googleDailyRegionTrends,
     googleRealtimeTrends,
     googleRealtimeRegionTrends,
-    // isTooltipVisible,
     maxNumTrendsToShow,
-    // selectedContrast,
-    // selectedPalette,
   ]);
 
+  /**
+   * Compute google daily/realtime article list
+   */
   useEffect(() => {
     let articles = [];
     if (googleDailyTrends) {
@@ -265,6 +221,9 @@ export default function TrendingNearby() {
     setRelatedArticles(articles);
   }, [googleDailyTrends, googleRealtimeTrends, selectedTrend]);
 
+  /**
+   * Compute zipcode/location
+   */
   useEffect(() => {
     if (zipcodePlace && !coordinates) {
       setZipcodePlaces([].concat(zipcodePlace));
@@ -281,6 +240,9 @@ export default function TrendingNearby() {
     }
   }, [zipcodePlace, zipcodesByGPS]);
 
+  /**
+   * Compute selected region based on zipcode(s)
+   */
   useEffect(() => {
     setSelectedRegions(
       zipcodePlaces.map((p) => {
@@ -298,6 +260,9 @@ export default function TrendingNearby() {
     );
   }, [zipcodePlace, zipcodesByGPS, zipcodePlaces]);
 
+  /**
+   * @returns google daily/realtime article list
+   */
   const getGoogleTrendArticles = (
     trends
   ): (GoogleDailyTrendArticle | GoogleRealtimeTrendArticle)[] => {
@@ -317,6 +282,9 @@ export default function TrendingNearby() {
       : [];
   };
 
+  /**
+   * @returns google daily/realtime names, used in the list components
+   */
   const getGoogleTrendNames = (trends, max): string[] => {
     return trends
       .map((trend) => {
@@ -329,6 +297,12 @@ export default function TrendingNearby() {
       .slice(0, max);
   };
 
+  /**
+   * Handles selection (click) of a trend
+   *
+   * @param e
+   * @param name
+   */
   const handleTrendClick = (
     e: React.MouseEvent<HTMLButtonElement | HTMLDivElement, MouseEvent>,
     name: string
@@ -336,6 +310,11 @@ export default function TrendingNearby() {
     setSelectedTrend(name);
   };
 
+  /**
+   * Handles mousing over a trend
+   *
+   * @param name
+   */
   const handleChangeHighlightedTrend = (name: string) => {
     setHighlightedTrend(name);
   };
@@ -347,11 +326,21 @@ export default function TrendingNearby() {
     setSelectedTrend("");
   };
 
+  /**
+   * Change the zipcode
+   *
+   * @param zipcode
+   */
   const handleChangeZipcode = (zipcode) => {
     setZipcode(zipcode);
     setCoordinates(null);
   };
 
+  /**
+   * Change the coordinates
+   *
+   * @param coordinates
+   */
   const handleChangeCoordinates = (coordinates) => {
     setCoordinates(coordinates);
   };
@@ -399,9 +388,9 @@ export default function TrendingNearby() {
                 }
                 // handleClick={handleListDelete}
                 handleTrendClick={handleTrendClick}
-                isAlphabetical={true}
+                isAlphabetical={isAlphabetical}
                 maxNumTrendsToShow={maxNumTrendsToShow}
-                sourceMap={sourceMap}
+                sourceMap={googleDailyTrendSourceMap}
                 selectedRegions={selectedRegions}
                 colorMap={googleDailyColorMap}
                 withColor={isWithColors}
@@ -425,9 +414,8 @@ export default function TrendingNearby() {
                 googleRegionTrends={
                   googleRealtimeRegionTrends ? googleRealtimeRegionTrends : []
                 }
-                // handleClick={handleListDelete}
                 handleTrendClick={handleTrendClick}
-                isAlphabetical={true}
+                isAlphabetical={isAlphabetical}
                 maxNumTrendsToShow={maxNumTrendsToShow}
                 sourceMap={googleRealtimeTrendsSourceMap}
                 selectedRegions={selectedRegions}

@@ -53,7 +53,7 @@ const GoogleTrendsList: FunctionComponent<Props> = ({
   const classes = useStyles();
 
   if (!googleTrendNames || !googleTrendNames.length) {
-    return <span>Error: no google daily trends are provided!</span>;
+    return <span>Error: no google trends are provided!</span>;
   }
 
   return (
