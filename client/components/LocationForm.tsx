@@ -9,8 +9,6 @@ import MyLocationIcon from "@material-ui/icons/MyLocation";
 
 import {
   useDebouncedCallback,
-  usePlacesByZipcode,
-  usePlacesByGPS,
 } from "../hooks";
 
 const useStyles = makeStyles((theme: Theme) =>
