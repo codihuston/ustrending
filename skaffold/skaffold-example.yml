@@ -1,4 +1,4 @@
-apiVersion: skaffold/v1beta2
+apiVersion: skaffold/v2beta14
 kind: Config
 build:
   local:
@@ -12,7 +12,8 @@ build:
       docker:
         dockerfile: Dockerfile.dev
       sync:
-        '***/*.js': .
+        infer:
+          - '**/*.js'
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-trends-api
       context: ../trends-api
       docker:
@@ -26,22 +27,14 @@ build:
       docker:
         dockerfile: Dockerfile.dev
       sync:
-        '***/*.js': .
-        '***/*.jsx': .
-        '***/*.ts': .
-        '***/*.tsx': .
-        '***/*.css': .
-        '***/*.scss': .
-        '***/*.html': .
-    - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-old-client
-      context: ../old-client
-      docker:
-        dockerfile: Dockerfile.dev
-      sync:
-        '***/*.js': .
-        '***/*.css': .
-        '***/*.scss': .
-        '***/*.html': .
+        infer:
+          - '**/*.js'
+          - '**/*.jsx'
+          - '**/*.ts'
+          - '**/*.tsx'
+          - '**/*.css'
+          - '**/*.scss'
+          - '**/*.html'
     - image: REPLACE_ME_WITH_YOUR_DOCKER_ID/ustrending-redis
       context: ../redis
       docker:
