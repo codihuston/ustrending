@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import ValueType from "react-select";
+import { ValueType } from "react-select";
 import invert from "invert-color";
 import { Box, makeStyles, Theme } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";

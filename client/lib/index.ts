@@ -29,7 +29,7 @@ export function getSelectedRegionOption(
 ): ValueType<SelectStringOptionType, true> {
   for (const givenRegion of selectedRegions) {
     if (givenRegion.label === regionName || givenRegion.value === regionName) {
-      return givenRegion;
+      return [givenRegion];
     }
   }
   return null;

@@ -432,11 +432,11 @@ const GoogleTrendsPage: FunctionComponent<Props> = ({
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedRegion: ValueType<SelectStringOptionType, true>
   ) => {
-    if (!selectedRegion) return;
+    if (selectedRegion.length <= 0) return;
 
     // filter out the given region
     const temp = selectedRegions.filter(
-      (region) => !isEqual(region, selectedRegion)
+      (region) => !isEqual(region, selectedRegion[0])
     );
 
     setSelectedRegions(temp);
