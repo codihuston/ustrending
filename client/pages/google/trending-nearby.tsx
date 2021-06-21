@@ -143,10 +143,17 @@ export default function TrendingNearby() {
   const [googleDailyTrendsNames, setGoogleDailyTrendsNames] = useState<
     string[]
   >([]);
+  const [googleRealtimeTrendsNames, setGoogleRealtimeTrendsNames] = useState<
+    string[]
+  >([]);
   const [googleDailyColorMap, setColorMap] = useState<Map<string, string>>(
     new Map()
   );
+  const [googleRealtimeTrendsColorMap, setgoogleRealtimeTrendsColorMap] = useState<Map<string, string>>(
+    new Map()
+  );
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
+  const [googleRealtimeTrendsSourceMap, setgoogleRealtimeTrendsSourceMap] = useState<Map<string, number>>(new Map());
   // realtime trend state
   // ...
   // hooks
@@ -175,6 +182,8 @@ export default function TrendingNearby() {
   useEffect(() => {
     const colorMap = new Map<string, string>();
     const sourceMap = new Map<string, number>();
+    const googleRealtimeTrendsColorMap = new Map<string, string>();
+    const googleRealtimeTrendsSourceMap  = new Map<string, number>();
 
     // compute state around googleTrends
     if (googleDailyTrends) {
@@ -202,27 +211,43 @@ export default function TrendingNearby() {
 
       // init the list of trends (only the ones within the given limit)
       setGoogleDailyTrendsNames(trendNames);
+      setColorMap(colorMap);
+      setSourceMap(sourceMap);
     }
+    // compute state around google realtim trends
+    if (googleRealtimeTrends) {
+      const allTrendNames = getGoogleTrendNames(
+        googleRealtimeTrends,
+        googleRealtimeTrends.length
+      );
+      const trendNames = getGoogleTrendNames(
+        googleRealtimeTrends,
+        maxNumTrendsToShow
+      );
 
-    // compute state around googleRegionTrends (for table)
-    // if (googleDailyRegionTrends) {
-    //   setRows(
-    //     googleDailyRegionTrends.map((region) => {
-    //       const topics = region.trends.map((trend) => trend.topic);
+      // init the color palette
+      const palette = getColors(
+        "Rainbow",
+        "Very High",
+        googleRealtimeTrends.length
+      );
 
-    //       return {
-    //         region: region.name,
-    //         ...topics,
-    //       };
-    //     })
-    //   );
-    // }
-    // setTooltipVisibility(true);
-    setColorMap(colorMap);
-    setSourceMap(sourceMap);
+      // init the colors for all trends
+      allTrendNames.map((name, i) => {
+        googleRealtimeTrendsColorMap.set(name, palette[i]);
+        googleRealtimeTrendsSourceMap.set(name, i);
+      });
+
+      // init the list of trends (only the ones within the given limit)
+      setGoogleRealtimeTrendsNames(trendNames);
+      setgoogleRealtimeTrendsColorMap(googleRealtimeTrendsColorMap);
+      setgoogleRealtimeTrendsSourceMap(googleRealtimeTrendsSourceMap);
+    }
   }, [
     googleDailyTrends,
     googleDailyRegionTrends,
+    googleRealtimeTrends,
+    googleRealtimeRegionTrends,
     // isTooltipVisible,
     maxNumTrendsToShow,
     // selectedContrast,
@@ -379,7 +404,31 @@ export default function TrendingNearby() {
           </section>
           <section>
             <h2>Trending Right Now</h2>
-            No UI implemented yet.
+            <GoogleTrendsList
+              googleTrendNames={googleRealtimeTrendsNames}
+              colorMap={googleRealtimeTrendsColorMap}
+              withColor={isWithColors}
+              handleTrendClick={handleTrendClick}
+              highlightedTrend={highlightedTrend}
+              handleChangeHighlightedTrend={handleChangeHighlightedTrend}
+            >
+              <GoogleTrendsByRegionList
+                googleRegionTrends={
+                  googleRealtimeRegionTrends ? googleRealtimeRegionTrends : []
+                }
+                // handleClick={handleListDelete}
+                handleTrendClick={handleTrendClick}
+                isAlphabetical={true}
+                maxNumTrendsToShow={maxNumTrendsToShow}
+                sourceMap={googleRealtimeTrendsSourceMap}
+                selectedRegions={selectedRegions}
+                colorMap={googleRealtimeTrendsColorMap}
+                withColor={isWithColors}
+                withTitle
+                highlightedTrend={highlightedTrend}
+                handleChangeHighlightedTrend={handleChangeHighlightedTrend}
+              />
+            </GoogleTrendsList>
           </section>
         </Paper>
       </Box>
