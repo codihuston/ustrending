@@ -63,7 +63,7 @@ I wanted to do the same thing for Twitter, alongside some additional ideas. I wa
 After then pursuing the same manner for the Twitter Trends, I learned that **Twitter did not have a means of tying trends to a specific state**, but rather, **a specific set of cities across the US**. I did not like the idea of letting a handful of cities represent an entire state in the map visualization (since I only cared about the popularity of trends at the state level, not the city level). Not to mention, Twitter did not have trend data for all US states (only about 26 of them). While I could create a separate map containing each city and colorizing pins on those cities based on their trends (similarly to I did the Google Trends), there were some new challenges that arose:
 
 1. For Google Trends, I could use the daily/realtime country-wide trends as the static set of trends, which means that each region would always have the exact same set of trends. Ergo, I could ensure that each trend got a specific color (based on its trending rank country-wide)
-2. For the Twitter Trends, it was entirely possible that what was trending country-wide did not match the set of trends trending for a specific city. That is, every city could have a  disjointed set of trends (though that wasn't likely). But it *was* likely that they were going to overlap in some way...
+2. For the Twitter Trends, it was entirely possible that what was trending country-wide did not match the set of trends trending for a specific city. That is, every city could have a disjointed set of trends (though that wasn't likely). But it _was_ likely that they were going to overlap in some way...
 
 Since the propensity was high for each region's datasets to be different, it warranted a new approach compared to how the Google Trends were displayed. Since I ultimately set out to learn about new technology, I decided not to pursue the implementation of Twitter Trends in this project `on the front-end`. The Streaming API would also not be implemented; however, the back-end endpoints for fetching trends have been.
 
@@ -109,7 +109,7 @@ Below is a list of primary features that are either completed or a work-in-progr
     - [x] Implement cache layer for storing Google Trends responses
     - [x] Implement cache layer for storing the completed/processed data from Google Trends
     - [ ] Implement cache proxy keys that will prevent the replacing of the completed/processed Google Trends data until the these key expires (one for each the completed dataset for daily/realtime trends). This will ensure that processed trends data always exists in the redis
-    cache (does not expire)
+          cache (does not expire)
   - [x] Worker Script
     - [x] On a delta interval, using the Private API
       - [x] Process Google Trends
@@ -122,7 +122,7 @@ Below is a list of primary features that are either completed or a work-in-progr
         - [x] Cache for use by the Public API
   - [x] Public API
     > Note: This is used by the front-end web client
-    > 
+    >
     > There is a caching layer to make subsequent reads faster from the MongoDB database.
     > The worker itself caches any of the trends data that the Public API is interested in
     - [x] Implement route for fetching processed Google Daily Trends for each all US states
@@ -158,35 +158,41 @@ Since I am not using any API documenting utility, I have provided the routes for
       1. Returns a Twitter Place closest to this point
    8. [/api/places/nearest/{zipcode:[0-9]{5}}](http://localhost:8080/api/places/nearest/10001)
       1. Returns a Twitter Place closest to this Zipcode
-   9.  [/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742)
-       1.  Returns a Zipcode (US Census) closest to this point
+   9. [/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742)
+      1. Returns a Zipcode (US Census) closest to this point
    10. [/api/zipcodes/{zipcode:[0-9]{5}}](http://localhost:8080/api/zipcodes/10001)
-       1.  Returns a Zipcode (US Census)
+       1. Returns a Zipcode (US Census)
    11. [/api/twitter/trends](http://localhost:8080/api/twitter/trends)
-       1.  Returns all twitter trends (for all US Twitter Places, as configured and cached by worker)
+       1. Returns all twitter trends (for all US Twitter Places, as configured and cached by worker)
    12. [/api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/api/twitter/trends/1)
-       1.  Returns an individual trends list for a given Twitter Place (for individual US Twitter Places, as configured and cached by worker)
+       1. Returns an individual trends list for a given Twitter Place (for individual US Twitter Places, as configured and cached by worker)
 2. Private API (Trends API)
-   1. [/trends-api/google/trends/interest](http://localhost:8080/trends-api/google/trends/interest?keyword=Mortal%20Kombat&loc=US&timePeriod=now-1&lang=EN)
-      1. Returns the geo widget containing regional trend interest for a given trend
-   2. [/trends-api/google/trends/daily](http://localhost:8080/trends-api/google/trends/daily)
-      1. Returns and caches today's google trends
-   3. [/trends-api/google/trends/daily/states](http://localhost:8080/trends-api/google/trends/daily/states)
-      1. Returns the processed trends data for all US states (as cached by worker)
-   4. [/trends-api/google/trends/realtime](http://localhost:8080/trends-api/google/trends/realtime)
-      1. Returns and caches today's realtime google trends
-   5. [/trends-api/google/trends/realtime/states](http://localhost:8080/trends-api/google/trends/realtime/states)
-      1. Returns the processed trends data for all US states (as cached by worker)
-   6. [/trends-api/places](http://localhost:8080/trends-api/places)
-      1. Returns All Twitter Places
-   7. [/trends-api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/trends-api/places/US)
-      1. Returns Twitter Places for a given country
-   8. [/trends-api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/trends-api/twitter/trends/1)
-      1. Returns a specific Twitter Place
+
+> NOTE: these endpoints are exposed to your kubernetes node's host in development (for ease of access).
+> They will not be exposed in production.
+> Otherwise, are only available from within the cluster. All pods will be able to query these using the
+> IP Cluster Service for the `trends-api` Deployment.
+
+1.  [/trends-api/google/trends/interest](http://localhost:8080/trends-api/google/trends/interest?keyword=Mortal%20Kombat&loc=US&timePeriod=now-1&lang=EN)
+    1. Returns the geo widget containing regional trend interest for a given trend
+2.  [/trends-api/google/trends/daily](http://localhost:8080/trends-api/google/trends/daily)
+    1. Returns and caches today's google trends
+3.  [/trends-api/google/trends/daily/states](http://localhost:8080/trends-api/google/trends/daily/states)
+    1. Returns the processed trends data for all US states (as cached by worker)
+4.  [/trends-api/google/trends/realtime](http://localhost:8080/trends-api/google/trends/realtime)
+    1. Returns and caches today's realtime google trends
+5.  [/trends-api/google/trends/realtime/states](http://localhost:8080/trends-api/google/trends/realtime/states)
+    1. Returns the processed trends data for all US states (as cached by worker)
+6.  [/trends-api/places](http://localhost:8080/trends-api/places)
+    1. Returns All Twitter Places
+7.  [/trends-api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/trends-api/places/US)
+    1. Returns Twitter Places for a given country
+8.  [/trends-api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/trends-api/twitter/trends/1)
+    1. Returns a specific Twitter Place
 
 # Demo (In Place)
 
-Since this project is not production-ready yet, I will demo the overall features below in place. As described in the [Features](#features) section, there are a handful of things to be done before I want to take this into production. 
+Since this project is not production-ready yet, I will demo the overall features below in place. As described in the [Features](#features) section, there are a handful of things to be done before I want to take this into production.
 
 > Know that the development environment uses `skaffold`, which leverages a local installation of `kubernetes`, so that transferring this project into a production kubernetes cluster will be rather seemless
 
@@ -210,44 +216,44 @@ On this page, you would be able to see a data visualization of what is trending 
 
 1. The Default Map View
 
-    This shows you which country-wide trend is trending #1 across the US. The country-wide trends are displayed lower on the page (in a later example). You can also control which trending rank is highlighted. For example, if you want to visualize which country-wide trend is trending #2 for each state, you can do that.
+   This shows you which country-wide trend is trending #1 across the US. The country-wide trends are displayed lower on the page (in a later example). You can also control which trending rank is highlighted. For example, if you want to visualize which country-wide trend is trending #2 for each state, you can do that.
 
-    ![Default Map View](docs/img/daily-trends-map.PNG)
+   ![Default Map View](docs/img/daily-trends-map.PNG)
 
-    Here you can see that #1 in Minnesota is `Falcon and the Winter Soldier Episode 6`, which is also the case for the other states highlighted with the same color.
+   Here you can see that #1 in Minnesota is `Falcon and the Winter Soldier Episode 6`, which is also the case for the other states highlighted with the same color.
 
 2. The Heatmap View
 
-    This shows you how popular a given trend is. The end-user has control over which trend is being scrutinized. They can also control the color palette, which will propagate across the entire page upon changing.
+   This shows you how popular a given trend is. The end-user has control over which trend is being scrutinized. They can also control the color palette, which will propagate across the entire page upon changing.
 
-    ![Heat Map View](docs/img/daily-trends-heatmap.PNG)
+   ![Heat Map View](docs/img/daily-trends-heatmap.PNG)
 
-    Here, you can see how popular the country-wide trend
-    `Falcon and the Winter Soldier Epsiode 6` is. This specific trend is actually ranked #7 in the US for Today's trends on Google. You can verify that in the comparison view in the next example.
+   Here, you can see how popular the country-wide trend
+   `Falcon and the Winter Soldier Epsiode 6` is. This specific trend is actually ranked #7 in the US for Today's trends on Google. You can verify that in the comparison view in the next example.
 
 3. The Region (State) Comparison View
 
-    Upon clicking on a US State on the map, or via the select dropdown above the map,
-    you can compare trends between the US as a whole and each individual state. The country-wide trends will always appear first in this list. Hovering
-    over a trend will highlight its position in other states (see that the #2 country-wide trend is actually trending #10 out of the states being compared).
+   Upon clicking on a US State on the map, or via the select dropdown above the map,
+   you can compare trends between the US as a whole and each individual state. The country-wide trends will always appear first in this list. Hovering
+   over a trend will highlight its position in other states (see that the #2 country-wide trend is actually trending #10 out of the states being compared).
 
-    By default, the app will only render the top 10 trends. Sometimes there will be more than 10, in which case you can use the slider to render more.
+   By default, the app will only render the top 10 trends. Sometimes there will be more than 10, in which case you can use the slider to render more.
 
-    ![Region Comparison View](docs/img/daily-trends-compare.PNG)
+   ![Region Comparison View](docs/img/daily-trends-compare.PNG)
 
 4. Related News Articles for a Given Trend
 
-    Upon clicking on a trend, the related articles that Google Trends has associated for the selected trend will be displayed in a modal, along with a link to this trend's statistics on the actual Google Trends website.
+   Upon clicking on a trend, the related articles that Google Trends has associated for the selected trend will be displayed in a modal, along with a link to this trend's statistics on the actual Google Trends website.
 
-    ![Article Modal](docs/img/daily-trends-articles.PNG)
+   ![Article Modal](docs/img/daily-trends-articles.PNG)
 
 5. Grid View
 
-    This section of the page will provide a filterable and sortable table view containing all of the US states and their respective trends. This is provided so you can easily filter which states might have a specific trend at a specific rank.
+   This section of the page will provide a filterable and sortable table view containing all of the US states and their respective trends. This is provided so you can easily filter which states might have a specific trend at a specific rank.
 
-    ![Grid View](docs/img/daily-trends-grid.PNG)
+   ![Grid View](docs/img/daily-trends-grid.PNG)
 
-    You can click on a trend here to display the article modal as well.
+   You can click on a trend here to display the article modal as well.
 
 # Additional Documentation
 
