@@ -149,11 +149,11 @@ export default function TrendingNearby() {
   const [googleDailyColorMap, setColorMap] = useState<Map<string, string>>(
     new Map()
   );
-  const [googleRealtimeTrendsColorMap, setgoogleRealtimeTrendsColorMap] = useState<Map<string, string>>(
-    new Map()
-  );
+  const [googleRealtimeTrendsColorMap, setgoogleRealtimeTrendsColorMap] =
+    useState<Map<string, string>>(new Map());
   const [sourceMap, setSourceMap] = useState<Map<string, number>>(new Map());
-  const [googleRealtimeTrendsSourceMap, setgoogleRealtimeTrendsSourceMap] = useState<Map<string, number>>(new Map());
+  const [googleRealtimeTrendsSourceMap, setgoogleRealtimeTrendsSourceMap] =
+    useState<Map<string, number>>(new Map());
   // realtime trend state
   // ...
   // hooks
@@ -183,7 +183,7 @@ export default function TrendingNearby() {
     const colorMap = new Map<string, string>();
     const sourceMap = new Map<string, number>();
     const googleRealtimeTrendsColorMap = new Map<string, string>();
-    const googleRealtimeTrendsSourceMap  = new Map<string, number>();
+    const googleRealtimeTrendsSourceMap = new Map<string, number>();
 
     // compute state around googleTrends
     if (googleDailyTrends) {
@@ -255,10 +255,15 @@ export default function TrendingNearby() {
   ]);
 
   useEffect(() => {
+    let articles = [];
     if (googleDailyTrends) {
-      setRelatedArticles(getGoogleTrendArticles(googleDailyTrends));
+      articles = getGoogleTrendArticles(googleDailyTrends);
     }
-  }, [googleDailyTrends, selectedTrend]);
+    if (googleRealtimeTrends) {
+      articles = articles.concat(getGoogleTrendArticles(googleRealtimeTrends));
+    }
+    setRelatedArticles(articles);
+  }, [googleDailyTrends, googleRealtimeTrends, selectedTrend]);
 
   useEffect(() => {
     if (zipcodePlace && !coordinates) {
@@ -267,7 +272,11 @@ export default function TrendingNearby() {
       setZipcodePlaces([].concat(zipcodesByGPS));
       // update zipcode in the input field
       setZipcode(
-        zipcodesByGPS[0]?.Fields?.zip ? zipcodesByGPS[0]?.Fields?.zip : zipcode ? zipcode : INITIAL_VALUE
+        zipcodesByGPS[0]?.Fields?.zip
+          ? zipcodesByGPS[0]?.Fields?.zip
+          : zipcode
+          ? zipcode
+          : INITIAL_VALUE
       );
     }
   }, [zipcodePlace, zipcodesByGPS]);
