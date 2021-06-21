@@ -9,7 +9,7 @@ Table of Contents
   - [The Project Goals](#the-project-goals)
   - [The Product Goals](#the-product-goals)
   - [Google Trends](#google-trends)
-  - [Twitter Trends](#twitter-trends)
+  - [Twitter Trends (Deprecated)](#twitter-trends-deprecated)
 - [Features](#features)
 - [Routes and Endpoints](#routes-and-endpoints)
 - [Demo (In Place)](#demo-in-place)
@@ -56,7 +56,7 @@ With this dataset meeting my criteria of being pretty simple, I prototyped my ap
 
 Once this prototype was complete, I moved on to Twitter Trends.
 
-## Twitter Trends
+## Twitter Trends (Deprecated)
 
 I wanted to do the same thing for Twitter, alongside some additional ideas. I wanted live-stream tweets related to the top trends, specific categories (entertainment/politics/etc.). This was a perfect use case for my split API back-end: I could scale up the Public API both horizontally and vertically. The Private API should only need to be scaled up vertically, since it only serves the worker service.
 
@@ -150,22 +150,23 @@ Since I am not using any API documenting utility, I have provided the routes for
       1. Returns what is trending on google at this moment (as cached by worker)
    4. [/api/google/trends/realtime/states](http://localhost:8080/api/google/trends/realtime/states)
       1. Returns the processed realtime trends data for all US states (as cached by worker)
-   5. [/api/places](http://localhost:8080/api/places)
-      1. Returns all Twitter Places
-   6. [/api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/api/places/US)
-      1. Returns all US Twitter Places
-   7. [/api/places/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/places/nearest/point?long=-73.99653&lat=40.750742)
-      1. Returns a Twitter Place closest to this point
-   8. [/api/places/nearest/{zipcode:[0-9]{5}}](http://localhost:8080/api/places/nearest/10001)
-      1. Returns a Twitter Place closest to this Zipcode
-   9. [/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742)
+   5. [/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/zipcodes/nearest/point?long=-73.99653&lat=40.750742)
       1. Returns a Zipcode (US Census) closest to this point
-   10. [/api/zipcodes/{zipcode:[0-9]{5}}](http://localhost:8080/api/zipcodes/10001)
-       1. Returns a Zipcode (US Census)
-   11. [/api/twitter/trends](http://localhost:8080/api/twitter/trends)
-       1. Returns all twitter trends (for all US Twitter Places, as configured and cached by worker)
-   12. [/api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/api/twitter/trends/1)
-       1. Returns an individual trends list for a given Twitter Place (for individual US Twitter Places, as configured and cached by worker)
+   6. [/api/zipcodes/{zipcode:[0-9]{5}}](http://localhost:8080/api/zipcodes/10001)
+      1. Returns a Zipcode (US Census)
+   7. Deprecated Endpoints
+      1. [/api/places](http://localhost:8080/api/places)
+         1. Returns all Twitter Places
+      2. [/api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/api/places/US)
+         1. Returns all US Twitter Places
+      3. [/api/places/nearest/point?long=-73.99653&lat=40.750742](http://localhost:8080/api/places/nearest/point?long=-73.99653&lat=40.750742)
+      4. Returns a Twitter Place closest to this point
+      5. [/api/places/nearest/{zipcode:[0-9]{5}}](http://localhost:8080/api/places/nearest/10001)
+         1. Returns a Twitter Place closest to this Zipcode
+      6. [/api/twitter/trends](http://localhost:8080/api/twitter/trends)
+         1. Returns all twitter trends (for all US Twitter Places, as configured and cached by worker)
+      7. [/api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/api/twitter/trends/1)
+         1. Returns an individual trends list for a given Twitter Place (for individual US Twitter Places, as configured and cached by worker)
 2. Private API (Trends API)
 
 > NOTE: these endpoints are exposed to your kubernetes node's host in development (for ease of access).
@@ -183,12 +184,13 @@ Since I am not using any API documenting utility, I have provided the routes for
     1. Returns and caches today's realtime google trends
 5.  [/trends-api/google/trends/realtime/states](http://localhost:8080/trends-api/google/trends/realtime/states)
     1. Returns the processed trends data for all US states (as cached by worker)
-6.  [/trends-api/places](http://localhost:8080/trends-api/places)
-    1. Returns All Twitter Places
-7.  [/trends-api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/trends-api/places/US)
-    1. Returns Twitter Places for a given country
-8.  [/trends-api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/trends-api/twitter/trends/1)
-    1. Returns a specific Twitter Place
+6.  Deprecated Endpoints
+    1.  [/trends-api/places](http://localhost:8080/trends-api/places)
+        1. Returns All Twitter Places
+    2.  [/trends-api/places/{countryCode:[a-zA-Z]+}](http://localhost:8080/trends-api/places/US)
+        1. Returns Twitter Places for a given country
+    3.  [/trends-api/twitter/trends/{woeid:[0-9]+}](http://localhost:8080/trends-api/twitter/trends/1)
+        1. Returns a specific Twitter Place
 
 # Demo (In Place)
 
