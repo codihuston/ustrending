@@ -140,7 +140,7 @@ export default function TrendingNearby() {
   const isLoading = isLoadingZip || isLoadingZipGPS;
 
   /**
-   * Compute google daily/realtime trend info
+   * Compute google daily/realtime trend properties
    */
   useEffect(() => {
     const colorMap = new Map<string, string>();
