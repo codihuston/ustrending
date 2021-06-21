@@ -1,4 +1,2 @@
 FROM mongo
-COPY ./dump/locations.json /locations.json
-COPY ./dump/places.json /places.json
 COPY ./dump/zipcodes.json /zipcodes.json
