@@ -186,10 +186,12 @@ func (p *Place) GetNearestPlaceByPoint(long, lat float64, limit int64) ([]*Place
 			}
 
 			// cache it
-			response, _ := json.Marshal(results)
-			err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
-			if err != nil {
-				panic(err)
+			if len(results) > 0 {
+				response, _ := json.Marshal(results)
+				err = database.CacheClient.Set(ctx, cacheKey, response, ttl).Err()
+				if err != nil {
+					panic(err)
+				}
 			}
 			// end if key !exists
 		} else {
