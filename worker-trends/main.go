@@ -24,6 +24,7 @@ import (
 	"github.com/codihuston/ustrending/worker-trends/types"
 )
 
+var geoMaps = make(map[string][]*gogtrends.GeoMap, 0)
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 var configMap = make(map[string]int, 0)
 
@@ -304,16 +305,15 @@ func getGoogleRealtimeTrends() ([]*gogtrends.TrendingStory, error) {
 }
 
 /*
-	- [x] On a delta of 1s, pop a trend from queue until empty
-		- [X] HTTP GET Explore the trend + InterestsByRegion at /google/explore?keyword=, geo=, time=,
-			- [X] return an instance of a State? Append to []State in worker (sorting after each response)
-			- [X] Cache the result: google-realtime-trends-by-state
-		- [X] After all trends processed, HTTP GET my result from cache at /google/realtime/trends/state
-			- cacheKey: google-realtime-trends-by-state
-*/
-var geoMaps = make(map[string][]*gogtrends.GeoMap, 0)
-
-// pops a keyword from the cache and returns the interest by region from google
+* Pops a keyword from the cache and returns the interest by region from google
+*
+*	- [x] On a delta of 1s, pop a trend from queue until empty
+*		- [X] HTTP GET Explore the trend + InterestsByRegion at /google/explore?keyword=, geo=, time=,
+*			- [X] return an instance of a State Append to []State in worker (sorting after each response)
+*			- [X] Cache the result: google-realtime-trends-by-state
+*		- [X] After all trends processed, HTTP GET my result from cache at /google/realtime/trends/state
+*			- cacheKey: google-realtime-trends-by-state
+ */
 func getGoogleRealtimeTrendsGeoMaps(ctx context.Context, queueKey string, seconds time.Duration) (map[string][]*gogtrends.GeoMap, error) {
 
 	// while the queue is not empty
