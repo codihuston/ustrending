@@ -19,8 +19,6 @@ echo "Pod status: $STATUS"
 if [[ $POD && $STATUS == "Running" ]]
 then
   echo "Running 'mongoimport' command..."
-  kubectl exec -it $POD -- mongoimport --db=ustrending --collection=locations --file=locations.json  --jsonArray
-  kubectl exec -it $POD -- mongoimport --db=ustrending --collection=places --file=places.json  --jsonArray
   kubectl exec -it $POD -- mongoimport --db=ustrending --collection=zipcodes --file=zipcodes.json  --jsonArray
   Write-Host "Creating indexes..."
   kubectl exec -it $POD -- mongo --eval "db = db.getSiblingDB('ustrending'); printjson(db.zipcodes.createIndex({geometry: '2dsphere' }))"
