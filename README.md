@@ -48,7 +48,7 @@ This project was designed for the following purposes. The actual product idea
     I wanted to ensure that in production, this project could be found via
     search engines
 - Do more work with `Kubernetes`, `Docker`, and deploying into production with
-  a `CI/CD` Pipelines
+  a `CI/CD` Pipeline
   - I have been working with Kubernetes and Docker for some time with my
     passion projects, and I've been enjoying the developer experience that they
     offer
