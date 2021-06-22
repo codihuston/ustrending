@@ -1,5 +1,19 @@
 # Getting Started
 
+- [Getting Started](#getting-started)
+  - [For Developers](#for-developers)
+  - [Developing Using Skaffold](#developing-using-skaffold)
+    - [System Requirements](#system-requirements)
+    - [Prerequisites](#prerequisites)
+    - [Starting the Project](#starting-the-project)
+      - [For MacOS](#for-macos)
+      - [For Windows](#for-windows)
+    - [About Skaffold](#about-skaffold)
+    - [How to View the Project](#how-to-view-the-project)
+    - [How to Troubleshoot the Project](#how-to-troubleshoot-the-project)
+  - [Cleanup](#cleanup)
+    - [Notes](#notes)
+
 ## For Developers
 
 This document will explain how to begin developing on this repo.
@@ -294,9 +308,9 @@ web application should be displaying.
 > Note: If no (or only some) data is being rendered to the application pages,
 > restart the worker process or redeploy the applications with `skaffold`!
 
-Restarting the worker process in another terminal while `skaffold` is running.
-You will see the worker output streamed to the terminal instance that `skaffold`
-is running within:
+Restarting the cache server and the worker process in another terminal while
+`skaffold` is running. You will see the worker output streamed to the terminal
+instance that `skaffold` is running within:
 
 ```powershell
 kubectl rollout restart deployment worker-trends-deployment
@@ -314,6 +328,17 @@ subsequent skaffold re-deployment to fail.
 Once the application is ready, it will re-load data as soon as you focus the
 browser. I recommend starting at `localhost:8080` and then navigating to pages,
 as this seems to have the most consistent UI experience. See [Notes](#notes).
+
+> Note: sometimes the cache layer and the worker process can have a
+> data "misalignment" due to how I've designed the cache to work in order to
+> prevent as few repeated outgoing requests as possible
+> (as to not spam google's servers). As a result, some trend data might
+> render oddly. If this happens, it is best to restart everyting via `skaffold`
+> as mentioned in the steps above rather than restarting the worker process.
+
+> Note: since the database should be persisted as per the `mongo-deployment.yml`
+> config file, you should never have to re-run the import scripts unless you've
+> deliberately obliterated the database files from your disk.
 
 ## Cleanup
 
