@@ -61,7 +61,8 @@ The benefit of this is, we take this straight to production at scale with a few 
 ### Starting the Project
 
 At a high level, the steps you need to follow in order to get the application(s)
-running are as follows:
+running are as follows. **These steps will be explained in detail in a later
+section!**
 
 1. (Optional, if you already have one) Deploy a Traffic Controller
    [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
@@ -80,11 +81,12 @@ running are as follows:
 6. Visit `localhost:8080` and explore the application
 
    1. If any Google Daily/Realtime Trends are not populating in the interface,
-      run: `kubectl rollout restart deployment worker-trends-deployment` to
-      re-populate the database with Trends.
+      see [How to Troubleshoot the Project](#how-to-troubleshoot-the-project).
 
    > Note: This worker script is designed to run once on start, and every 30
-   > minutes thereafter
+   > minutes thereafter. There is a caching layer built in that will prevent
+   > repeated outgoing requests to the 3rd party servers, so re-running the
+   > worker script is safe within this time window.
 
 #### For MacOS
 
