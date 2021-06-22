@@ -213,7 +213,6 @@ section.
    Bash:
 
    ```bash
-   cd ustrending
    . ./mongodb/import.sh
    ```
 
