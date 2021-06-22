@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: worker-trends
-          image: your-docker-id/ustrending-worker-trends
+          image: codihuston/ustrending-worker-trends
           resources:
             requests:
               memory: "24Mi"

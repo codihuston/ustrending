@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: trends-api
-          image: your-docker-id/ustrending-trends-api
+          image: codihuston/ustrending-trends-api
           resources:
             requests:
               memory: "1Gi"

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: mongo
-          image: your-docker-id/ustrending-mongodb
+          image: codihuston/ustrending-mongodb
           resources:
             requests:
               memory: "128Mi"

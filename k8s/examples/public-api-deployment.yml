@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: public-api
-          image: your-docker-id/ustrending-public-api
+          image: codihuston/ustrending-public-api
           resources:
             requests:
               memory: "1Gi"
