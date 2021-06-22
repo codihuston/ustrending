@@ -75,12 +75,12 @@ However, I elected to leave this architecture in place, as there is a possibilit
 
 Below is a list of primary features that are either completed or a work-in-progress.
 
-- [ ] Front-end (web client)
-  - [ ] Display Nearby Google Trends
+- [x] Front-end (web client)
+  - [x] Display Nearby Google Trends
     - [x] Display Google Daily trends for the country
     - [x] Display Google Daily trends for the state nearest you
-    - [] Display Google Realtime trends for the country
-    - [ ] Display Google Realtime trends for the state nearest you
+    - [x] Display Google Realtime trends for the country
+    - [x] Display Google Realtime trends for the state nearest you
   - [x] Display Google Daily Trends (Country and Region Overview)
     - [x] Display USA, colored by #1 trend per state
     - [x] Display USA, colored heatmap for a specific trend
