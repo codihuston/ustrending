@@ -264,6 +264,9 @@ into the kubernetes cluster. This process works like so:
 
 ### How to View the Project
 
+> IMPORTANT: know that Next.js will re-compile each page upon each request
+> in development mode. You will notice load times when navigating pages.
+
 There are currently no test runners for this project, as most of the
 application logic is purely a matter of fetching data from the 3rd parties or
 from the database or caching layer. In the future, this may change. You can,
