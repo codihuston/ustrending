@@ -127,127 +127,127 @@ section.
 
 3. Copy the contents of the `k8s/examples` directory to the `k8s/dev` directory
 
-Bash:
+   Bash:
 
-```bash
-cp k8s/examples/*.yml k8s/dev/
-```
+   ```bash
+   cp k8s/examples/*.yml k8s/dev/
+   ```
 
-Powershell:
+   Powershell:
 
-```powershell
-Copy-Item k8s/examples/*.yml k8s/dev/
-```
+   ```powershell
+   Copy-Item k8s/examples/*.yml k8s/dev/
+   ```
 
-    > Note: the provided configuration should work for Windows out-of-box.
-    > No environment variables need to be changed.
+   1. _Change the resource allocation in the deployment files to your liking.
+      The out-of-box configuration might be very slow._
 
-    1. Change the resource allocation in the deployment files to your liking.
-       The out-of-box configuration might be very slow.
+   > Note: the provided configuration should work for Windows out-of-box.
+   > No environment variables need to be changed.
 
-    > Note: `skaffold` is configured not to push to your container registry when
-    > the images are built. It will simply keep them locally.
+   > Note: `skaffold` is configured not to push to your container registry when
+   > the images are built. It will simply keep them locally.
 
-5.  Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`
+4. Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`
 
-    Bash:
+   Bash:
 
-    ```bash
-    cp skaffold/skaffold-example.yml skaffold/skaffold.yml
-    ```
+   ```bash
+   cp skaffold/skaffold-example.yml skaffold/skaffold.yml
+   ```
 
-    PowerShell:
+   PowerShell:
 
-    ```powershell
-    Copy-Item skaffold/skaffold-example.yml skaffold/skaffold.yml
-    ```
+   ```powershell
+   Copy-Item skaffold/skaffold-example.yml skaffold/skaffold.yml
+   ```
 
-6.  From the `skaffold` directory in the project root, run the `skaffold`
-    (which uses the relative config file we just copied)
+5. From the `skaffold` directory in the project root, run the `skaffold`
+   (which uses the relative config file we just copied)
 
-    ```cmd
-    cd skaffold
+   ```cmd
+   cd skaffold
 
-    skaffold dev
-    ```
+   skaffold dev
+   ```
 
-    Skaffold will output logs from the kubernetes objects in this terminal.
+   Skaffold will output logs from the kubernetes objects in this terminal.
 
-    **Important: do not forget to populate the database in the next step!
-    Read the rest of this step, before you do!**
+   **Important: do not forget to populate the database in the next step!
+   Read the rest of this step, before you do!**
 
-    > Note: You may see an error printed by the API server(s) or the Worker script that
-    > indicate a database error. This will be addressed in the next step.
+   > Note: You may see an error printed by the API server(s) or the Worker script that
+   > indicate a database error. This will be addressed in the next step.
 
-    > Note: You can exit the `skaffold` via SIGINT (ctrl+c). Exiting `skaffold`
-    > will destroy any Kubernetes Objects defined in `k8s-dev`. The Persistent
-    > Volume Claims should persist between `skaffold` instances.
+   > Note: You can exit the `skaffold` via SIGINT (ctrl+c). Exiting `skaffold`
+   > will destroy any Kubernetes Objects defined in `k8s-dev`. The Persistent
+   > Volume Claims should persist between `skaffold` instances.
 
-    You can run the following commands to get the status of the
-    services/deployments/pods:
+   You can run the following commands to get the status of the
+   services/deployments/pods:
 
-    ```cmd
-    kubectl get ingress
-    kubectl get services
-    kubectl get deployments
-    kubectl get pods
+   ```cmd
+   kubectl get ingress
+   kubectl get services
+   kubectl get deployments
+   kubectl get pods
 
-    kubectl describe service|deployment|pod <object_name>
-    ```
+   kubectl describe service|deployment|pod <object_name>
+   ```
 
-    Read more about [skaffold](#about-skaffold).
+   Read more about [skaffold](#about-skaffold).
 
-7.  Import data into the database
+6. Import data into the database
 
-    This project uses a dataset for `zipcodes`. Import them by running either
-    the `.bat`, `.ps1`, or `.sh` scripts from your kubernetes host environment
-    You can find them here: [import.bat](./../mongodb/import.bat),
-    [import.ps1](./../mongodb/import.ps1), [import.sh](./../mongodb/import.sh).
+   This project uses a dataset for `zipcodes`. Import them by running either
+   the `.bat`, `.ps1`, or `.sh` scripts from your kubernetes host environment
+   You can find them here: [import.bat](./../mongodb/import.bat),
+   [import.ps1](./../mongodb/import.ps1), [import.sh](./../mongodb/import.sh).
 
-    > Important: only run these after the mongodb database is up and running!
+   > Important: only run these after the mongodb database is up and running!
 
-    In a new terminal from the root of this project, run the following:
+   In a new terminal from the root of this project, run the following:
 
-    Bash:
+   Bash:
 
-    ```bash
-    cd ustrending
-    . ./mongodb/import.sh
-    ```
+   ```bash
+   cd ustrending
+   . ./mongodb/import.sh
+   ```
 
-    PowerShell:
+   PowerShell:
 
-    ```powershell
-    ./mongodb/import.ps1
-    ```
+   ```powershell
+   ./mongodb/import.ps1
+   ```
 
-8.  See: [How to View the Project](#how-to-view-the-project) and
-    [Troubleshooting the Project](#how-to-troubleshoot-the-project)
+7. See: [How to View the Project](#how-to-view-the-project) and
+   [Troubleshooting the Project](#how-to-troubleshoot-the-project)
 
-9.  _(Optional)_ Install dependencies for each project. If you are developing on
-    the project, you should do this so that your IDE doesn't complain.
-    Otherwise, this can be skipped, as the dependencies are not used from your
-    host system, as they will be installed when the `skaffold` builds the
-    containers
+8. _(Optional)_ Install dependencies for each project. If you are developing on
+   the project, you should do this so that your IDE doesn't complain.
+   Otherwise, this can be skipped, as the dependencies are not used from your
+   host system, as they will be installed when the `skaffold` builds the
+   containers
 
-    ```sh
-    # assuming you are in the project root
-    cd client
-    npm install
+   ```sh
+   # assuming you are in the project root
+   cd client
+   npm install
 
-    cd ../public-api
-    go install
+   cd ../public-api
+   go install
 
-    cd ../trends-api
-    go install
+   cd ../trends-api
+   go install
 
-    cd ../worker-trends
-    go install
-    ```
+   cd ../worker-trends
+   go install
+   ```
 
-    > Note: the `node_modules` directories are excluded during
-    > the docker image process via `.dockerignore`, so you shouldn't see any
-    > performance drops as as result of installing dependencies
+   > Note: the `node_modules` directories are excluded during
+   > the docker image process via `.dockerignore`, so you shouldn't see any
+   > performance drops as as result of installing dependencies
 
 ### About Skaffold
 
