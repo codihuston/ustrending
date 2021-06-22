@@ -350,6 +350,8 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
    `hostPath` key
 4. Delete all docker related docker images:
 
+   Bash:
+
    ```bash
    docker rmi -f $(docker images codihuston/ustrending-client)
    docker rmi -f $(docker images codihuston/ustrending-mongodb)
@@ -357,6 +359,8 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
    docker rmi -f $(docker images codihuston/ustrending-trends-api)
    docker rmi -f $(docker images codihuston/ustrending-worker-trends)
    ```
+
+   PowerShell:
 
    ```powershell
    $(docker images) -like '*codihuston/ustrending*' | ForEach-Object {
