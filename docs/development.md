@@ -115,9 +115,6 @@ section.
    ```cmd
    # to init / update
    kubectl apply -f ./k8s/ingress-nginx-example.yml
-
-   # to delete (takes time)
-   kubectl delete -f ./k8s/ingress-nginx-example.yml
    ```
 
    This will install the `ingress controller`, which we will later configure
@@ -367,7 +364,12 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
        docker rmi -f $id
    }
    ```
+5. Delete the ingress traffic controller
 
+   ```powershell
+   # (takes time)
+   kubectl delete -f ./k8s/ingress-nginx-example.yml
+   ```
 ### Notes
 
 Due to a mixture of `Next.js`, `Server-Side Rendering`,
