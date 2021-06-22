@@ -98,17 +98,17 @@ Below is a list of primary features that are either completed or a work-in-progr
     - [x] Implement means of changing # of trends displayed
     - [x] Implement grid view of trends per state
   - ~~[ ] Display Twitter Trends (Country and Region Overview)~~
-- [ ] Back-end
+- [x] Back-end
   - [x] Database
     - [x] Populate database with Zipcodes containing geolocation data from US Census
-  - [ ] Private API (Trends API)
+  - [x] Private API (Trends API)
     > Note: This is used by only the worker service
     - [x] Fetch Google Daily Trends
     - [x] Fetch Realtime Daily Trends
     - [x] Fetch a trend's popularity by region (US State)
     - [x] Implement cache layer for storing Google Trends responses
     - [x] Implement cache layer for storing the completed/processed data from Google Trends
-    - [ ] Implement cache proxy keys that will prevent the replacing of the completed/processed Google Trends data until the these key expires (one for each the completed dataset for daily/realtime trends). This will ensure that processed trends data always exists in the redis
+    - [x] Implement cache proxy keys that will prevent the replacing of the completed/processed Google Trends data until the these key expires (one for each the completed dataset for daily/realtime trends). This will ensure that processed trends data always exists in the redis
           cache (does not expire)
   - [x] Worker Script
     - [x] On a delta interval, using the Private API
