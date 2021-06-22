@@ -74,6 +74,15 @@ running are as follows:
 
 #### For MacOS
 
+All of the steps will be the same as described in the
+[For Windows](#for-windows) section, except for the following:
+
+1. In the `k8s/examples/mongo-deployment.yml` file, you need to update
+   the `hostPath > path` key to a path that is writable by your user account.
+
+After you have made the above changes, you can follow the steps in the next
+section.
+
 #### For Windows
 
 1. In your terminal, `cd` into the root of this repository. You should see
