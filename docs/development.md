@@ -346,8 +346,8 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
 1. If `skaffold` is running in a terminal (via `skaffold dev`),
    pass a `SIGINT` to it (`CTRL+C`)
 2. In the same terminal run `skaffold delete`
-3. Delete the directory created by the the `mongo-deploymeny.yml` under the
-   `hostPath` key
+3. Delete the directory created by the the `mongo-deployment.yml` under the
+   `hostPath > path` key
 4. Delete all docker related docker images:
 
    Bash:
