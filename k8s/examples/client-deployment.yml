@@ -17,10 +17,10 @@ spec:
           image: your-docker-id/ustrending-client
           resources:
             requests:
-              memory: "256Mi"
+              memory: "1Gi"
               cpu: "0.2"
             limits:
-              memory: "256Mi"
+              memory: "1Gi"
               cpu: "0.2"
           ports:
             - containerPort: 3000
