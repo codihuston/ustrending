@@ -207,25 +207,8 @@ Copy-Item k8s/examples/*.yml k8s/dev/
     ./mongodb/import.ps1
     ```
 
-8.  See: [How to View the Project](#how-to-view-the-project)
-
-    > Note: If no data is being rendered to the application pages,
-    > restart the worker process or redeploy the applications with `skaffold`!
-
-    Restarting the worker process:
-
-    ```powershell
-    kubectl rollout restart deployment worker-trends-deployment
-    ```
-
-    Redeploying via Skaffold:
-
-    Restart skaffold by hitting `ctrl+c` in the terminal that you ran
-    `skaffold dev` in, followed by re-running `skaffold dev`.
-    If skaffold fails to spring up the containers for any
-    reason, give it a few moments before re-running the `skaffold dev` command.
-    Sometimes the database doesn't clean up quickly enough, which can cause the
-    subsequent skaffold re-deployment to fail.
+8.  See: [How to View the Project](#how-to-view-the-project) and
+    [Troubleshooting the Project](#how-to-troubleshoot-the-project)
 
 9.  _(Optional)_ Install dependencies for each project. If you are developing on
     the project, you should do this so that your IDE doesn't complain.
@@ -302,6 +285,36 @@ The applications in this project are served on `localhost:8080` as follows:
 > ports, you will not be able to connect to them, but it should not stop the
 > containers from running.
 
+### How to Troubleshoot the Project
+
+Please view the screenshots provided in the
+[Project Readme](../README.md#demo-in-place) for an example of what the
+web application should be displaying.
+
+> Note: If no (or only some) data is being rendered to the application pages,
+> restart the worker process or redeploy the applications with `skaffold`!
+
+Restarting the worker process in another terminal while `skaffold` is running.
+You will see the worker output streamed to the terminal instance that `skaffold`
+is running within:
+
+```powershell
+kubectl rollout restart deployment worker-trends-deployment
+```
+
+Redeploying via Skaffold:
+
+Restart skaffold by hitting `ctrl+c` in the terminal that you ran
+`skaffold dev` in, followed by re-running `skaffold dev`.
+If skaffold fails to spring up the containers for any
+reason, give it a few moments before re-running the `skaffold dev` command.
+Sometimes the database doesn't clean up quickly enough, which can cause the
+subsequent skaffold re-deployment to fail.
+
+Once the application is ready, it will re-load data as soon as you focus the
+browser. I recommend starting at `localhost:8080` and then navigating to pages,
+as this seems to have the most consistent UI experience. See [Notes](#notes).
+
 ## Cleanup
 
 1. If `skaffold` is running in a terminal (via `skaffold dev`),
@@ -325,3 +338,15 @@ The applications in this project are served on `localhost:8080` as follows:
        docker rmi -f $id
    }
    ```
+
+### Notes
+
+Due to a mixture of `Next.js`, `Server-Side Rendering`,
+`Material UI (React UI Framework)`, and `Skaffold`, there is a bit of an issue
+with how CSS is compiled on the server and processed by the browser.
+As a result, the CSS can be a bit funky at times. This is an ongoing issue that
+I hope to resolve in the future.
+
+For the best UI experience, begin using the application at `localhost:8080`.
+Do not refresh the page at any of the sub-pages. If you happen to do that,
+instead just return to `localhost:8080` and then navigate to the desired page.
