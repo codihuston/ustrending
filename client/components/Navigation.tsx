@@ -5,11 +5,6 @@ export default function Navigation() {
     <>
       <ul>
         <li>
-          <Link href={`/about`}>
-            <a>About</a>
-          </Link>
-        </li>
-        <li>
           <Link href={`/google/trending-nearby`}>
             <a>Trending Nearby</a>
           </Link>
