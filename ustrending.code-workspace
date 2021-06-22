@@ -33,6 +33,7 @@
   ],
   "settings": {
     // Set IDE defaults
+    "editor.rulers": [80,120]
     "eslint.enable": true,
     "eslint.alwaysShowStatus": true,
     "editor.formatOnSave": false,

@@ -2,125 +2,163 @@
 
 ## For Developers
 
-This document will tell you how to begin developing on this boilerplate.
+This document will explain how to begin developing on this repo.
 Documentation that details exactly either component in this project will be
-contained in the `docs` directory of each respective component. This only
-serves as an entry point into developing the application itself; that is,
-how to start the application(s).
+contained in the `docs` directory of each respective component. This
+document only serves as an entry point into developing the application(s)
+themselves, and does not document each application individually.
 
 Currently, you can develop in this project by starting it using the
 following tooling:
 
 1. Using `skaffold` (multi-container)
 
-In the future, there may be more ways to develop on this project.
-
 ## Developing Using Skaffold
 
 This method relies on Kubernetes to run this project in a multi-container
-environment on any platform that supports Kubernetes in some form or fashion. The benefit of this is, we take this straight to production at
-scale with a few changes!
+environment on any platform that supports Kubernetes in some form or fashion.
+The benefit of this is, we take this straight to production at scale with a few changes!
+
+### System Requirements
+
+1. CPU: at least 2 vCPUs
+2. RAM: at least 4GB
+3. Storage: ~1GB (for docker containers)
 
 ### Prerequisites
 
-1. Kubernetes is installed ([Docker Desktop](https://www.docker.com/products/docker-desktop) with Kubernetes Enabled). I am using version `3.3.3` for `Windows 10`
+1. Kubernetes is installed:
+   ([Docker Desktop](https://www.docker.com/products/docker-desktop)
+   with Kubernetes Enabled). I am using version `3.3.3` for `Windows 10`
 
-   - **Important: if you are using Windows, you must enable wsl2 for Windows 10,
-     and install a linux distro of your choice (I use `Ubuntu 20.04`)**.
+   - **Important: if you are using Windows, you must enable `wsl2` for Windows
+     10, and install a linux distro of your choice (I use `Ubuntu 20.04`)**.
      See: [Enable WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+   - Enable Kubernetes in Docker Desktop:
+     Docker > Settings > Kubernetes > Check, Enable Kubernetes > Apply & Restart
 
-   - Enable Kubernetes in Docker Desktop: Docker > Settings > Kubernetes > Check, Enable Kubernetes > Apply & Restart
-   - A [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) setup with `kubectl` should suffice as well
-   - Ultimately, `kubectl` needs to be functioning and communicating with a Node or Cluster
+   > Note: a
+   > [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) setup
+   > with `kubectl` should suffice as well. Ultimately, `kubectl` needs to be
+   > functioning and communicating with a Node or Cluster
 
 2. [Skaffold](https://skaffold.dev/) is installed. I am using version `v1.24.1`
 
 ### Starting the Project
 
-1.  In order to begin, we must set up [ingress-nginx](https://kubernetes.github.io/ingress-nginx/).
-    It is possible that you may already have a traffic controller enabled in your local Kubernetes cluster.
-    If that is the case, you may skip this setup. Otherwise, use the provided `ingress-nginx-example.yml`
-    file as such:
+At a high level, the steps you need to follow in order to get the application(s)
+running are as follows:
 
-        ```cmd
-        # to init / update
-        kubectl apply -f ./k8s/ingress-nginx-example.yml
+1. (Optional, if you already have one) Deploy a Traffic Controller
+   [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
+2. Copy/Paste the out-of-box Kubernetes configuration from `k8s/examples` to
+   `k8s/dev`
 
-        # to delete (takes time)
-        kubectl delete -f ./k8s/ingress-nginx-example.yml
-        ```
+   1. Configure `hostPath` for your OS `k8s-dev/mongo-deployment.yaml`
 
-        This will install the `ingress controller`, which we will later configure
-        using an `ingress service`. The service will route traffic to the app(s)
-        as per the rules defined in our `k8s-dev\ingres-service.yml` file.
+   > Note: this is used to persist the database between dev sessions.
 
-        > Note: Once you restart your computer, you may have to restart this
-        controller in order to view your web app via your browser
+3. Copy/Paste the out-of-box Kubernetes configuration from
+   `skaffold/skaffold-example.yaml` to `skaffold/skaffold.yaml`
+4. `cd` into the `skaffold` directory and run `skaffold dev`
+5. Once the `mongodb` instance is accepting connections, run
+   `mongodb/import.ps1|.bat` (Windows) or `mongodb/import.sh` (Mac)
+6. Visit `localhost:8080` and explore the application
 
-1.  Copy the contents of the `k8s/examples` directory to the `k8s/dev` directory
+   1. If any Google Daily/Realtime Trends are not populating in the interface,
+      run: `kubectl rollout restart deployment worker-trends-deployment` to
+      re-populate the database with Trends.
 
-    > Note: You must configure the environment variables as needed, see the example
-    > config files.
-    >
-    > Aside from the additional configuration mentioned in the next few steps, the
-    > defaults work out-of-box for `Windows w/ Docker Desktop Kubernetes`.
-    >
-    > If you are operating in a different environment, you will need to make
-    > changes to the `hostPath` key in the `mongodb-deployment.yml`. See that file
-    > for additional instructions
+   > Note: This worker script is designed to run once on start, and every 30
+   > minutes thereafter
+
+#### For MacOS
+
+#### For Windows
+
+1. In your terminal, `cd` into the root of this repository. You should see
+   the `README.md` and `ustrending.code-workspace` in this directory. All
+   commands hereafter will be relative to this directory.
+
+2. Deploy [ingress-nginx](https://kubernetes.github.io/ingress-nginx/),
+   a traffic controller that will delegate traffic into your cluster. It is
+   possible that you may already have a traffic controller enabled in your
+   local Kubernetes cluster. If that is the case, you may skip this setup.
+
+   Otherwise, use the provided `ingress-nginx-example.yml` file as such:
+
+   ```cmd
+   # to init / update
+   kubectl apply -f ./k8s/ingress-nginx-example.yml
+
+   # to delete (takes time)
+   kubectl delete -f ./k8s/ingress-nginx-example.yml
+   ```
+
+   This will install the `ingress controller`, which we will later configure
+   using an `ingress service`. The service will route traffic to the app(s)
+   as per the rules defined in our `k8s-dev\ingress-service.yml` file.
+
+   > Note: If you restart your computer, you may have to redeploy the ingress
+   > controller, as well as the rest of the deployments.
+
+3. Copy the contents of the `k8s/examples` directory to the `k8s/dev` directory
+
+Bash:
+
+```bash
+cp k8s/examples/*.yml k8s/dev/
+```
+
+Powershell:
+
+```powershell
+Copy-Item k8s/examples/*.yml k8s/dev/
+```
+
+    > Note: the provided configuration should work for Windows out-of-box.
+    > No environment variables need to be changed.
 
     1. Change the resource allocation in the deployment files to your liking.
        The out-of-box configuration might be very slow.
 
-    1. Replace the `codihuston` token in that file with
-       your name (if you want to use your own dockerhub). Not a strict requirement,
-       but it will tag the docker images more accordingly when built.
+    > Note: `skaffold` is configured not to push to your container registry when
+    > the images are built. It will simply keep them locally.
 
-    > Note: `Skaffold` is configured not to push to your container registry when the
-    > images are built. It will simply keep them locally
+5.  Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`
 
-1.  Copy `skaffold/skaffold-example.yml` to `skaffold/skaffold.yml`; replace the
-    `codihuston` in this file as well
+    Bash:
 
-1.  _(Optional)_ Install dependencies for each project. If you are developing on the
-    project, you should do this so that your IDE doesn't argue with you. Otherwise,
-    this can be skipped, as the dependencies are not used from your host system, as they
-    will be installed when the `Skaffold` builds the containers
-
-    ```sh
-    cd client
-    yarn install
-
-    # this is to resolve any golang compiler warnings/errors
-    cd public-api
-    go install
-
-    cd trends-api
-    go install
-
-    cd worker-trends
-    go install
+    ```bash
+    cp skaffold/skaffold-example.yml skaffold/skaffold.yml
     ```
 
-    > Note that the `node_modules` directories are excluded during
-    > the docker image process via `.dockerignore`, so you shouldn't see any
-    > performance drops as as result of installing dependencies
+    PowerShell:
 
-1.  From the `skaffold` directory in the project root, run the `Skaffold` config
-    file
+    ```powershell
+    Copy-Item skaffold/skaffold-example.yml skaffold/skaffold.yml
+    ```
 
-        ```cmd
-        skaffold dev
-        ```
+6.  From the `skaffold` directory in the project root, run the `skaffold`
+    (which uses the relative config file we just copied)
 
-    **Important: do not forget to populate the database after this step! Read on, before
-    you do!**
+    ```cmd
+    cd skaffold
 
-    > Note: You may see an error printed by the API server indicating a database error. This will be addressed in the next step
+    skaffold dev
+    ```
 
-    > Note: You can exit the `Skaffold` via SIGINT (ctrl+c). Exiting `Skaffold`
+    Skaffold will output logs from the kubernetes objects in this terminal.
+
+    **Important: do not forget to populate the database in the next step!
+    Read the rest of this step, before you do!**
+
+    > Note: You may see an error printed by the API server(s) or the Worker script that
+    > indicate a database error. This will be addressed in the next step.
+
+    > Note: You can exit the `skaffold` via SIGINT (ctrl+c). Exiting `skaffold`
     > will destroy any Kubernetes Objects defined in `k8s-dev`. The Persistent
-    > Volume Claims should persist between `Skaffold` instances
+    > Volume Claims should persist between `skaffold` instances.
 
     You can run the following commands to get the status of the
     services/deployments/pods:
@@ -134,49 +172,147 @@ scale with a few changes!
     kubectl describe service|deployment|pod <object_name>
     ```
 
-    This step will apply the Kubernetes config files from `k8s-dev` into the
-    kubernetes cluster. This process works like so:
+    Read more about [skaffold](#about-skaffold).
 
-    1. Initialize the Kubernetes Objects as per their definitions
-    1. Builds a docker image locally from each of the `Dockerfile.dev` files (if any) for the services being developed on in this project
-    1. Skaffold will listen for file changes and attempt to apply them to the containers without having to re-build them (if possible) and automatically rollout the changes to each of the deployments.
+7.  Import data into the database
 
-    After the deployments are ready, the Kubernetes cluster is served at `localhost` on port `:8080` or `:443` (`WARNING:` no tls/ssl cert is used in development!). These ports are configured by default using `ingress-nginx-config.yml`. If you need to change those for any reason, make those changes to a new file locally named `ingress-nginx.yml`, and do not commit it to source (that filename is excluded from this repo by default). See [Testing the Project](#testing-the-project).
-
-1.  Import data into the database
-
-    This project uses datasets for `locations`, `places`, and `zipcodes`. Import
-    them by running either the `.bat`, `.ps1`, or `.sh` scripts in your environment.
+    This project uses a dataset for `zipcodes`. Import them by running either
+    the `.bat`, `.ps1`, or `.sh` scripts from your kubernetes host environment
     You can find them here: [import.bat](./../mongodb/import.bat),
     [import.ps1](./../mongodb/import.ps1), [import.sh](./../mongodb/import.sh).
 
     > Important: only run these after the mongodb database is up and running!
 
-    For good measure, restart skaffold by hitting `ctrl+c`, and re-running `skaffold dev`.
-    If skaffold fails to spring up the containers for any reason, give it a few moments
-    before re-running the `skaffold dev` command. Sometimes the database doesn't clean
-    up quickly enough, which can cause the subsequent skaffold re-deployment to fail.
+    In a new terminal from the root of this project, run the following:
 
-1.  If no data is being rendered to the application pages
-    (See [Testing the Project](#testing-the-project)), restart the worker process
+    Bash:
+
+    ```bash
+    cd ustrending
+    . ./mongodb/import.sh
+    ```
+
+    PowerShell:
+
+    ```powershell
+    ./mongodb/import.ps1
+    ```
+
+8.  See: [How to View the Project](#how-to-view-the-project)
+
+    > Note: If no data is being rendered to the application pages,
+    > restart the worker process or redeploy the applications with `skaffold`!
+
+    Restarting the worker process:
 
     ```powershell
     kubectl rollout restart deployment worker-trends-deployment
     ```
 
-### Testing the Project
+    Redeploying via Skaffold:
 
-There are currently no test runners for this project, as most of the application logic is
-purely a matter of fetching data from the 3rd parties or from the database or caching
-layer. In the future, this may change. You can, however, view the app yourself at
-the following URLs:
+    Restart skaffold by hitting `ctrl+c` in the terminal that you ran
+    `skaffold dev` in, followed by re-running `skaffold dev`.
+    If skaffold fails to spring up the containers for any
+    reason, give it a few moments before re-running the `skaffold dev` command.
+    Sometimes the database doesn't clean up quickly enough, which can cause the
+    subsequent skaffold re-deployment to fail.
+
+9.  _(Optional)_ Install dependencies for each project. If you are developing on
+    the project, you should do this so that your IDE doesn't complain.
+    Otherwise, this can be skipped, as the dependencies are not used from your
+    host system, as they will be installed when the `skaffold` builds the
+    containers
+
+    ```sh
+    # assuming you are in the project root
+    cd client
+    npm install
+
+    cd ../public-api
+    go install
+
+    cd ../trends-api
+    go install
+
+    cd ../worker-trends
+    go install
+    ```
+
+    > Note: the `node_modules` directories are excluded during
+    > the docker image process via `.dockerignore`, so you shouldn't see any
+    > performance drops as as result of installing dependencies
+
+### About Skaffold
+
+`Skaffold` will deploy the Kubernetes config files from `k8s/k8s-dev`
+into the kubernetes cluster. This process works like so:
+
+1. Initialize the Kubernetes Objects as per their definitions
+2. Builds a docker image locally from each of the `Dockerfile.dev` files
+   (if any) for the services being developed on in this project
+3. Skaffold will listen for file changes and attempt to apply them to the
+   containers without having to re-build them (if possible) and automatically
+   rollout the changes to each of the deployments. If an application requries
+   recompiling, then hot-reloading is out of the question.
+
+### How to View the Project
+
+There are currently no test runners for this project, as most of the
+application logic is purely a matter of fetching data from the 3rd parties or
+from the database or caching layer. In the future, this may change. You can,
+however, view the app yourself at the following URLs:
 
 The applications in this project are served on `localhost:8080` as follows:
 
 1. Client / front-end app: `localhost:8080`
-1. API Server: `localhost:8080/api`
-1. API Server: `localhost:8080/trends-api` (development only, this will not be accessible publically in production)
-1. Redis Server: you can access it on `localhost:6379` out-of-box, or
-   via the k8s pod itself. You can change this in your k8s deployment file
-1. MongoDB Server: you can access it on `localhost:27017` out-of-box, or
-   via the k8s pod itself. You can change this in your k8s deployment file
+
+   > Note: These ports are configured by default using
+   > `ingress-nginx-config.yml`. If you need to change those for any reason,
+   > destroy that deployment in kubernetes, copy that file, make those changes,
+   > then deploy your new configuration. Do not commit it to source
+   > (the filename `ingress-nginx.yml` is excluded from this repo by default).
+   >
+   > The provide controller also opens port `:443`, but the ingress service
+   > used to serve the application(s) does not have a tls/ssl cert configured
+   > with it in the development environment, so I recommend you stick to the
+   > aforementioned port over `http`.
+
+2. API Server: `localhost:8080/api`
+3. API Server: `localhost:8080/trends-api` (development only, this will not be
+   accessible publically in production)
+4. Redis Server: you can access it on your host at `localhost:6379` out-of-box,
+   or via the k8s pod itself.
+5. MongoDB Server: you can access it on your host `localhost:27017` out-of-box,
+   or via the k8s pod itself.
+
+> Note: For the Redis/MongoDB databases, the default out-of-box configuration
+> exposes these ports using kubernetes `LoadBalancers` so that you can connect
+> any GUI clients to them directly from your kubernetes host. This is just to
+> improve the developer experience. If you have any services listening on these
+> ports, you will not be able to connect to them, but it should not stop the
+> containers from running.
+
+## Cleanup
+
+1. If `skaffold` is running in a terminal (via `skaffold dev`),
+   pass a `SIGINT` to it (`CTRL+C`)
+2. In the same terminal run `skaffold delete`
+3. Delete the directory created by the the `mongo-deploymeny.yml` under the
+   `hostPath` key
+4. Delete all docker related docker images:
+
+   ```bash
+   docker rmi -f $(docker images codihuston/ustrending-client)
+   docker rmi -f $(docker images codihuston/ustrending-mongodb)
+   docker rmi -f $(docker images codihuston/ustrending-public-api)
+   docker rmi -f $(docker images codihuston/ustrending-trends-api)
+   docker rmi -f $(docker images codihuston/ustrending-worker-trends)
+   ```
+
+   ```powershell
+   $(docker images) -like '*codihuston/ustrending*' | ForEach-Object {
+       $id = ($_ -split '\s+')[2]
+       docker rmi -f $id
+   }
+   ```
