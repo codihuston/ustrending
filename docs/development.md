@@ -289,7 +289,7 @@ The applications in this project are served on `localhost:8080` as follows:
    > aforementioned port over `http`.
 
 2. API Server: `localhost:8080/api`
-3. API Server: `localhost:8080/trends-api` (development only, this will not be
+3. Private API Server: `localhost:8080/trends-api` (development only, this will not be
    accessible publically in production)
 4. Redis Server: you can access it on your host at `localhost:6379` out-of-box,
    or via the k8s pod itself.
