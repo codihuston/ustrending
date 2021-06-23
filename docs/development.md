@@ -448,7 +448,9 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
 Due to a mixture of `Next.js`, `Server-Side Rendering`,
 `Material UI (React UI Framework)`, and `Skaffold`, there is a bit of an issue
 with how CSS is compiled on the server and processed by the browser.
-As a result, the CSS can be a bit funky at times. This is an ongoing issue that
+As a result, the CSS can be a bit funky at times. Things like the tooltip
+when mousing over the map may not appear 100% of the time. The layout of the
+page can be inconsistent as well. This is an ongoing issue that
 I hope to resolve in the future.
 
 For the best UI experience, begin using the application at `localhost:8080`.
