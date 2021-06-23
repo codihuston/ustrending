@@ -153,7 +153,7 @@ just by using the Google Trends dataset, this will suffice for now.
 
 Attached below are some graphics of the system design behind this application.
 
-![High Level](docs/img/infra-basic.png)
+![High Level](docs/img/infra-basic.PNG)
 
 In the above graphic, you will see how the two APIs interact
 with the data stores, as well as how the web client fetches the and renders it
@@ -170,7 +170,7 @@ but that was out of scope for this project.
 Below, you can see what the system would actually look like in the
 kubernetes cluster provided by this repo for the local development environment.
 
-![Kubernetes System Design](docs/img/infra-k8s.png)
+![Kubernetes System Design](docs/img/infra-k8s.PNG)
 
 The thoughts on the production system design:
 
