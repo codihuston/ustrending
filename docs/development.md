@@ -115,14 +115,31 @@ section!**
 All of the steps will be the same as described in the
 [For Windows](#for-windows) section, except for the following:
 
-1. In the `k8s/examples/mongo-deployment.yml` file, you need to update
-   the `hostPath > path` key to a path that is writable by your user account.
-   Comment out line 53, and uncomment line 59, and update the aforementioned
-   key accordingly. The default value `/tmp/ustrending-k8s` will suffice.
-      - Do not commit changes to this file. Once you complete this guide, you
-      can revert these file changes (if you intend to develop further on the
-      project), as the changes you made will be persisted in a .gitignored
-      directory
+1. Configure `mongodb` to persist across reboots and skaffold sessions
+
+   In the [k8s/examples/mongo-deployment.yml](../k8s/examples/mongo-deployment.yml)
+   file, you need to update the `hostPath.path` under the `mongo-volume` volume
+   key to a path that is writable by your user account. Comment out line 53,
+   and uncomment line 59, and update the aforementioned key accordingly. The
+   default value `/Users/your-username/ustrending-k8s` must be updated with your
+   username. You can get that via the following command in bash:
+
+   ```bash
+   whoami
+   ```
+
+   For example, if your username is `codi`, you would update the
+   `hostPath.path` under the `mongo-volume` volume key to
+   `/Users/codi/ustrending-k8s`.
+
+   > Note: I originally pointed this to `/tmp/ustrending-k8s` without avail.
+   > So I recommend using the above path instead.
+
+   Do not commit changes to this file. Once you complete this guide, you
+   can revert these file changes (if you intend to develop further on the
+   project), as the changes you made will be persisted in a .gitignored
+   directory
+
 1. In your `Docker Desktop for Mac`, you will want to delegate additional
    resources to your Kubernetes node, otherwise some containers will not start!
       - Docker > Preferences > Advanced; update the resources to your liking.
@@ -396,7 +413,7 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
    pass a `SIGINT` to it (`cmd|ctrl+c`)
 2. In the same terminal run `skaffold delete`
 3. Delete the directory created by the the `mongo-deployment.yml` under the
-   `hostPath > path` key
+   `hostPath.path` under the `mongo-volume` volume key
 4. Delete all docker related docker images:
 
    Bash:
@@ -423,6 +440,9 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
    # (takes time)
    kubectl delete -f ./k8s/ingress-nginx-example.yml
    ```
+6. Delete the database volume that you specified in your `mongo-deployment.yml`
+   file (see the `hostPath.path` under the `mongo-volume` volume key)
+
 ### Notes
 
 Due to a mixture of `Next.js`, `Server-Side Rendering`,

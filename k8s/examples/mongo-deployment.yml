@@ -56,6 +56,6 @@ spec:
             #path: /run/desktop/mnt/host/c/programdata/ustrending-k8s
             # for mac/linux (untested)
             #   (explorable @ /tmp)
-            #path: /tmp/ustrending-k8s
+            #path: /Users/your-username/ustrending-k8s
             type: DirectoryOrCreate
             
