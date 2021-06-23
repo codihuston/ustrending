@@ -52,22 +52,23 @@ changes!
      10, and install a linux distro of your choice (I use `Ubuntu 20.04`)**.
      See: [Enable WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
    - Enable Kubernetes in Docker Desktop:
-      - Windows: Docker > Settings > Kubernetes > Check, Enable Kubernetes > Apply & Restart
-      - Mac: Docker > Preferences > Kubernetes > Check, Enable Kubernetes > Apply & Restart
-   - *You will want to ensure that Docker says "Kubernetes is Running" before
-     continuing. This can take awhile!*
-      - If this takes "too long" for you (I'd say longer than 10 minutes), you
-      can try hard-resetting the Docker Kubernetes to default and trying again.
-      Or, you can try resetting the Docker Kubernetes Cluster itself. In Mac,
-      these options are under the "Reset" tab
+     - Windows: Docker > Settings > Kubernetes > Check, Enable Kubernetes > Apply & Restart
+     - Mac: Docker > Preferences > Kubernetes > Check, Enable Kubernetes > Apply & Restart
+   - _You will want to ensure that Docker says "Kubernetes is Running" before
+     continuing. This can take awhile!_
+     - If this takes "too long" for you (I'd say longer than 10 minutes), you
+       can try hard-resetting the Docker Kubernetes to default and trying again.
+       Or, you can try resetting the Docker Kubernetes Cluster itself. In Mac,
+       these options are under the "Reset" tab
 
    > Note: a
    > [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) setup
    > with `kubectl` should suffice as well. Ultimately, `kubectl` needs to be
    > functioning and communicating with a Node or Cluster
+
 1. Create a Docker account sign into Docker Desktop
 1. If you have multiple Kubernetes contexts, you will want to ensure you
-are using Docker Desktop's.
+   are using Docker Desktop's.
 
    ```bash
    kubectl config get-contexts
@@ -77,7 +78,7 @@ are using Docker Desktop's.
    kubectl config use-context docker-for-desktop
    ```
 
-2. [Skaffold](https://skaffold.dev/) is installed. I am using version `v1.24.1`
+1. [Skaffold](https://skaffold.dev/) is installed. I am using version `v1.24.1`
    on Windows and `v1.26.1` on Mac
 
 ### Starting the Project
@@ -142,11 +143,11 @@ All of the steps will be the same as described in the
 
 1. In your `Docker Desktop for Mac`, you will want to delegate additional
    resources to your Kubernetes node, otherwise some containers will not start!
-      - Docker > Preferences > Advanced; update the resources to your liking.
-      Don't forget to click apply and restart
-      - I am running with 6 CPUs, 16GB RAM, and 2.5GB Swap on my Macbook. You
-      should be able to get away with the
-      [aforementioned system requrements](#system-requirements)
+   - Docker > Preferences > Advanced; update the resources to your liking.
+     Don't forget to click apply and restart
+   - I am running with 6 CPUs, 16GB RAM, and 2.5GB Swap on my Macbook. You
+     should be able to get away with the
+     [aforementioned system requrements](#system-requirements)
 
 After you have made the above changes, you can follow the steps in the
 [Windows](#for-windows) section.
@@ -191,9 +192,11 @@ After you have made the above changes, you can follow the steps in the
    Copy-Item k8s/examples/*.yml k8s/dev/
    ```
 
-   1. _Change the cpu/ram resource allocation in the deployment files to your
-      liking. The out-of-box configuration might be very slow, especially for
-      the client-deployment_ 
+   **RECOMMENDED:** Change the cpu/ram resource allocation in the deployment
+   files to your liking. The out-of-box configuration might be very slow,
+   especially for the
+   [client-deployment](./../k8s/examples/client-deployment.yml)!
+   I use `2 CPU cores` and `4Gi memory` for the client-deployment.
 
    > Note: the provided configuration should work for Windows out-of-box.
    > No environment variables need to be changed.
@@ -434,12 +437,14 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
        docker rmi -f $id
    }
    ```
+
 5. Delete the ingress traffic controller
 
    ```powershell
    # (takes time)
    kubectl delete -f ./k8s/ingress-nginx-example.yml
    ```
+
 6. Delete the database volume that you specified in your `mongo-deployment.yml`
    file (see the `hostPath.path` under the `mongo-volume` volume key)
 
