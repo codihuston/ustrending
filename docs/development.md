@@ -155,12 +155,12 @@ After you have made the above changes, you can follow the steps in the
 
 1. In your terminal, `cd` into the root of this repository. You should see
    the `README.md` and `ustrending.code-workspace` in this directory. All
-   commands hereafter will be relative to this directory.
+   commands hereafter will be relative to this directory
 
 2. Deploy [ingress-nginx](https://kubernetes.github.io/ingress-nginx/),
    a traffic controller that will delegate traffic into your cluster. It is
    possible that you may already have a traffic controller enabled in your
-   local Kubernetes cluster. If that is the case, you may skip this setup.
+   local Kubernetes cluster. If that is the case, you may skip this setup
 
    Otherwise, use the provided `ingress-nginx-example.yml` file as such:
 
