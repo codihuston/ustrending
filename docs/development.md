@@ -31,12 +31,13 @@ following tooling:
 
 This method relies on Kubernetes to run this project in a multi-container
 environment on any platform that supports Kubernetes in some form or fashion.
-The benefit of this is, we take this straight to production at scale with a few changes!
+The benefit of this is, we take this straight to production at scale with a few
+changes!
 
 ### System Requirements
 
-1. CPU: at least 2 vCPUs
-2. RAM: at least 4GB
+1. CPU: at least 4 vCPUs
+2. RAM: at least 8GB
 3. Storage: ~1GB (for docker containers)
 
 ### Prerequisites
@@ -49,14 +50,33 @@ The benefit of this is, we take this straight to production at scale with a few 
      10, and install a linux distro of your choice (I use `Ubuntu 20.04`)**.
      See: [Enable WSL2](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
    - Enable Kubernetes in Docker Desktop:
-     Docker > Settings > Kubernetes > Check, Enable Kubernetes > Apply & Restart
+      - Windows: Docker > Settings > Kubernetes > Check, Enable Kubernetes > Apply & Restart
+      - Mac: Docker > Preferences > Kubernetes > Check, Enable Kubernetes > Apply & Restart
+   - *You will want to ensure that Docker says "Kubernetes is Running" before
+     continuing. This can take awhile!*
+      - If this takes "too long" for you (I'd say longer than 10 minutes), you
+      can try hard-resetting the Docker Kubernetes to default and trying again.
+      Or, you can try resetting the Docker Kubernetes Cluster itself. In Mac,
+      these options are under the "Reset" tab
 
    > Note: a
    > [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) setup
    > with `kubectl` should suffice as well. Ultimately, `kubectl` needs to be
    > functioning and communicating with a Node or Cluster
 
+1. If you have multiple Kubernetes contexts, you will want to ensure you
+are using Docker Desktop's.
+
+   ```bash
+   kubectl config get-contexts
+
+   # if you have more, then one context, run the following command. The docker
+   # context may have a different name, be sure to use the one on-screen.
+   kubectl config use-context docker-for-desktop
+   ```
+
 2. [Skaffold](https://skaffold.dev/) is installed. I am using version `v1.24.1`
+   on Windows and `v1.26.1` on Mac
 
 ### Starting the Project
 
@@ -95,9 +115,20 @@ All of the steps will be the same as described in the
 
 1. In the `k8s/examples/mongo-deployment.yml` file, you need to update
    the `hostPath > path` key to a path that is writable by your user account.
+   Comment out line 53, and uncomment line 59, and update the aforementioned
+   key accordingly. The default value `/tmp/ustrending-k8s` will suffice.
+      - Do not commit changes to this file. Once you complete this guide, you
+      can revert these file changes (if you intend to develop further on the
+      project), as the changes you made will be persisted in a .gitignored
+      directory
+1. In your `Docker Desktop for Mac`, you will want to delegate additional
+   resources to your Kubernetes node
+      - Docker > Preferences > Advanced; update the resources to your liking.
+      Don't forget to click apply and restart
+      - I am running with 6 CPUs, 16GB RAM, and 2.5GB Swap on my Macbook
 
-After you have made the above changes, you can follow the steps in the next
-section.
+After you have made the above changes, you can follow the steps in the
+[Windows](#for-windows) section.
 
 #### For Windows
 
@@ -138,8 +169,9 @@ section.
    Copy-Item k8s/examples/*.yml k8s/dev/
    ```
 
-   1. _Change the resource allocation in the deployment files to your liking.
-      The out-of-box configuration might be very slow._
+   1. _Change the cpu/ram resource allocation in the deployment files to your
+      liking. The out-of-box configuration might be very slow, especially for
+      the client-deployment_ 
 
    > Note: the provided configuration should work for Windows out-of-box.
    > No environment variables need to be changed.
@@ -178,7 +210,7 @@ section.
    > Note: You may see an error printed by the API server(s) or the Worker script that
    > indicate a database error. This will be addressed in the next step.
 
-   > Note: You can exit the `skaffold` via SIGINT (ctrl+c). Exiting `skaffold`
+   > Note: You can exit the `skaffold` via SIGINT (cmd|ctrl+c). Exiting `skaffold`
    > will destroy any Kubernetes Objects defined in `k8s-dev`. The Persistent
    > Volume Claims should persist between `skaffold` instances.
 
@@ -286,8 +318,8 @@ The applications in this project are served on `localhost:8080` as follows:
    > aforementioned port over `http`.
 
 2. API Server: `localhost:8080/api`
-3. Private API Server: `localhost:8080/trends-api` (development only, this will not be
-   accessible publically in production)
+3. Private API Server: `localhost:8080/trends-api` (development only, this will
+   not be accessible publically in production)
 4. Redis Server: you can access it on your host at `localhost:6379` out-of-box,
    or via the k8s pod itself.
 5. MongoDB Server: you can access it on your host `localhost:27017` out-of-box,
@@ -319,7 +351,7 @@ kubectl rollout restart deployment worker-trends-deployment
 
 Redeploying via Skaffold:
 
-Restart skaffold by hitting `ctrl+c` in the terminal that you ran
+Restart skaffold by hitting `cmd|ctrl+c` in the terminal that you ran
 `skaffold dev` in, followed by re-running `skaffold dev`.
 If skaffold fails to spring up the containers for any
 reason, give it a few moments before re-running the `skaffold dev` command.
@@ -344,7 +376,7 @@ as this seems to have the most consistent UI experience. See [Notes](#notes).
 ## Cleanup
 
 1. If `skaffold` is running in a terminal (via `skaffold dev`),
-   pass a `SIGINT` to it (`CTRL+C`)
+   pass a `SIGINT` to it (`cmd|ctrl+c`)
 2. In the same terminal run `skaffold delete`
 3. Delete the directory created by the the `mongo-deployment.yml` under the
    `hostPath > path` key
