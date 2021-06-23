@@ -12,6 +12,7 @@ Table of Contents
   - [The Product Goals](#the-product-goals)
   - [Google Trends](#google-trends)
   - [Twitter Trends (Deprecated)](#twitter-trends-deprecated)
+- [System Design](#system-design)
 - [Features](#features)
 - [Routes and Endpoints](#routes-and-endpoints)
 - [Demo (In Place)](#demo-in-place)
@@ -47,12 +48,12 @@ This project was designed for the following purposes. The actual product idea
     out-of-box, so I decided to take this opportunity to learn about Next.JS
     I wanted to ensure that in production, this project could be found via
     search engines
-- Do more work with `Kubernetes`, `Docker`, and deploying into production with
+- Do more work with `kubernetes`, `docker`, and deploying into production with
   a `CI/CD` Pipeline
-  - I have been working with Kubernetes and Docker for some time with my
+  - I have been working with kubernetes and docker for some time with my
     passion projects, and I've been enjoying the developer experience that they
     offer
-  - Since discovering `docker-compose` and `Kubernetes`, I've been obsessed
+  - Since discovering `docker-compose` and `kubernetes`, I've been obsessed
     with perfecting the developer onboarding experience. I wanted this experience
     to prepare me for developing with a team in the future
 - Integrate multiple services
@@ -147,6 +148,39 @@ However, I elected to leave this architecture in place, as there is a
 possibility that I could come back and implement the Twitter Trends and its
 Streaming API as described above. But since my primary goal has been reached
 just by using the Google Trends dataset, this will suffice for now.
+
+# System Design
+
+Attached below are some graphics of the system design behind this application.
+
+![High Level](docs/img/infra-basic.png)
+
+In the above graphic, you will see how the two APIs interact
+with the data stores, as well as how the web client fetches the and renders it
+for the end-user. This design allows me to scale the Web Client, Public API,
+MongoDB, and Redis both horizontally and vertically. This is, at a very high
+level, how the system will interact.
+
+Since the Private API and the Worker are only used on the back-end to populate
+the data stoures, they only need to scale vertically (if at all). As mentioned
+earlier, this design with the Private API would allow me to provision resources
+should it ever implement resource intensive processing (Twitter Stream API),
+but that was out of scope for this project.
+
+Below, you can see what the system would actually look like in the
+kubernetes cluster provided by this repo for the local development environment.
+
+![Kubernetes System Design](docs/img/infra-k8s.png)
+
+The thoughts on the production system design:
+
+- I would not deploy MongoDB service in the kubernetes cluster
+- I am still debateing whether or not I would want to deploy the Redis service
+  in the cluster. I may consider using `Bitnami's Redis Operator Helm Chart` to
+  make the Redis instance more scalable. I've entertained this because it seems
+  that `Google Cloud Platform's Memstore` doesn't seem to be able to scale
+  horizontally
+- Everything else would likely be deployed in the kubernetes cluster
 
 # Features
 
