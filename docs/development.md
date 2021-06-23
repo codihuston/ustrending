@@ -66,7 +66,7 @@ changes!
    > with `kubectl` should suffice as well. Ultimately, `kubectl` needs to be
    > functioning and communicating with a Node or Cluster
 
-1. Create a Docker account sign into Docker Desktop
+1. Create a Docker account and sign into Docker Desktop
 1. If you have multiple Kubernetes contexts, you will want to ensure you
    are using Docker Desktop's.
 
