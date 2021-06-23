@@ -236,7 +236,7 @@ work-in-progress.
         - [x] Process them by fetching the trend's regional popularity (by US
               state) where each state has a list of its trends sorted by popularity
         - [x] Cache for use by the Public API
-      - [x] Process Twitter Trends
+      - [x] Process Twitter Trends (Deprecated)
         - [x] Get Twitter Trends for all US Twitter Places
         - [x] Cache for use by the Public API
   - [x] Public API
