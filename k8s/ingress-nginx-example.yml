@@ -438,6 +438,7 @@ webhooks:
           - ingresses
     failurePolicy: Fail
     clientConfig:
+      caBundle: ""
       service:
         namespace: ingress-nginx
         name: ingress-nginx-controller-admission
