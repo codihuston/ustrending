@@ -45,6 +45,8 @@ changes!
 1. Kubernetes is installed:
    ([Docker Desktop](https://www.docker.com/products/docker-desktop)
    with Kubernetes Enabled). I am using version `3.3.3` for `Windows 10`
+   (Kubernetes version: `v1.19.7`), and `3.4.0` for `MacOS`
+   (Kubernetes version: `v1.21.1`)
 
    - **Important: if you are using Windows, you must enable `wsl2` for Windows
      10, and install a linux distro of your choice (I use `Ubuntu 20.04`)**.
@@ -63,7 +65,7 @@ changes!
    > [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) setup
    > with `kubectl` should suffice as well. Ultimately, `kubectl` needs to be
    > functioning and communicating with a Node or Cluster
-
+1. Create a Docker account sign into Docker Desktop
 1. If you have multiple Kubernetes contexts, you will want to ensure you
 are using Docker Desktop's.
 
@@ -122,10 +124,12 @@ All of the steps will be the same as described in the
       project), as the changes you made will be persisted in a .gitignored
       directory
 1. In your `Docker Desktop for Mac`, you will want to delegate additional
-   resources to your Kubernetes node
+   resources to your Kubernetes node, otherwise some containers will not start!
       - Docker > Preferences > Advanced; update the resources to your liking.
       Don't forget to click apply and restart
-      - I am running with 6 CPUs, 16GB RAM, and 2.5GB Swap on my Macbook
+      - I am running with 6 CPUs, 16GB RAM, and 2.5GB Swap on my Macbook. You
+      should be able to get away with the
+      [aforementioned system requrements](#system-requirements)
 
 After you have made the above changes, you can follow the steps in the
 [Windows](#for-windows) section.
@@ -160,12 +164,13 @@ After you have made the above changes, you can follow the steps in the
    Bash:
 
    ```bash
-   cp k8s/examples/*.yml k8s/dev/
+   mkdir k8s/dev && cp k8s/examples/*.yml k8s/dev/
    ```
 
    Powershell:
 
    ```powershell
+   New-Item -ItemType directory -Path k8s/dev
    Copy-Item k8s/examples/*.yml k8s/dev/
    ```
 
@@ -332,6 +337,9 @@ The applications in this project are served on `localhost:8080` as follows:
 > ports, you will not be able to connect to them, but it should not stop the
 > containers from running.
 
+See [How to Troubleshoot the Project](#how-to-troubleshoot-the-project) if there
+are no trends rendered to the page.
+
 ### How to Troubleshoot the Project
 
 Please view the screenshots provided in the
@@ -345,8 +353,17 @@ Restarting the cache server and the worker process in another terminal while
 `skaffold` is running. You will see the worker output streamed to the terminal
 instance that `skaffold` is running within:
 
+For Kubernetes version earlier than `v1.21.1`:
+
 ```powershell
 kubectl rollout restart deployment worker-trends-deployment
+```
+
+For Kubernetes versions later than or equal to `v1.21.1`:
+
+```powershell
+kubectl scale deployment worker-trends-deployment --replicas=0
+kubectl scale deployment worker-trends-deployment --replicas=1
 ```
 
 Redeploying via Skaffold:
