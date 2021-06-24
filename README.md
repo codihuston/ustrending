@@ -128,7 +128,7 @@ did the Google Trends), there were some new challenges that arose:
    same set of trends. Ergo, I could ensure that each trend got a specific color
    (based on its trending rank country-wide)
 2. For the Twitter Trends, it was entirely possible that what was trending
-3. country-wide did not match the set of trends trending for a specific city.
+   country-wide did not match the set of trends trending for a specific city.
    That is, every city could have a disjointed set of trends.
 
 Since the propensity was high for each region's datasets to be different, it
