@@ -150,7 +150,7 @@ Streaming API as described above. But since my primary goal has been reached
 just by using the Google Trends dataset, this will suffice for now. The Twitter
 functionality has been removed from the `master` branch, but I do have the code
 saved in a local branch in case I choose to re-implement it. I did this so the
-codebasw was as succinct as possible--such that everything in it is being used.
+codebase was as succinct as possible--such that everything in it is being used.
 
 # System Design
 
