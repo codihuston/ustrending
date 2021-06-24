@@ -129,7 +129,7 @@ did the Google Trends), there were some new challenges that arose:
    (based on its trending rank country-wide)
 2. For the Twitter Trends, it was entirely possible that what was trending
    country-wide did not match the set of trends trending for a specific city.
-   That is, every city could have a disjointed set of trends.
+   That is, every city could have a disjointed set of trends
 
 Since the propensity was high for each region's datasets to be different, it
 warranted a new approach compared to how the Google Trends were displayed.
